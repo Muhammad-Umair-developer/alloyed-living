@@ -1,0 +1,13 @@
+# Local tooling
+.claude/
+
+# Supabase CLI cache (linked-project state — machine-local)
+supabase/.temp/
+
+# Safety net — the per-app .gitignore files also cover these, but a root-level
+# guard means a misplaced file can never slip into the repo.
+node_modules/
+.env
+.env.*
+!.env.example
+.next/

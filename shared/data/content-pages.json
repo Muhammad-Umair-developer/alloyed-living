@@ -1,0 +1,234 @@
+{
+  "home": {
+    "slug": "home",
+    "title": "Home Page",
+    "updatedAt": "2026-07-05T15:05:13.352Z",
+    "fields": {
+      "hero": {
+        "mediaType": "image",
+        "videoUrl": "/uploads/1783263465180-woman-touching-table-and-shelf-202607051941.mp4",
+        "imageUrl": "/uploads/1783263906125-hero.jpg",
+        "eyebrow": "Pakistan's Leading Luxury Furniture Brand",
+        "titleLine1": "REDEFINING",
+        "titleLine2": "TRADITION",
+        "tagline": "Where bold design meets fine craftsmanship.",
+        "ctaLabel": "Explore Collection"
+      },
+      "story": {
+        "eyebrow": "Our Story",
+        "title": "Alloyed Living brings bold design together with skilled craftsmanship.",
+        "body": "Handcrafted brass meets premium solid walnut. Every detail thoughtfully made — furniture built not just for rooms, but for a life well lived.",
+        "ctaLabel": "Our Story"
+      },
+      "shopRoom": {
+        "eyebrow": "Browse the Room",
+        "title": "Shop the Room",
+        "subtitle": "Carefully chosen pieces — each one crafted to bring style and purpose to your home.",
+        "backgroundImage": "/8.jpg.jpeg",
+        "ctaLabel": "View Full Collection"
+      },
+      "featured": {
+        "eyebrow": "The Collection",
+        "title": "Featured Pieces",
+        "ctaLabel": "View Full Collection",
+        "productIds": [
+          "p01",
+          "p03",
+          "p11",
+          "p02"
+        ]
+      }
+    }
+  },
+  "shop": {
+    "slug": "shop",
+    "title": "Shop Page",
+    "updatedAt": "2026-07-04T06:23:28.238Z",
+    "fields": {
+      "eyebrow": "The Collection",
+      "title": "Our Collection"
+    }
+  },
+  "shipping": {
+    "slug": "shipping",
+    "title": "Shipping & Delivery",
+    "updatedAt": "2026-07-04T05:45:24.404Z",
+    "fields": {
+      "heroTitle": "Delivered with Precision",
+      "heroSubtitle": "Every piece shipped with the same care taken to craft it.",
+      "freeShippingThreshold": 100000,
+      "tiers": [
+        {
+          "label": "Standard",
+          "window": "5 – 7 Business Days",
+          "rate": "PKR 500",
+          "freeMsg": "Free over PKR 100,000",
+          "carrier": "TCS · Leopard Courier",
+          "note": "Reliable nationwide delivery with SMS tracking updates at every milestone."
+        },
+        {
+          "label": "Express",
+          "window": "2 – 3 Business Days",
+          "rate": "PKR 1,200",
+          "freeMsg": null,
+          "carrier": "M&P Express",
+          "note": "Priority handling with real-time tracking. Ideal for time-sensitive orders."
+        },
+        {
+          "label": "White Glove",
+          "window": "Next Day (arranged)",
+          "rate": "PKR 2,500+",
+          "freeMsg": null,
+          "carrier": "In-house concierge team",
+          "note": "Room-of-choice delivery, professional assembly, and debris removal included."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "When will my order be dispatched?",
+          "a": "Orders placed before 2 PM (PKT, Mon–Fri) are dispatched the same business day. Orders placed after 2 PM or on weekends are dispatched the next working day. You will receive a dispatch confirmation with a tracking number via SMS and email."
+        },
+        {
+          "q": "Do you ship internationally?",
+          "a": "Currently, Alloyed Living ships within Pakistan only. We are expanding our logistics network and plan to offer international shipping to the UAE, UK, and USA in Q4 2026. Subscribe to our newsletter to be notified the moment it launches."
+        },
+        {
+          "q": "What if my package arrives damaged?",
+          "a": "Every order is fully insured during transit. If your item arrives damaged or does not arrive within the stated window, contact us at hello@alloyedliving.com within 48 hours of the expected delivery date. We will arrange a full replacement or refund at no cost to you."
+        },
+        {
+          "q": "Can I change my delivery address after placing an order?",
+          "a": "Address changes can be accommodated up to 4 hours after an order is placed, provided it has not yet been dispatched. Contact us immediately via WhatsApp or email. Once dispatched, address changes are handled directly with the courier and may incur a redirect fee."
+        },
+        {
+          "q": "How can I track my order in real time?",
+          "a": "Once dispatched, you will receive an SMS with a direct tracking link from our courier partner. You can also use the order tracker at the top of this page. Tracking status is updated every 4–6 hours throughout the delivery journey."
+        },
+        {
+          "q": "Are customs duties applicable?",
+          "a": "All prices on Alloyed Living are inclusive of applicable local taxes. No additional duties apply for deliveries within Pakistan. For future international orders, all applicable duties and taxes will be clearly presented at checkout before you confirm your purchase."
+        }
+      ]
+    }
+  },
+  "returns": {
+    "slug": "returns",
+    "title": "Returns & Exchanges",
+    "updatedAt": "2026-05-01T10:00:00.000Z",
+    "fields": {
+      "heroTitle": "Hassle-Free Returns.",
+      "heroSubtitle": "We stand behind every piece. If it doesn't feel right, we'll make it right.",
+      "returnWindowDays": 30,
+      "steps": [
+        {
+          "n": "01",
+          "label": "Request",
+          "desc": "Submit your return or exchange request online using the portal below."
+        },
+        {
+          "n": "02",
+          "label": "Pack",
+          "desc": "Securely re-package the item in its original protective materials."
+        },
+        {
+          "n": "03",
+          "label": "Ship",
+          "desc": "Drop off with our designated courier partner. No shipping cost to you."
+        },
+        {
+          "n": "04",
+          "label": "Refund",
+          "desc": "Refund or credit processed within 5–7 business days of receipt."
+        }
+      ],
+      "policies": [
+        {
+          "id": "refund",
+          "label": "Full Refund",
+          "badge": null,
+          "conditions": [
+            "Item in unused, original condition",
+            "All original packaging and materials intact",
+            "Requested within 14 days of delivery",
+            "Not a customised or made-to-order piece"
+          ],
+          "note": "Refund issued to original payment method. Bank processing may take a further 3–5 business days after we complete our end."
+        },
+        {
+          "id": "exchange",
+          "label": "Exchange",
+          "badge": "Most Popular",
+          "conditions": [
+            "Item in original or near-original condition",
+            "Within 30 days of delivery date",
+            "Available for a different size, finish, or item",
+            "Price difference billed or credited accordingly"
+          ],
+          "note": "Subject to stock availability. Our concierge team will confirm the exchange within 24 hours of receiving your request."
+        },
+        {
+          "id": "credit",
+          "label": "Store Credit",
+          "badge": null,
+          "conditions": [
+            "Item returned within 45 days of delivery",
+            "Minor wear or missing secondary packaging accepted",
+            "Credit issued as a voucher code via email",
+            "Store credit never expires"
+          ],
+          "note": "Store credit is issued at 100% of the original item value. No deductions or processing fees apply."
+        }
+      ]
+    }
+  },
+  "contact": {
+    "slug": "contact",
+    "title": "Contact Us",
+    "updatedAt": "2026-07-04T05:47:08.535Z",
+    "fields": {
+      "heroTitle": "Let's Talk",
+      "heroSubtitle": "Have a question about an order, a custom piece, or just want to say hello? We are here to help.",
+      "email": "hello@alloyedliving.com",
+      "whatsapp": "https://wa.me/923001234567",
+      "hours": "Mon–Sat, 10 AM – 7 PM (PKT)"
+    }
+  },
+  "about": {
+    "slug": "about",
+    "title": "About Us",
+    "updatedAt": "2026-05-01T10:00:00.000Z",
+    "fields": {
+      "heroTitle": "Crafted for the Discerning Home.",
+      "body": "Alloyed Living creates ultra-luxury furniture and home decor for the modern Pakistani household. Every piece is made to order, blending heavy-gauge steel with solid hardwoods, and finished by craftsmen who have spent decades perfecting their trade. No shortcuts, no compromise."
+    }
+  },
+  "faq": {
+    "slug": "faq",
+    "title": "Frequently Asked Questions",
+    "updatedAt": "2026-05-01T10:00:00.000Z",
+    "fields": {
+      "faqs": [
+        {
+          "q": "Do you offer custom sizing?",
+          "a": "Yes — most pieces can be customised in dimensions and finish. Contact our concierge team for a quote."
+        },
+        {
+          "q": "How long does a made-to-order piece take?",
+          "a": "Made-to-order pieces typically take 3–5 weeks before dispatch, depending on material availability."
+        },
+        {
+          "q": "Do you offer warranties?",
+          "a": "All pieces carry a 2-year structural warranty covering the steel frame and joinery."
+        }
+      ]
+    }
+  },
+  "terms": {
+    "slug": "terms",
+    "title": "Terms & Conditions",
+    "updatedAt": "2026-05-01T10:00:00.000Z",
+    "fields": {
+      "body": "By placing an order with Alloyed Living, you agree to our sales, shipping, and returns policies as published on this site. Prices are listed in PKR and are inclusive of applicable local taxes. Alloyed Living reserves the right to update these terms at any time."
+    }
+  }
+}

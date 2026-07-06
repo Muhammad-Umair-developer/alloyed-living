@@ -1,0 +1,66 @@
+/* @import "tailwindcss";
+
+:root {
+  --background: #faf9f7;
+  --foreground: #292524;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-editorial: var(--font-editorial);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+} */
+
+
+@import "tailwindcss";
+
+:root {
+  --background: #faf9f7;
+  --foreground: #292524;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-editorial: var(--font-editorial);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Removes default search input clear icon in webkit */
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Force hide the Next.js/Turbopack dev compilation indicator badge */
+html body [nextjs-portal],
+html body #__next-toast-container,
+html body [data-nextjs-toast],
+html body nextjs-portal {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

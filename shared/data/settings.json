@@ -1,0 +1,9 @@
+{
+  "storeName": "Alloyed Living",
+  "accentColor": "#5c6b4a",
+  "supportEmail": "hello@alloyedliving.com",
+  "admins": [
+    { "name": "Zain", "email": "devsmiths.solutions@gmail.com", "role": "owner" }
+  ],
+  "apiKeys": []
+}

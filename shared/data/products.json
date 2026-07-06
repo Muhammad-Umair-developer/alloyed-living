@@ -1,0 +1,210 @@
+[
+  {
+    "id": "p01",
+    "name": "The Kinetic Sculpt Chair",
+    "material": "Black Steel + Solid Sheesham Wood",
+    "description": "Premium minimalist steel frame pairing a comfortable sleek profile with handcrafted wooden arm accents.",
+    "price": 52000,
+    "discountPrice": null,
+    "category": "Seating",
+    "tags": [
+      "bestseller",
+      "steel",
+      "handcrafted"
+    ],
+    "sizes": [
+      "Standard"
+    ],
+    "stock": 14,
+    "dimensions": {
+      "h": 85,
+      "w": 68,
+      "d": 68
+    },
+    "accent": "from-amber-50 to-stone-100",
+    "image": "/1.jpg.jpeg",
+    "gallery": [
+      "/1.jpg.jpeg",
+      "/4ac55af25c7beafb9c5d653e99e778e3.jpg.jpeg"
+    ],
+    "galleryLabels": [
+      "Front View",
+      "Side — Steel Frame & Armrests"
+    ],
+    "colors": [
+      {
+        "name": "Matte Black + Sheesham",
+        "hex": "#8B5E3C",
+        "gallery": [
+          "/1.jpg.jpeg",
+          "/4ac55af25c7beafb9c5d653e99e778e3.jpg.jpeg"
+        ]
+      }
+    ],
+    "features": [
+      "Heavy-gauge steel frame powder-coated matte black — will not rust or chip",
+      "Solid sheesham wood arm accents — each treated for long-term durability",
+      "Comfortable backrest angle — made for long sits, not just looks",
+      "Compact footprint — fits any room without taking too much space"
+    ],
+    "seoTitle": "The Kinetic Sculpt Chair — Alloyed Living",
+    "seoDescription": "Premium minimalist steel and sheesham wood accent chair, handcrafted for the modern home.",
+    "createdAt": "2026-01-12T09:00:00.000Z",
+    "updatedAt": "2026-05-02T11:20:00.000Z"
+  },
+  {
+    "id": "p02",
+    "name": "Modern Dual-Tone Side & Nesting Tables",
+    "material": "Black Steel + Tempered Glass + Walnut",
+    "description": "Sophisticated, multi-layered nesting tables combining sleek geometric black steel bases with warm textured wood tops.",
+    "price": 38500,
+    "discountPrice": 34900,
+    "category": "Tables",
+    "tags": [
+      "nesting",
+      "space-saving",
+      "glass"
+    ],
+    "sizes": [
+      "Set of 2",
+      "Set of 3"
+    ],
+    "stock": 22,
+    "dimensions": {
+      "h": 45,
+      "w": 120,
+      "d": 65
+    },
+    "accent": "from-stone-100 to-amber-50",
+    "image": "/2.jpg.jpeg",
+    "gallery": [
+      "/2.jpg.jpeg",
+      "/3.jpg.jpeg"
+    ],
+    "galleryLabels": [
+      "Front — Table Set View",
+      "Side — Frame & Shelf Detail"
+    ],
+    "features": [
+      "Multi-layered nesting design — saves space, perfect for small rooms",
+      "Geometric black steel base — sharp lines that match modern home styles",
+      "Warm textured wood top surface — easy to clean and scratch-resistant",
+      "Low-profile height — pairs well with any sofa or sectional"
+    ],
+    "seoTitle": "Modern Dual-Tone Nesting Tables — Alloyed Living",
+    "seoDescription": "Space-saving nesting side tables with black steel bases and warm walnut tops.",
+    "createdAt": "2026-01-18T09:00:00.000Z",
+    "updatedAt": "2026-04-28T14:05:00.000Z"
+  },
+  {
+    "id": "p11",
+    "name": "CamScanner Catalog Items",
+    "material": "Black Steel + Solid Wood",
+    "description": "Premium steel and wood space-saving home decor accents to complete the modern room layout.",
+    "price": 45000,
+    "discountPrice": null,
+    "category": "Home Decor",
+    "tags": [
+      "decor",
+      "accent"
+    ],
+    "sizes": [
+      "Standard"
+    ],
+    "stock": 31,
+    "dimensions": {
+      "h": 90,
+      "w": 120,
+      "d": 45
+    },
+    "accent": "from-stone-50 to-stone-200",
+    "image": "/4.jpg.jpeg",
+    "gallery": [
+      "/4.jpg.jpeg",
+      "/9.jpg.jpeg",
+      "/10.jpg.jpeg",
+      "/11.jpg.jpeg"
+    ],
+    "galleryLabels": [
+      "Item 1",
+      "Item 2",
+      "Item 3",
+      "Item 4"
+    ],
+    "features": [
+      "Premium steel and wood construction — built to last for years",
+      "Space-saving design — fits comfortably in any modern home",
+      "Multiple pieces available — complete your room in one order",
+      "Simple to set up — no special tools needed"
+    ],
+    "seoTitle": "Steel & Wood Home Decor Accents — Alloyed Living",
+    "seoDescription": "Premium steel and solid wood decor accents for the modern home.",
+    "createdAt": "2026-02-14T09:00:00.000Z",
+    "updatedAt": "2026-04-30T16:15:00.000Z"
+  },
+  {
+    "name": "Medicated Chair",
+    "material": "Black Steel + Cow Leather",
+    "description": "The Medicated Chair blends therapeutic ergonomic support with a bold industrial-modern aesthetic, featuring a heavy-duty black steel frame accented by rich, solid Sheesham wood. Upholstered in premium, durable cow leather, this high-end seating solution delivers targeted posture relief and exceptional comfort for any professional workspace or home study.",
+    "price": 25000,
+    "discountPrice": 0,
+    "category": "Seating",
+    "tags": [
+      "handcrfted"
+    ],
+    "sizes": [
+      "Medium"
+    ],
+    "stock": 19,
+    "dimensions": {
+      "h": 35,
+      "w": 21,
+      "d": 9
+    },
+    "accent": "from-stone-50 to-stone-200",
+    "image": "https://i.pinimg.com/control1/1200x/ee/bc/73/eebc7308f01482defc3253ddef9ed834.jpg",
+    "gallery": [
+      "https://i.pinimg.com/control1/736x/8f/f6/58/8ff65850e387f974166a0f866553fb7a.jpg",
+      "https://i.pinimg.com/1200x/56/07/3b/56073bf3c1bd5ac28392cfd9e22bb19f.jpg"
+    ],
+    "seoDescription": "Product Overview\nExperience the perfect intersection of therapeutic support and industrial-modern sophistication. Designed for those who refuse to compromise on either style or physical well-being, the Medicated Chair delivers advanced ergonomic alignment wrapped in a bold, premium aesthetic. Whether anchoring a professional office or a refined home study, this seating masterpiece offers unparalleled comfort during long hours of focus.\n\nKey Features & Craftsmanship\nAnatomical Support: Engineered specifically as a medicated seating solution, it provides targeted lumbar and posture support to alleviate pressure and reduce fatigue throughout the day.\n\nRich Sheesham Wood: Features beautifully grained, durable Sheesham wood accents, adding a touch of organic warmth and timeless elegance to the design.\n\nIndustrial Black Steel Frame: Built upon a heavy-duty, matte black steel chassis that guarantees rock-solid stability, structural integrity, and a sleek modern edge.\n\nGenuine Cow Leather Upholstery: Covered in ultra-premium, breathable cow leather that feels luxurious to the touch, ages beautifully, and is exceptionally easy to maintain.\n\nSpecifications\nCategory: Seating\n\nMaterials: Industrial Black Steel, Solid Sheesham Wood, Premium Cow Leather\n\nIdeal For: Executive offices, modern workspaces, and study rooms requiring prolonged, high-comfort sitting.",
+    "id": "p12",
+    "createdAt": "2026-07-04T06:51:02.964Z",
+    "updatedAt": "2026-07-04T06:53:04.736Z"
+  },
+  {
+    "name": "Counter Top",
+    "material": "Marble + Steel",
+    "description": "Crafted from natural stone, a marble countertop brings timeless elegance and luxury to any space with its unique, organic veining patterns. While it requires ca",
+    "longDescription": "An elegant fusion of natural history and high-end design, a marble countertop is one of the most prestigious architectural surfaces you can introduce to a home. Formed over millions of years through the intense heat and pressure of metamorphic transformation, every single slab of marble is completely unique—a geological thumbprint that cannot be perfectly replicated by any engineered alternative.\n\nKey Visual & Physical Characteristics:\nDistinctive Aesthetic: Marble is celebrated for its soft, luminous glow and signature veining patterns, which range from bold, dramatic lightning-strike lines to delicate, wispy ribbons. Its color palette spans from classic bright whites (like Carrara or Calacatta) to deep, moody charcoals, rich greens, and warm creams.\n\nThe Finish Options: Depending on the design goal, marble can be finished in two primary ways:\n\nPolished: A high-gloss finish that maximizes light reflection and makes the colors pop.\n\nHoned: A smooth, matte finish that offers a softer appearance and hides scratches or imperfections more effectively.\n\nNaturally Cool Temperature: The dense stone dissipates heat rapidly, keeping its surface naturally cool to the touch. This functional trait makes it highly favored by professional bakers and pastry chefs, as dough won't stick or melt easily during rolling.\n\nPatina, Care, and Maintenance\nWhile undeniably stunning, marble is a premium material that requires mindful maintenance. Because it is a calcareous natural stone composed primarily of calcium carbonate, it is porous and relatively soft compared to granite or quartz.\n\nUnderstanding Etching: Marble reacts chemically when it comes into contact with acidic substances like lemon juice, vinegar, wine, or tomato sauce. This reaction causes \"etching\"—a dulling of the surface polish. Many homeowners view this evolving patina as a beautiful, historic characteristic that tells the story of a well-lived home, much like old European bistro tables.\n\nTo preserve its pristine condition, marble countertops must be sealed periodically (typically every 6 to 12 months) to provide a defensive barrier against deep liquid stains. Everyday cleaning requires nothing more than warm water and a pH-neutral stone cleaner; harsh chemical abrasives must be avoided.\n\nUltimately, investing in a marble countertop is a commitment to celebrating natural artistry. It serves as a striking, durable centerpiece that anchors a room in classic luxury, elevating the overall value and character of the space.",
+    "price": 15000,
+    "discountPrice": null,
+    "category": "Tables",
+    "tags": [
+      "Handcrafted"
+    ],
+    "sizes": [
+      "Large"
+    ],
+    "stock": 50,
+    "dimensions": {
+      "h": 36,
+      "w": 12,
+      "d": 3
+    },
+    "accent": "from-stone-50 to-stone-200",
+    "image": "https://i.pinimg.com/1200x/23/9c/32/239c328b136628d9ca9ccb1d9490c23c.jpg",
+    "gallery": [
+      "https://i.pinimg.com/736x/ee/94/32/ee943249400a5bf2c9dc360dd1d31d62.jpg"
+    ],
+    "features": [
+      "One-of-a-Kind Artistry: Every slab features unique, organic veining patterns and a luminous depth that engineered materials simply cannot replicate.",
+      "The Baker's Choice: Naturally cool to the touch, the dense surface dissipates heat rapidly, making it the ideal workstation for working with delicate doughs and pastries.",
+      "A Living Finish: Over time, it develops a character-rich patina that chronicles the life of your home, echoing the classic look of historic European architecture."
+    ],
+    "seoDescription": "Crafted from natural stone, a marble countertop brings timeless elegance and luxury to any space with its unique, organic veining patterns. While it requires care to prevent etching and stains, its cool surface and classic aesthetic make it a highly desirable focal point for kitchens and baths.",
+    "id": "p13",
+    "createdAt": "2026-07-04T13:34:35.117Z",
+    "updatedAt": "2026-07-04T13:40:20.114Z"
+  }
+]

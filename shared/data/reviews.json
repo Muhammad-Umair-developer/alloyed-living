@@ -1,0 +1,59 @@
+[
+  {
+    "id": "rv001",
+    "productId": "p01",
+    "author": "Ayesha Rahim",
+    "rating": 5,
+    "comment": "Absolutely stunning piece. The quality is even better in person — it has completely transformed our drawing room. Every guest who visits asks about it.",
+    "createdAt": "2025-03-14T10:15:00.000Z"
+  },
+  {
+    "id": "rv002",
+    "productId": "p01",
+    "author": "Bilal Mahmood",
+    "rating": 5,
+    "comment": "Solid construction and exceptional finishing. Delivery was on time and packed very carefully. Worth every rupee — no regrets.",
+    "createdAt": "2025-02-08T16:40:00.000Z"
+  },
+  {
+    "id": "rv003",
+    "productId": "p01",
+    "author": "Sana Qureshi",
+    "rating": 4,
+    "comment": "Beautiful piece that everyone who visits notices and asks about. Took some time to arrive but the wait was absolutely worth it.",
+    "createdAt": "2025-01-22T09:05:00.000Z"
+  },
+  {
+    "id": "rv004",
+    "productId": "p01",
+    "author": "Usman Ali",
+    "rating": 5,
+    "comment": "My third purchase from Alloyed Living and every piece has been perfect. Consistent craftsmanship and truly timeless design.",
+    "createdAt": "2024-12-19T13:20:00.000Z"
+  },
+  {
+    "id": "rv005",
+    "productId": "p02",
+    "author": "Hamza Sheikh",
+    "rating": 5,
+    "comment": "The nesting tables are even more versatile than I expected. The glass and walnut combination looks premium and feels sturdy.",
+    "createdAt": "2025-04-02T11:00:00.000Z"
+  },
+  {
+    "id": "rv006",
+    "productId": "p02",
+    "author": "Mariam Javed",
+    "rating": 4,
+    "comment": "Lovely design and great finishing. Assembly was straightforward. Only wish it came in one more colour option.",
+    "createdAt": "2025-03-27T18:30:00.000Z"
+  },
+  {
+    "productId": "p02",
+    "author": "Muhammad Umair",
+    "authorId": "2ca93cac-9178-4ca3-97af-73dbe0dd3175",
+    "rating": 5,
+    "comment": "Best product ever",
+    "id": "rv007",
+    "createdAt": "2026-07-05T04:34:50.952Z"
+  }
+]

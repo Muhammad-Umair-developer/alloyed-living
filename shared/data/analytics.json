@@ -1,0 +1,259 @@
+{
+  "products": [
+    {
+      "productId": "p01",
+      "views": 845,
+      "addToCart": 158,
+      "purchases": 36
+    },
+    {
+      "productId": "p02",
+      "views": 618,
+      "addToCart": 98,
+      "purchases": 21
+    },
+    {
+      "productId": "p03",
+      "views": 401,
+      "addToCart": 52,
+      "purchases": 9
+    },
+    {
+      "productId": "p11",
+      "views": 927,
+      "addToCart": 203,
+      "purchases": 49
+    },
+    {
+      "productId": "p12",
+      "views": 3,
+      "addToCart": 0,
+      "purchases": 0
+    },
+    {
+      "productId": "p13",
+      "views": 2,
+      "addToCart": 1,
+      "purchases": 1
+    }
+  ],
+  "daily": [
+    {
+      "date": "2026-06-05",
+      "views": 79,
+      "cartAdds": 13,
+      "sales": 3,
+      "revenue": 115500
+    },
+    {
+      "date": "2026-06-06",
+      "views": 80,
+      "cartAdds": 13,
+      "sales": 3,
+      "revenue": 136500
+    },
+    {
+      "date": "2026-06-07",
+      "views": 102,
+      "cartAdds": 15,
+      "sales": 4,
+      "revenue": 112000
+    },
+    {
+      "date": "2026-06-08",
+      "views": 94,
+      "cartAdds": 15,
+      "sales": 4,
+      "revenue": 112000
+    },
+    {
+      "date": "2026-06-09",
+      "views": 124,
+      "cartAdds": 19,
+      "sales": 4,
+      "revenue": 140000
+    },
+    {
+      "date": "2026-06-10",
+      "views": 81,
+      "cartAdds": 13,
+      "sales": 3,
+      "revenue": 105000
+    },
+    {
+      "date": "2026-06-11",
+      "views": 110,
+      "cartAdds": 17,
+      "sales": 5,
+      "revenue": 210000
+    },
+    {
+      "date": "2026-06-12",
+      "views": 141,
+      "cartAdds": 20,
+      "sales": 4,
+      "revenue": 196000
+    },
+    {
+      "date": "2026-06-13",
+      "views": 72,
+      "cartAdds": 11,
+      "sales": 3,
+      "revenue": 147000
+    },
+    {
+      "date": "2026-06-14",
+      "views": 96,
+      "cartAdds": 13,
+      "sales": 3,
+      "revenue": 94500
+    },
+    {
+      "date": "2026-06-15",
+      "views": 82,
+      "cartAdds": 12,
+      "sales": 3,
+      "revenue": 94500
+    },
+    {
+      "date": "2026-06-16",
+      "views": 113,
+      "cartAdds": 16,
+      "sales": 4,
+      "revenue": 154000
+    },
+    {
+      "date": "2026-06-17",
+      "views": 145,
+      "cartAdds": 26,
+      "sales": 7,
+      "revenue": 318500
+    },
+    {
+      "date": "2026-06-18",
+      "views": 98,
+      "cartAdds": 14,
+      "sales": 3,
+      "revenue": 136500
+    },
+    {
+      "date": "2026-06-19",
+      "views": 131,
+      "cartAdds": 24,
+      "sales": 6,
+      "revenue": 168000
+    },
+    {
+      "date": "2026-06-20",
+      "views": 62,
+      "cartAdds": 9,
+      "sales": 2,
+      "revenue": 56000
+    },
+    {
+      "date": "2026-06-21",
+      "views": 87,
+      "cartAdds": 16,
+      "sales": 4,
+      "revenue": 140000
+    },
+    {
+      "date": "2026-06-22",
+      "views": 149,
+      "cartAdds": 25,
+      "sales": 6,
+      "revenue": 252000
+    },
+    {
+      "date": "2026-06-23",
+      "views": 100,
+      "cartAdds": 18,
+      "sales": 4,
+      "revenue": 168000
+    },
+    {
+      "date": "2026-06-24",
+      "views": 134,
+      "cartAdds": 23,
+      "sales": 5,
+      "revenue": 245000
+    },
+    {
+      "date": "2026-06-25",
+      "views": 169,
+      "cartAdds": 27,
+      "sales": 7,
+      "revenue": 220500
+    },
+    {
+      "date": "2026-06-26",
+      "views": 118,
+      "cartAdds": 20,
+      "sales": 4,
+      "revenue": 126000
+    },
+    {
+      "date": "2026-06-27",
+      "views": 115,
+      "cartAdds": 18,
+      "sales": 4,
+      "revenue": 154000
+    },
+    {
+      "date": "2026-06-28",
+      "views": 76,
+      "cartAdds": 13,
+      "sales": 3,
+      "revenue": 115500
+    },
+    {
+      "date": "2026-06-29",
+      "views": 137,
+      "cartAdds": 22,
+      "sales": 5,
+      "revenue": 227500
+    },
+    {
+      "date": "2026-06-30",
+      "views": 173,
+      "cartAdds": 26,
+      "sales": 6,
+      "revenue": 168000
+    },
+    {
+      "date": "2026-07-01",
+      "views": 119,
+      "cartAdds": 19,
+      "sales": 5,
+      "revenue": 140000
+    },
+    {
+      "date": "2026-07-02",
+      "views": 156,
+      "cartAdds": 23,
+      "sales": 5,
+      "revenue": 175000
+    },
+    {
+      "date": "2026-07-03",
+      "views": 102,
+      "cartAdds": 16,
+      "sales": 4,
+      "revenue": 140000
+    },
+    {
+      "date": "2026-07-04",
+      "views": 112,
+      "cartAdds": 16,
+      "sales": 4,
+      "revenue": 168000
+    },
+    {
+      "date": "2026-07-05",
+      "views": 5,
+      "cartAdds": 5,
+      "sales": 5,
+      "revenue": 209000
+    }
+  ]
+}
