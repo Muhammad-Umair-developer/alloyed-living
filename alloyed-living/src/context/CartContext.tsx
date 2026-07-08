@@ -4,9 +4,13 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from "react"
 import { trackAddToCartAction } from "@/src/actions/store-actions"
+
+const STORAGE_KEY = "alloyed-living:cart"
 
 // ─── Shared CartItem type ─────────────────────────────────────────────────────
 
@@ -36,6 +40,32 @@ const CartContext = createContext<CartContextValue | null>(null)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
+  const hydrated = useRef(false)
+
+  // Hydrate once from localStorage on mount, so the cart survives hard
+  // reloads / full-page redirects (e.g. the Google OAuth round trip), not
+  // just client-side (SPA) navigation.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (raw) setCart(JSON.parse(raw))
+    } catch {
+      // Corrupt or inaccessible storage — start with an empty cart.
+    } finally {
+      hydrated.current = true
+    }
+  }, [])
+
+  // Persist on every change, skipping the pre-hydration initial render so we
+  // don't clobber storage with the empty initial state before it's loaded.
+  useEffect(() => {
+    if (!hydrated.current) return
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cart))
+    } catch {
+      // Storage unavailable (e.g. private browsing quota) — nothing to do.
+    }
+  }, [cart])
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 

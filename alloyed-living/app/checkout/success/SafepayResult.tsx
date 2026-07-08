@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Check, Loader2, XCircle, ArrowRight } from "lucide-react"
@@ -30,17 +30,28 @@ export default function SafepayResult({
   const router = useRouter()
   const { clearCart } = useCart()
   const polls = useRef(0)
+  const [timedOut, setTimedOut] = useState(false)
 
   // Clear the cart once, only after payment is confirmed.
   useEffect(() => {
     if (status === "paid") clearCart()
   }, [status, clearCart])
 
+  // A new "pending" status (from a fresh refresh) means the wait is still
+  // ongoing — reset the timeout flag so the spinner is shown again.
+  useEffect(() => {
+    if (status === "pending") setTimedOut(false)
+  }, [status])
+
   // While the payment is still confirming, re-fetch (the webhook may arrive a
-  // moment after the browser redirect). Stops once paid/failed or polls run out.
+  // moment after the browser redirect). Stops once paid/failed, or surfaces a
+  // timeout state once polls run out instead of spinning forever.
   useEffect(() => {
     if (status !== "pending") return
-    if (polls.current >= MAX_POLLS) return
+    if (polls.current >= MAX_POLLS) {
+      setTimedOut(true)
+      return
+    }
     const t = setTimeout(() => {
       polls.current += 1
       router.refresh()
@@ -85,7 +96,7 @@ export default function SafepayResult({
             </>
           )}
 
-          {status === "pending" && (
+          {status === "pending" && !timedOut && (
             <>
               <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-stone-200 flex items-center justify-center mx-auto mb-8">
                 <Loader2 size={20} strokeWidth={1.5} className="text-stone-600 animate-spin" />
@@ -100,6 +111,39 @@ export default function SafepayResult({
                 We&apos;re verifying your payment with Safepay. This usually takes a few seconds —
                 this page will update automatically.
               </p>
+            </>
+          )}
+
+          {status === "pending" && timedOut && (
+            <>
+              <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-stone-200 flex items-center justify-center mx-auto mb-8">
+                <Loader2 size={20} strokeWidth={1.5} className="text-stone-600" />
+              </div>
+              <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
+                Still Confirming
+              </p>
+              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
+                Taking longer than usual
+              </p>
+              <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-6">
+                {orderId ? <>Your order <span className="text-stone-600">{orderId}</span> is</>
+                  : <>Your order is</>} still awaiting confirmation from Safepay. No charge has
+                been made unless you completed payment on Safepay&apos;s page. You can check again
+                now, or contact our support team with your order ID if this continues.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  polls.current = 0
+                  setTimedOut(false)
+                  router.refresh()
+                }}
+                className="mb-6 inline-flex items-center gap-2 text-[9px] tracking-[0.34em] uppercase
+                           text-stone-700 border border-stone-300 px-5 py-3 hover:border-stone-500
+                           hover:text-stone-900 transition-all duration-300 cursor-pointer"
+              >
+                Check Again
+              </button>
             </>
           )}
 

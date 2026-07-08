@@ -2,11 +2,13 @@
 
 import { useState, useCallback, useMemo, useId, useEffect, useRef } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, Lock, ShieldCheck, Truck, Check, ArrowRight } from "lucide-react"
 import Header from "@/src/components/layout/Header"
 import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
 import { type CartItem, useCart } from "@/src/context/CartContext"
+import { useAuth } from "@/src/context/AuthContext"
 import { placeOrderAction } from "@/src/actions/store-actions"
 import { createSafepayCheckout } from "@/src/actions/safepay-actions"
 
@@ -609,7 +611,9 @@ function validate(form: FormData): FormErrors {
 // ─── CheckoutPage ─────────────────────────────────────────────────────────────
 
 export default function CheckoutPage() {
+  const router                = useRouter()
   const { cart, clearCart }   = useCart()
+  const { user, loading: authLoading } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [form,    setForm]    = useState<FormData>(EMPTY_FORM)
   const [errors,  setErrors]  = useState<FormErrors>({})
@@ -618,6 +622,15 @@ export default function CheckoutPage() {
   const [placed,  setPlaced]  = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
+
+  // Checkout requires an account — the cart itself lives in CartProvider at the
+  // root layout, so it survives this redirect and is still there when the user
+  // signs in and comes back.
+  useEffect(() => {
+    if (mounted && !authLoading && !user) {
+      router.replace("/login?next=/checkout")
+    }
+  }, [mounted, authLoading, user, router])
 
   const setField = useCallback((name: keyof FormData, val: string) => {
     setForm((prev) => ({ ...prev, [name]: val }))
@@ -713,7 +726,7 @@ export default function CheckoutPage() {
     }
   }, [form, method, cart, clearCart])
 
-  if (!mounted) return null
+  if (!mounted || authLoading || !user) return null
 
   if (placed) {
     return (
