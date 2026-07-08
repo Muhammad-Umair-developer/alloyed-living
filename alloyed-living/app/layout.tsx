@@ -26,7 +26,7 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: "Alloyed Living",
-  description: "Ultra-luxury furniture and home decor, curated for the discerning home.",
+  description: "Strong steel furniture and home decor, made for the modern Pakistani home.",
 }
 
 export default function RootLayout({

@@ -14,9 +14,10 @@ const NAV_LINKS = [
 ]
 
 const CARE_LINKS = [
-  { label: "Shipping Details",    href: "/shipping"  },
-  { label: "Returns & Exchanges", href: "/returns"   },
-  { label: "Showroom Locations",  href: "/showrooms" },
+  { label: "Shipping Details",    href: "/shipping"         },
+  { label: "Returns & Exchanges", href: "/returns"          },
+  { label: "Factory Location",    href: "/factory-location" },
+  { label: "Product Catalog",     href: "/catalog"          },
 ]
 
 // ─── FooterLink ───────────────────────────────────────────────────────────────

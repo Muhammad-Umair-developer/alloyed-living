@@ -96,7 +96,7 @@ function SceneLoader() {
         style={{ fontFamily: "var(--font-editorial, 'Cormorant Garamond', Georgia, serif)" }}
       >
         <div className="w-5 h-5 rounded-full border border-stone-300 border-t-stone-500 animate-spin" />
-        <span className="text-[9px] tracking-[0.38em] uppercase text-stone-400 whitespace-nowrap">
+        <span className="text-[9px] tracking-[0.38em] uppercase text-stone-600 whitespace-nowrap">
           Loading
         </span>
       </div>
@@ -111,7 +111,7 @@ function CanvasFallback() {
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#faf9f7]">
       <div className="w-6 h-6 rounded-full border border-stone-200 border-t-stone-600 animate-spin" />
       <p
-        className="text-[9px] tracking-[0.42em] uppercase text-stone-400"
+        className="text-[9px] tracking-[0.42em] uppercase text-stone-600"
         style={{ fontFamily: "var(--font-editorial, 'Cormorant Garamond', Georgia, serif)" }}
       >
         Preparing Studio

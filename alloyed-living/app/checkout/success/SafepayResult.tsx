@@ -66,10 +66,10 @@ export default function SafepayResult({
               <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
                 Payment Confirmed
               </p>
-              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
                 Thank you for your order
               </p>
-              <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+              <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
                 {orderId ? (
                   <>
                     Your order <span className="text-stone-600">{orderId}</span> is confirmed and paid.
@@ -79,7 +79,7 @@ export default function SafepayResult({
                 )}{" "}
                 A payment receipt from Safepay and an order summary with your product details
                 have been emailed to{" "}
-                <span className="text-stone-600">{email || "your inbox"}</span>. Our concierge
+                <span className="text-stone-600">{email || "your inbox"}</span>. Our support team
                 team will follow up shortly.
               </p>
             </>
@@ -88,15 +88,15 @@ export default function SafepayResult({
           {status === "pending" && (
             <>
               <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-stone-200 flex items-center justify-center mx-auto mb-8">
-                <Loader2 size={20} strokeWidth={1.5} className="text-stone-400 animate-spin" />
+                <Loader2 size={20} strokeWidth={1.5} className="text-stone-600 animate-spin" />
               </div>
               <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
                 Confirming Payment
               </p>
-              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
                 Just a moment
               </p>
-              <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+              <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
                 We&apos;re verifying your payment with Safepay. This usually takes a few seconds —
                 this page will update automatically.
               </p>
@@ -111,10 +111,10 @@ export default function SafepayResult({
               <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
                 Payment Not Completed
               </p>
-              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+              <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
                 Nothing was charged
               </p>
-              <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+              <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
                 Your payment didn&apos;t go through and your order is on hold. You can try again from
                 checkout — no charge was made.
               </p>
@@ -124,13 +124,13 @@ export default function SafepayResult({
           {status === "unknown" && (
             <>
               <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-stone-200 flex items-center justify-center mx-auto mb-8">
-                <Loader2 size={20} strokeWidth={1.5} className="text-stone-400 animate-spin" />
+                <Loader2 size={20} strokeWidth={1.5} className="text-stone-600 animate-spin" />
               </div>
               <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
                 Processing
               </p>
-              <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10 mt-6">
-                We&apos;re locating your order. If this persists, please contact our concierge team.
+              <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10 mt-6">
+                We&apos;re locating your order. If this persists, please contact our support team.
               </p>
             </>
           )}

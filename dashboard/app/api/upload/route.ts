@@ -16,11 +16,12 @@ import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024 // 8MB
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024 // 100MB
+const MAX_DOCUMENT_BYTES = 20 * 1024 * 1024 // 20MB
 
 interface SniffedType {
   ext: string
   contentType: string
-  kind: "image" | "video"
+  kind: "image" | "video" | "document"
 }
 
 // Identify the actual file type from its leading bytes.
@@ -46,6 +47,9 @@ function sniffType(buf: Buffer): SniffedType | null {
     return { ext: "webm", contentType: "video/webm", kind: "video" }
   if (ascii(0, 4) === "OggS")
     return { ext: "ogv", contentType: "video/ogg", kind: "video" }
+  // Documents
+  if (ascii(0, 5) === "%PDF-")
+    return { ext: "pdf", contentType: "application/pdf", kind: "document" }
   return null
 }
 
@@ -69,10 +73,13 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(await file.arrayBuffer())
   const sniffed = sniffType(buffer)
   if (!sniffed) {
-    return NextResponse.json({ error: "Only image or video files are supported" }, { status: 400 })
+    return NextResponse.json({ error: "Only image, video, or PDF files are supported" }, { status: 400 })
   }
   if (sniffed.kind === "image" && buffer.length > MAX_IMAGE_BYTES) {
     return NextResponse.json({ error: "Image must be smaller than 8MB" }, { status: 400 })
+  }
+  if (sniffed.kind === "document" && buffer.length > MAX_DOCUMENT_BYTES) {
+    return NextResponse.json({ error: "PDF must be smaller than 20MB" }, { status: 400 })
   }
 
   // Server-generated name — nothing from the client's filename survives.

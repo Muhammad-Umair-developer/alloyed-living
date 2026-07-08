@@ -26,7 +26,7 @@ export default function DashboardGate({ children }: { children: React.ReactNode 
   if (!allowed) {
     return (
       <div className="min-h-screen grid place-items-center bg-[var(--background)]">
-        <Loader2 size={18} className="animate-spin text-stone-400" />
+        <Loader2 size={18} className="animate-spin text-stone-600" />
       </div>
     )
   }

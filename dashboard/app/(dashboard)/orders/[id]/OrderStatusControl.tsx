@@ -6,7 +6,7 @@ import type { OrderStatus } from "@/src/lib/data/types"
 import { toast } from "@/src/components/ui/ToastAlert"
 import { updateOrderStatusAction } from "@/src/actions/order-actions"
 
-const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned"]
+const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 
 export default function OrderStatusControl({ orderId, status }: { orderId: string; status: OrderStatus }) {
   const router = useRouter()

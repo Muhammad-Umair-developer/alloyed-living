@@ -2,7 +2,7 @@
 
 import { useId, useState, useTransition, type ChangeEvent } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Film, ImageIcon, Ban, ChevronUp, ChevronDown, X, Upload } from "lucide-react"
+import { Plus, Trash2, Film, ImageIcon, Ban, ChevronUp, ChevronDown, X, Upload, FileText } from "lucide-react"
 import type {
   ContentPage,
   ShippingPageContent,
@@ -13,6 +13,8 @@ import type {
   TermsPageContent,
   HomePageContent,
   ShopPageContent,
+  FactoryLocationPageContent,
+  CatalogPageContent,
   HeroMediaType,
   ShippingTier,
   FAQ,
@@ -97,7 +99,7 @@ function MediaUrlInput({
           <button
             type="button"
             onClick={() => onChange("")}
-            className="p-2 text-stone-400 hover:text-red-600 cursor-pointer flex-shrink-0"
+            className="p-2 text-stone-600 hover:text-red-600 cursor-pointer flex-shrink-0"
             aria-label={`Remove ${kind}`}
             title={`Remove ${kind}`}
           >
@@ -129,12 +131,92 @@ function MediaUrlInput({
   )
 }
 
+// Upload a PDF — customers download this exact file from the storefront
+// catalog page, so there's no "paste a URL" option here (unlike images/video,
+// a stray external PDF link isn't a sensible catalog source).
+function PdfUrlInput({
+  value,
+  onChange,
+}: {
+  value: string | null
+  onChange: (url: string | null) => void
+}) {
+  const inputId = useId()
+  const [uploading, setUploading] = useState(false)
+
+  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const body = new FormData()
+      body.append("file", file)
+      const res = await fetch("/api/upload", { method: "POST", body })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Upload failed")
+      onChange(data.url)
+      toast.success("Catalog PDF uploaded.")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed.")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-md border border-stone-200 bg-white min-w-0">
+        <FileText size={14} className="text-stone-500 flex-shrink-0" />
+        {value ? (
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[13px] text-stone-700 underline underline-offset-2 truncate"
+          >
+            {value.split("/").pop()}
+          </a>
+        ) : (
+          <span className="text-[13px] text-stone-500">No PDF uploaded yet</span>
+        )}
+      </div>
+      <label
+        htmlFor={inputId}
+        className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium rounded-md border border-stone-200 text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors ${uploading ? "opacity-50 pointer-events-none" : ""}`}
+      >
+        <Upload size={13} /> {uploading ? "Uploading…" : value ? "Replace" : "Upload"}
+      </label>
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          className="p-2 text-stone-500 hover:text-red-600 cursor-pointer flex-shrink-0"
+          aria-label="Remove PDF"
+          title="Remove PDF"
+        >
+          <X size={15} />
+        </button>
+      )}
+      <input
+        id={inputId}
+        type="file"
+        accept="application/pdf"
+        onChange={handleFileChange}
+        disabled={uploading}
+        className="sr-only"
+      />
+    </div>
+  )
+}
+
 function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <div>
       <label className="block text-[12px] font-medium text-stone-700 mb-1.5">{label}</label>
       {children}
-      {hint && <p className="text-[11px] text-stone-400 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-stone-600 mt-1">{hint}</p>}
     </div>
   )
 }
@@ -160,7 +242,7 @@ function SaveBar({ pending, onSave }: { pending: boolean; onSave: () => void }) 
 function RepeatableHeader({ title, onAdd }: { title: string; onAdd: () => void }) {
   return (
     <div className="flex items-center justify-between">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">{title}</p>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">{title}</p>
       <button type="button" onClick={onAdd} className="inline-flex items-center gap-1.5 text-[12px] font-medium text-stone-600 hover:text-stone-900 cursor-pointer">
         <Plus size={13} /> Add
       </button>
@@ -170,7 +252,7 @@ function RepeatableHeader({ title, onAdd }: { title: string; onAdd: () => void }
 
 function RemoveButton({ onClick }: { onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="p-1.5 text-stone-300 hover:text-red-600 flex-shrink-0 cursor-pointer" aria-label="Remove">
+    <button type="button" onClick={onClick} className="p-1.5 text-stone-500 hover:text-red-600 flex-shrink-0 cursor-pointer" aria-label="Remove">
       <Trash2 size={14} />
     </button>
   )
@@ -209,7 +291,7 @@ function ShippingEditor({ slug, initial }: { slug: "shipping"; initial: Shipping
   return (
     <div>
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Hero</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Hero</p>
         <Field label="Hero Title"><input value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} className={inputCls} /></Field>
         <Field label="Hero Subtitle"><input value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} className={inputCls} /></Field>
         <Field label="Free Shipping Threshold (PKR)"><input type="number" min={0} value={threshold} onChange={(e) => setThreshold(e.target.value)} className={inputCls} /></Field>
@@ -278,7 +360,7 @@ function ReturnsEditor({ slug, initial }: { slug: "returns"; initial: ReturnsPag
   return (
     <div>
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Hero</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Hero</p>
         <Field label="Hero Title"><input value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} className={inputCls} /></Field>
         <Field label="Hero Subtitle"><input value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} className={inputCls} /></Field>
         <Field label="Return Window (days)"><input type="number" min={0} value={windowDays} onChange={(e) => setWindowDays(e.target.value)} className={inputCls} /></Field>
@@ -489,7 +571,7 @@ function HomeEditor({ slug, initial, products }: { slug: "home"; initial: HomePa
     <div className="space-y-6">
       {/* Hero */}
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Hero Media</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Hero Media</p>
 
         <div className="flex gap-2">
           {MEDIA_TYPE_OPTIONS.map(({ value, label, icon: Icon }) => (
@@ -531,7 +613,7 @@ function HomeEditor({ slug, initial, products }: { slug: "home"; initial: HomePa
         )}
 
         {hero.mediaType === "none" && (
-          <p className="text-[12px] text-stone-400">No background media — the hero will show a plain dark backdrop.</p>
+          <p className="text-[12px] text-stone-600">No background media — the hero will show a plain dark backdrop.</p>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -545,7 +627,7 @@ function HomeEditor({ slug, initial, products }: { slug: "home"; initial: HomePa
 
       {/* Story */}
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Story Section</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Story Section</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Eyebrow"><input value={story.eyebrow} onChange={(e) => setStory((s) => ({ ...s, eyebrow: e.target.value }))} className={inputCls} /></Field>
           <Field label="CTA Label"><input value={story.ctaLabel} onChange={(e) => setStory((s) => ({ ...s, ctaLabel: e.target.value }))} className={inputCls} /></Field>
@@ -556,7 +638,7 @@ function HomeEditor({ slug, initial, products }: { slug: "home"; initial: HomePa
 
       {/* Shop the Room */}
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Shop-the-Room Banner</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Shop-the-Room Banner</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Eyebrow"><input value={shopRoom.eyebrow} onChange={(e) => setShopRoom((s) => ({ ...s, eyebrow: e.target.value }))} className={inputCls} /></Field>
           <Field label="CTA Label"><input value={shopRoom.ctaLabel} onChange={(e) => setShopRoom((s) => ({ ...s, ctaLabel: e.target.value }))} className={inputCls} /></Field>
@@ -575,7 +657,7 @@ function HomeEditor({ slug, initial, products }: { slug: "home"; initial: HomePa
 
       {/* Featured products */}
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Featured Pieces</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Featured Pieces</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Eyebrow"><input value={featured.eyebrow} onChange={(e) => setFeatured((f) => ({ ...f, eyebrow: e.target.value }))} className={inputCls} /></Field>
           <Field label="CTA Label"><input value={featured.ctaLabel} onChange={(e) => setFeatured((f) => ({ ...f, ctaLabel: e.target.value }))} className={inputCls} /></Field>
@@ -589,20 +671,20 @@ function HomeEditor({ slug, initial, products }: { slug: "home"; initial: HomePa
               return (
                 <div key={id} className="flex items-center gap-2 px-3 py-2 rounded-md bg-stone-50 border border-stone-100">
                   <span className="text-[13px] text-stone-700 flex-1 truncate">{product?.name ?? id}</span>
-                  <button type="button" onClick={() => moveFeaturedProduct(i, -1)} disabled={i === 0} className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed">
+                  <button type="button" onClick={() => moveFeaturedProduct(i, -1)} disabled={i === 0} className="p-1 text-stone-600 hover:text-stone-700 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed">
                     <ChevronUp size={14} />
                   </button>
-                  <button type="button" onClick={() => moveFeaturedProduct(i, 1)} disabled={i === featured.productIds.length - 1} className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed">
+                  <button type="button" onClick={() => moveFeaturedProduct(i, 1)} disabled={i === featured.productIds.length - 1} className="p-1 text-stone-600 hover:text-stone-700 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed">
                     <ChevronDown size={14} />
                   </button>
-                  <button type="button" onClick={() => toggleFeaturedProduct(id)} className="p-1 text-stone-400 hover:text-red-600 cursor-pointer">
+                  <button type="button" onClick={() => toggleFeaturedProduct(id)} className="p-1 text-stone-600 hover:text-red-600 cursor-pointer">
                     <X size={14} />
                   </button>
                 </div>
               )
             })}
             {featured.productIds.length === 0 && (
-              <p className="text-[12px] text-stone-400">No products selected yet — add some below.</p>
+              <p className="text-[12px] text-stone-600">No products selected yet — add some below.</p>
             )}
           </div>
 
@@ -654,6 +736,77 @@ function ShopEditor({ slug, initial }: { slug: "shop"; initial: ShopPageContent 
   )
 }
 
+// ─── Factory Location ─────────────────────────────────────────────────────────
+
+function FactoryLocationEditor({ slug, initial }: { slug: "factory-location"; initial: FactoryLocationPageContent }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [fields, setFields] = useState(initial)
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateContentPageAction(slug, fields)
+      toast.success("Factory Location page updated.")
+      router.refresh()
+    })
+  }
+
+  return (
+    <div>
+      <Card>
+        <Field label="Hero Title"><input value={fields.heroTitle} onChange={(e) => setFields((f) => ({ ...f, heroTitle: e.target.value }))} className={inputCls} /></Field>
+        <Field label="Hero Subtitle"><textarea value={fields.heroSubtitle} onChange={(e) => setFields((f) => ({ ...f, heroSubtitle: e.target.value }))} rows={2} className={`${inputCls} resize-none`} /></Field>
+        <Field label="Address"><textarea value={fields.address} onChange={(e) => setFields((f) => ({ ...f, address: e.target.value }))} rows={2} className={`${inputCls} resize-none`} /></Field>
+        <Field
+          label="Google Maps Embed URL"
+          hint="Paste a Google Maps embed link (Share → Embed a map), or a maps.google.com/?output=embed URL."
+        >
+          <input value={fields.mapEmbedUrl} onChange={(e) => setFields((f) => ({ ...f, mapEmbedUrl: e.target.value }))} className={inputCls} />
+        </Field>
+        <Field label="Phone"><input value={fields.phone} onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))} className={inputCls} /></Field>
+        <Field label="Hours"><input value={fields.hours} onChange={(e) => setFields((f) => ({ ...f, hours: e.target.value }))} className={inputCls} /></Field>
+      </Card>
+      <SaveBar pending={isPending} onSave={handleSave} />
+    </div>
+  )
+}
+
+// ─── Catalog ──────────────────────────────────────────────────────────────────
+
+function CatalogEditor({ slug, initial }: { slug: "catalog"; initial: CatalogPageContent }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [fields, setFields] = useState(initial)
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateContentPageAction(slug, fields)
+      toast.success("Catalog page updated.")
+      router.refresh()
+    })
+  }
+
+  return (
+    <div>
+      <Card>
+        <Field label="Hero Title"><input value={fields.heroTitle} onChange={(e) => setFields((f) => ({ ...f, heroTitle: e.target.value }))} className={inputCls} /></Field>
+        <Field label="Hero Subtitle"><textarea value={fields.heroSubtitle} onChange={(e) => setFields((f) => ({ ...f, heroSubtitle: e.target.value }))} rows={2} className={`${inputCls} resize-none`} /></Field>
+        <Field label="Intro Copy"><textarea value={fields.intro} onChange={(e) => setFields((f) => ({ ...f, intro: e.target.value }))} rows={4} className={`${inputCls} resize-none`} /></Field>
+        <Field
+          label="Catalog PDF"
+          hint="Customers download this exact file from the Download Full Catalog button. Without one, the storefront falls back to an auto-generated PDF."
+        >
+          <PdfUrlInput
+            value={fields.catalogPdfUrl}
+            onChange={(url) => setFields((f) => ({ ...f, catalogPdfUrl: url }))}
+          />
+        </Field>
+      </Card>
+      <SaveBar pending={isPending} onSave={handleSave} />
+    </div>
+  )
+}
+
 // ─── Root switch ──────────────────────────────────────────────────────────────
 
 export default function ContentPageEditor({ page, products }: { page: ContentPage; products: Product[] }) {
@@ -674,5 +827,9 @@ export default function ContentPageEditor({ page, products }: { page: ContentPag
       return <FaqEditor slug="faq" initial={page.fields as FaqPageContent} />
     case "terms":
       return <TermsEditor slug="terms" initial={page.fields as TermsPageContent} />
+    case "factory-location":
+      return <FactoryLocationEditor slug="factory-location" initial={page.fields as FactoryLocationPageContent} />
+    case "catalog":
+      return <CatalogEditor slug="catalog" initial={page.fields as CatalogPageContent} />
   }
 }

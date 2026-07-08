@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, ShoppingBag, Truck, RotateCcw, Mail, Info, HelpCircle, FileText, ArrowRight } from "lucide-react"
+import { Home, ShoppingBag, Truck, RotateCcw, Mail, Info, HelpCircle, FileText, ArrowRight, MapPin, Download } from "lucide-react"
 import { getAllContentPages } from "@/src/lib/data/content"
 import PageHeader from "@/src/components/ui/PageHeader"
 import type { ContentSlug } from "@/src/lib/data/types"
@@ -16,6 +16,8 @@ const PAGE_META: Record<ContentSlug, { icon: typeof Truck; description: string }
   about: { icon: Info, description: "Brand story shown on the About page." },
   faq: { icon: HelpCircle, description: "General storefront frequently asked questions." },
   terms: { icon: FileText, description: "Terms & conditions copy." },
+  "factory-location": { icon: MapPin, description: "Address, map embed, phone, and hours shown on the Factory Location page." },
+  catalog: { icon: Download, description: "Hero copy and intro shown above the downloadable product catalog." },
 }
 
 export default async function ContentPagesPage() {
@@ -42,11 +44,11 @@ export default async function ContentPagesPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-[14px] font-medium text-stone-800">{page.title}</p>
                 <p className="text-[12px] text-stone-500 mt-0.5 leading-relaxed">{description}</p>
-                <p className="text-[11px] text-stone-400 mt-2">
+                <p className="text-[11px] text-stone-600 mt-2">
                   Updated {new Date(page.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </p>
               </div>
-              <ArrowRight size={15} className="text-stone-300 group-hover:text-stone-600 group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
+              <ArrowRight size={15} className="text-stone-500 group-hover:text-stone-600 group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
             </Link>
           )
         })}

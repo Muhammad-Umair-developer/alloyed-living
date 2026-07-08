@@ -23,7 +23,7 @@ function Field({ label, children, hint }: { label: string; children: React.React
     <div>
       <label className="block text-[12px] font-medium text-stone-700 mb-1.5">{label}</label>
       {children}
-      {hint && <p className="text-[11px] text-stone-400 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-stone-600 mt-1">{hint}</p>}
     </div>
   )
 }
@@ -33,7 +33,7 @@ function Field({ label, children, hint }: { label: string; children: React.React
 function SectionHeader({ title, where }: { title: string; where?: string }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">{title}</p>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">{title}</p>
       {where && (
         <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
           <Eye size={10} /> {where}
@@ -138,14 +138,14 @@ function LivePreview(p: PreviewProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-stone-400">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-stone-600">
         <Eye size={12} /> Live preview
       </div>
 
       {/* Quick-view popup mock */}
       <div className="rounded-lg border border-stone-200 bg-white overflow-hidden">
         <div className="border-b border-stone-100 px-3 py-2">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-stone-400">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-stone-600">
             Quick view popup
           </p>
         </div>
@@ -154,7 +154,7 @@ function LivePreview(p: PreviewProps) {
             {p.image ? (
               <img src={p.image} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full grid place-items-center text-[9px] text-stone-300">
+              <div className="w-full h-full grid place-items-center text-[9px] text-stone-500">
                 No image
               </div>
             )}
@@ -188,7 +188,7 @@ function LivePreview(p: PreviewProps) {
       {/* Detail page mock */}
       <div className="rounded-lg border border-stone-200 bg-white overflow-hidden">
         <div className="border-b border-stone-100 px-3 py-2">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-stone-400">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-stone-600">
             Product detail page
           </p>
         </div>
@@ -199,7 +199,7 @@ function LivePreview(p: PreviewProps) {
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-amber-500 text-[11px]">★★★★★</span>
-              <span className="text-[9px] text-stone-400">rating summary</span>
+              <span className="text-[9px] text-stone-600">rating summary</span>
             </div>
             <p className="text-[13px] font-semibold text-stone-900 mt-1">
               {p.discountPrice.trim() ? fmtPKR(p.discountPrice) : fmtPKR(p.price)}
@@ -208,7 +208,7 @@ function LivePreview(p: PreviewProps) {
 
           {/* Highlights */}
           <div>
-            <p className="text-[9px] tracking-[0.2em] uppercase text-stone-400 mb-1.5">Highlights</p>
+            <p className="text-[9px] tracking-[0.2em] uppercase text-stone-600 mb-1.5">Highlights</p>
             {cleanFeatures.length > 0 ? (
               <ul className="space-y-1">
                 {cleanFeatures.map((f, i) => (
@@ -219,13 +219,13 @@ function LivePreview(p: PreviewProps) {
                 ))}
               </ul>
             ) : (
-              <p className="text-[11px] text-stone-300 italic">Bullet highlights appear here</p>
+              <p className="text-[11px] text-stone-500 italic">Bullet highlights appear here</p>
             )}
           </div>
 
           {/* Full description */}
           <div>
-            <p className="text-[9px] tracking-[0.2em] uppercase text-stone-400 mb-1.5">About this piece</p>
+            <p className="text-[9px] tracking-[0.2em] uppercase text-stone-600 mb-1.5">About this piece</p>
             <p className="text-[11px] text-stone-600 leading-relaxed line-clamp-4 whitespace-pre-line">
               {p.longDescription.trim() ||
                 p.description.trim() ||
@@ -383,8 +383,8 @@ export default function ProductForm({ product }: ProductFormProps) {
                 placeholder="Premium minimalist steel frame with handcrafted wooden arm accents."
               />
               <div className="mt-1 flex items-center justify-between">
-                <span className="text-[11px] text-stone-400">≈ 2 lines max in the popup</span>
-                <span className={`text-[11px] tabular-nums ${description.length >= DESC_LIMIT ? "text-[#7a3535]" : "text-stone-400"}`}>
+                <span className="text-[11px] text-stone-600">≈ 2 lines max in the popup</span>
+                <span className={`text-[11px] tabular-nums ${description.length >= DESC_LIMIT ? "text-[#7a3535]" : "text-stone-600"}`}>
                   {description.length}/{DESC_LIMIT}
                 </span>
               </div>
@@ -408,7 +408,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                     placeholder={`Highlight ${i + 1} — e.g. Heavy-gauge steel frame, powder-coated matte black`}
                   />
                   {features.length > 1 && (
-                    <button type="button" onClick={() => removeFeatureRow(i)} className="p-2 text-stone-400 hover:text-red-600 cursor-pointer flex-shrink-0">
+                    <button type="button" onClick={() => removeFeatureRow(i)} className="p-2 text-stone-600 hover:text-red-600 cursor-pointer flex-shrink-0">
                       <X size={14} />
                     </button>
                   )}
@@ -507,7 +507,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                       <ImageUrlInput value={g} onChange={(url) => updateGallery(i, url)} placeholder={`/gallery-${i + 1}.jpg or https://…`} />
                     </div>
                     {gallery.length > 1 && (
-                      <button type="button" onClick={() => removeGalleryRow(i)} className="p-2 text-stone-400 hover:text-red-600 cursor-pointer flex-shrink-0">
+                      <button type="button" onClick={() => removeGalleryRow(i)} className="p-2 text-stone-600 hover:text-red-600 cursor-pointer flex-shrink-0">
                         <X size={14} />
                       </button>
                     )}

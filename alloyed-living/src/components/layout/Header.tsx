@@ -11,6 +11,7 @@ import { useCart } from "@/src/context/CartContext"
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/shop" },
+  { label: "Catalog", href: "/catalog" },
   { label: "Contact Us", href: "/contact" },
 ]
 
@@ -151,19 +152,19 @@ export default function Header() {
                 className="hidden md:flex items-center gap-3 px-12 pb-4 overflow-hidden
                            border-t border-stone-100/60"
               >
-                <Search size={13} strokeWidth={1.5} className="text-stone-400 shrink-0" />
+                <Search size={13} strokeWidth={1.5} className="text-stone-600 shrink-0" />
                 <input
                   ref={searchRef}
                   type="search"
                   placeholder="Search pieces…"
                   className="flex-1 bg-transparent text-[11px] tracking-wide
-                             text-stone-700 placeholder:text-stone-300 outline-none py-1"
+                             text-stone-700 placeholder:text-stone-500 outline-none py-1"
                 />
                 <button onClick={() => setSearchOpen(false)} aria-label="Close search">
                   <X
                     size={13}
                     strokeWidth={1.5}
-                    className="text-stone-400 transition-colors duration-300 hover:text-stone-800 cursor-pointer"
+                    className="text-stone-600 transition-colors duration-300 hover:text-stone-800 cursor-pointer"
                   />
                 </button>
               </motion.div>

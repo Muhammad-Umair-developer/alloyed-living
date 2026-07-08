@@ -55,7 +55,7 @@ function FloatingInput({
       <label
         htmlFor={id}
         className={`
-          absolute left-0 pointer-events-none text-stone-400
+          absolute left-0 pointer-events-none text-stone-600
           transition-all duration-300
           ${lifted
             ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-500"

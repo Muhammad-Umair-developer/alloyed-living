@@ -248,7 +248,7 @@ function FloatingSelect({
         <ChevronDown
           size={12}
           strokeWidth={1.5}
-          className={disabled ? "text-stone-200" : "text-stone-400"}
+          className={disabled ? "text-stone-200" : "text-stone-600"}
         />
       </motion.div>
 
@@ -329,7 +329,7 @@ function FormSection({ title, children }: { title: string; children: React.React
       animate={{ opacity: 1, y: 0 }}
       transition={{ ease: EASE_CINEMATIC, duration: 0.6 }}
     >
-      <p className="text-[8px] tracking-[0.48em] uppercase text-stone-400 mb-7">{title}</p>
+      <p className="text-[8px] tracking-[0.48em] uppercase text-stone-600 mb-7">{title}</p>
       {children}
     </motion.section>
   )
@@ -348,7 +348,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
     <div>
       {/* Items */}
       {items.length === 0 ? (
-        <p className="text-[10px] tracking-[0.18em] text-stone-300 py-6 text-center">
+        <p className="text-[10px] tracking-[0.18em] text-stone-500 py-6 text-center">
           Your cart is empty.
         </p>
       ) : (
@@ -407,7 +407,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
 
       {/* Trust line */}
       <div className="flex items-center gap-2 mt-6 pt-5 border-t border-stone-100/60">
-        <Lock size={10} strokeWidth={1.5} className="text-stone-400 flex-shrink-0" />
+        <Lock size={10} strokeWidth={1.5} className="text-stone-600 flex-shrink-0" />
         <p className="text-[8px] tracking-[0.18em] text-stone-500 leading-relaxed">
           Secure checkout — your data is encrypted end-to-end
         </p>
@@ -439,7 +439,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
           <ChevronDown
             size={12}
             strokeWidth={1.5}
-            className={`text-stone-400 transition-transform duration-400 ${open ? "rotate-180" : ""}`}
+            className={`text-stone-600 transition-transform duration-400 ${open ? "rotate-180" : ""}`}
           />
         </div>
       </button>
@@ -471,19 +471,19 @@ function CodPanel() {
   const steps = [
     "Place your order — no payment required online.",
     "Receive an SMS with your order ID within 30 minutes.",
-    "Our concierge team calls within 2 business hours to confirm.",
+    "Our support team calls within 2 business hours to confirm.",
     "White-glove delivery in 5–7 days (Karachi) or 7–10 days nationally.",
     "Pay in cash on arrival. No card required at any point.",
   ]
   return (
     <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 space-y-5">
-      <p className="text-[8px] tracking-[0.38em] uppercase text-stone-400">How COD Works</p>
+      <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600">How COD Works</p>
       <ol className="space-y-4">
         {steps.map((text, i) => (
           <li key={i} className="flex gap-4">
             <span
               style={EDITORIAL}
-              className="text-[1rem] font-light text-stone-300 leading-tight flex-shrink-0 w-6"
+              className="text-[1rem] font-light text-stone-500 leading-tight flex-shrink-0 w-6"
             >
               {String(i + 1).padStart(2, "0")}
             </span>
@@ -521,7 +521,7 @@ function PaymentSection({
             className={`
               relative flex-1 py-3.5 flex items-center justify-center gap-2
               text-[8px] tracking-[0.34em] uppercase transition-colors duration-400 cursor-pointer
-              ${method === id ? "text-stone-800" : "text-stone-400 hover:text-stone-700 hover:bg-stone-50"}
+              ${method === id ? "text-stone-800" : "text-stone-600 hover:text-stone-700 hover:bg-stone-50"}
             `}
           >
             <Icon size={11} strokeWidth={1.5} />
@@ -551,7 +551,7 @@ function PaymentSection({
             <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 space-y-5">
               <div className="flex items-center gap-2.5">
                 <ShieldCheck size={13} strokeWidth={1.5} className="text-[#5c6b4a]" />
-                <p className="text-[8px] tracking-[0.38em] uppercase text-stone-400">
+                <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600">
                   Secure Redirect
                 </p>
               </div>
@@ -705,7 +705,7 @@ export default function CheckoutPage() {
       // Cash on Delivery — place the order, no online payment.
       clearCart()
       setPlaced(true)
-      toast.success("Order placed — our concierge will be in touch shortly.")
+      toast.success("Order placed — our team will be in touch shortly.")
       setPlacing(false)
     } catch {
       toast.error("Something went wrong placing your order. Please try again.")
@@ -734,13 +734,13 @@ export default function CheckoutPage() {
             <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
               Thank You
             </p>
-            <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+            <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
               Your order has been received
             </p>
-            <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+            <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
               An order summary with your product details has been emailed to{" "}
               <span className="text-stone-600">{form.email || "your inbox"}</span>.
-              Our concierge team will follow up within 2 business hours to confirm your
+              Our support team will follow up within 2 business hours to confirm your
               Cash-on-Delivery order.
             </p>
             <Link
@@ -772,7 +772,7 @@ export default function CheckoutPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ease: EASE_CINEMATIC, duration: 0.7 }}
-            className="text-[8px] tracking-[0.5em] uppercase text-stone-400 mb-3"
+            className="text-[8px] tracking-[0.5em] uppercase text-stone-600 mb-3"
           >
             Secure Checkout
           </motion.p>
@@ -967,7 +967,7 @@ export default function CheckoutPage() {
               </motion.button>
 
               <p className="mt-4 flex items-center justify-center gap-1.5
-                            text-[8px] tracking-[0.16em] text-stone-300">
+                            text-[8px] tracking-[0.16em] text-stone-500">
                 <Lock size={9} strokeWidth={1.5} />
                 256-bit SSL encryption
                 {method === "safepay" && " · Payments secured by Safepay"}

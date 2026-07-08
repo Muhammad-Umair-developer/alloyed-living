@@ -41,7 +41,7 @@ export default function PieChart({
 
   if (total === 0) {
     return (
-      <div className="flex items-center justify-center text-[12px] text-stone-400" style={{ width: size, height: size }}>
+      <div className="flex items-center justify-center text-[12px] text-stone-600" style={{ width: size, height: size }}>
         No data yet
       </div>
     )
@@ -72,12 +72,12 @@ export default function PieChart({
           {hoverIdx !== null ? (
             <>
               <span className="text-[13px] font-semibold text-stone-800">{formatValue(segments[hoverIdx].value)}</span>
-              <span className="text-[10px] text-stone-400">{((segments[hoverIdx].fraction) * 100).toFixed(0)}%</span>
+              <span className="text-[10px] text-stone-600">{((segments[hoverIdx].fraction) * 100).toFixed(0)}%</span>
             </>
           ) : (
             <>
               <span className="text-[13px] font-semibold text-stone-800">{formatValue(total)}</span>
-              <span className="text-[10px] text-stone-400">Total</span>
+              <span className="text-[10px] text-stone-600">Total</span>
             </>
           )}
         </div>
@@ -93,7 +93,7 @@ export default function PieChart({
           >
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: seg.color }} />
             <span className="text-stone-600 capitalize truncate max-w-[120px]">{seg.label}</span>
-            <span className="text-stone-400 tabular-nums ml-auto pl-3">{((seg.fraction) * 100).toFixed(0)}%</span>
+            <span className="text-stone-600 tabular-nums ml-auto pl-3">{((seg.fraction) * 100).toFixed(0)}%</span>
           </li>
         ))}
       </ul>

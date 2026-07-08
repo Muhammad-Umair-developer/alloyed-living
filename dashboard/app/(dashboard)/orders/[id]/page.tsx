@@ -32,7 +32,7 @@ export default async function OrderDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 max-w-4xl">
         {/* Items */}
         <div className="rounded-lg border border-stone-200 bg-white p-6">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-4">Items</p>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-4">Items</p>
           <ul className="divide-y divide-stone-100">
             {order.items.map((item, i) => (
               <li key={i} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
@@ -43,7 +43,7 @@ export default async function OrderDetailPage({
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-medium text-stone-800 truncate">{item.name}</p>
-                  <p className="text-[11px] text-stone-400">Qty {item.quantity}</p>
+                  <p className="text-[11px] text-stone-600">Qty {item.quantity}</p>
                 </div>
                 <p className="text-[13px] text-stone-700 tabular-nums">PKR {(item.price * item.quantity).toLocaleString()}</p>
               </li>
@@ -68,14 +68,14 @@ export default async function OrderDetailPage({
         {/* Customer + shipping */}
         <div className="space-y-6">
           <div className="rounded-lg border border-stone-200 bg-white p-6">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-3">Customer</p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-3">Customer</p>
             <p className="text-[13px] font-medium text-stone-800">{order.customer.name}</p>
             <p className="text-[12px] text-stone-500 mt-1">{order.customer.email}</p>
             {order.customer.phone && <p className="text-[12px] text-stone-500">{order.customer.phone}</p>}
           </div>
 
           <div className="rounded-lg border border-stone-200 bg-white p-6">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-3">Shipping Address</p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-3">Shipping Address</p>
             <p className="text-[13px] text-stone-700 leading-relaxed">
               {order.shippingAddress.street}
               <br />

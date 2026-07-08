@@ -101,3 +101,13 @@ html body nextjs-portal {
 *::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* Sidebar nav: scrolls only on very short viewports, but never shows a
+   visible scrollbar — the fixed sidebar chrome (logo, settings, account)
+   stays the priority, not a scrollbar next to the nav links. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

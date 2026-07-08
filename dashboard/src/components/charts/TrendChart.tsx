@@ -104,11 +104,11 @@ export default function TrendChart({
           }}
         >
           <span className="font-medium">{formatValue(hovered.value)}</span>
-          <span className="text-stone-400 ml-1.5">{formatDate(hovered.date)}</span>
+          <span className="text-stone-600 ml-1.5">{formatDate(hovered.date)}</span>
         </div>
       )}
 
-      <div className="flex justify-between mt-2 text-[10px] text-stone-400">
+      <div className="flex justify-between mt-2 text-[10px] text-stone-600">
         <span>{formatDate(data[0].date)}</span>
         <span>{formatDate(data[data.length - 1].date)}</span>
       </div>

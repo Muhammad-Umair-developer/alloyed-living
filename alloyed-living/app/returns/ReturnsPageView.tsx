@@ -127,7 +127,7 @@ function StepTracker({ steps }: { steps: ReturnsPageContent["steps"] }) {
             </div>
 
             <div>
-              <p className="text-[7.5px] tracking-[0.46em] uppercase text-stone-400 mb-1.5">
+              <p className="text-[7.5px] tracking-[0.46em] uppercase text-stone-600 mb-1.5">
                 {step.label}
               </p>
               <p className="text-[11px] text-stone-600 leading-relaxed max-w-[13rem]">
@@ -190,7 +190,7 @@ function ReturnPortal() {
 
   return (
     <div className="bg-[#f7f5f2] border border-stone-100 p-8 md:p-10">
-      <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-400 mb-8">Return Portal</p>
+      <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-600 mb-8">Return Portal</p>
 
       <AnimatePresence mode="wait">
 
@@ -219,7 +219,7 @@ function ReturnPortal() {
               />
             </div>
 
-            <p className="text-[10px] text-stone-400 leading-relaxed bg-stone-50 border border-stone-100 p-4">
+            <p className="text-[10px] text-stone-600 leading-relaxed bg-stone-50 border border-stone-100 p-4">
               Your order number appears in your confirmation email or SMS.{" "}
               <span className="text-stone-500">For demo purposes, enter any text and email.</span>
             </p>
@@ -266,7 +266,7 @@ function ReturnPortal() {
             {/* Order summary header */}
             <div className="mb-7 p-4 bg-white border border-stone-100 flex items-center justify-between">
               <div>
-                <p className="text-[7.5px] tracking-[0.32em] uppercase text-stone-400">Order Found</p>
+                <p className="text-[7.5px] tracking-[0.32em] uppercase text-stone-600">Order Found</p>
                 <p style={EDITORIAL} className="text-[1rem] font-light text-stone-800 mt-0.5">
                   {orderId || "AL-2024-00123"} · 14 June 2026
                 </p>
@@ -274,13 +274,13 @@ function ReturnPortal() {
               <button
                 onClick={reset}
                 aria-label="Start over"
-                className="text-stone-300 hover:text-stone-700 transition-colors duration-300 cursor-pointer"
+                className="text-stone-500 hover:text-stone-700 transition-colors duration-300 cursor-pointer"
               >
                 <X size={14} strokeWidth={1.5} />
               </button>
             </div>
 
-            <p className="text-[7.5px] tracking-[0.46em] uppercase text-stone-400 mb-4">
+            <p className="text-[7.5px] tracking-[0.46em] uppercase text-stone-600 mb-4">
               Select Item(s) to Return
             </p>
 
@@ -330,7 +330,7 @@ function ReturnPortal() {
                       <p style={EDITORIAL} className="text-[0.88rem] font-light text-stone-800 leading-snug">
                         {it.name}
                       </p>
-                      <p className="text-[8.5px] tracking-[0.22em] uppercase text-stone-400 mt-0.5">
+                      <p className="text-[8.5px] tracking-[0.22em] uppercase text-stone-600 mt-0.5">
                         {it.material}
                       </p>
                     </div>
@@ -359,7 +359,7 @@ function ReturnPortal() {
               <ChevronDown
                 size={12}
                 strokeWidth={1.5}
-                className="absolute right-1 top-3.5 text-stone-400 pointer-events-none"
+                className="absolute right-1 top-3.5 text-stone-600 pointer-events-none"
               />
             </div>
 
@@ -416,7 +416,7 @@ function ReturnPortal() {
             <p style={EDITORIAL} className="text-[2rem] font-light text-stone-800 mb-2">
               Request Submitted
             </p>
-            <p className="text-[7.5px] tracking-[0.44em] uppercase text-stone-400 mb-8">
+            <p className="text-[7.5px] tracking-[0.44em] uppercase text-stone-600 mb-8">
               Return Label:{" "}
               <span className="text-stone-700 font-medium">{returnLabel}</span>
             </p>
@@ -428,7 +428,7 @@ function ReturnPortal() {
 
             <button
               onClick={reset}
-              className="text-[8px] tracking-[0.4em] uppercase text-stone-400 border-b border-stone-200 pb-0.5
+              className="text-[8px] tracking-[0.4em] uppercase text-stone-600 border-b border-stone-200 pb-0.5
                          hover:text-stone-800 hover:border-stone-600 transition-colors duration-400 cursor-pointer"
             >
               Start Another Return
@@ -455,7 +455,7 @@ function PolicySection({ policies }: { policies: ReturnsPageContent["policies"] 
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
       >
-        <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-400 mb-3">
+        <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-600 mb-3">
           Return Policies
         </span>
         <h2
@@ -481,7 +481,7 @@ function PolicySection({ policies }: { policies: ReturnsPageContent["policies"] 
             className={`
               relative flex items-center gap-2 px-5 py-4 text-[7.5px] tracking-[0.4em] uppercase
               transition-colors duration-300 cursor-pointer
-              ${active === p.id ? "text-stone-900" : "text-stone-400 hover:text-stone-600"}
+              ${active === p.id ? "text-stone-900" : "text-stone-600 hover:text-stone-600"}
             `}
           >
             {p.label}
@@ -516,7 +516,7 @@ function PolicySection({ policies }: { policies: ReturnsPageContent["policies"] 
         >
           {/* Eligibility conditions */}
           <div>
-            <p className="text-[7.5px] tracking-[0.46em] uppercase text-stone-400 mb-6">
+            <p className="text-[7.5px] tracking-[0.46em] uppercase text-stone-600 mb-6">
               Eligibility Conditions
             </p>
             <ul className="space-y-4">
@@ -534,7 +534,7 @@ function PolicySection({ policies }: { policies: ReturnsPageContent["policies"] 
           {/* Notes + caveat */}
           <div className="flex flex-col gap-5">
             <div className="p-6 bg-[#f7f5f2] border border-stone-100">
-              <p className="text-[7.5px] tracking-[0.42em] uppercase text-stone-400 mb-3">
+              <p className="text-[7.5px] tracking-[0.42em] uppercase text-stone-600 mb-3">
                 Important Note
               </p>
               <p className="text-[11.5px] text-stone-600 leading-relaxed">{policy.note}</p>
@@ -572,7 +572,7 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
         >
           <div className="max-w-5xl">
             <motion.span
-              className="block text-[8px] tracking-[0.58em] uppercase text-stone-400 mb-7"
+              className="block text-[8px] tracking-[0.58em] uppercase text-stone-600 mb-7"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE_CINEMATIC, delay: 0.1 }}
@@ -623,7 +623,7 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
           >
-            <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-400 mb-3">
+            <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-600 mb-3">
               How It Works
             </span>
             <h2
@@ -656,7 +656,7 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
             >
-              <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-400">
+              <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-600">
                 Initiate a Return
               </span>
               <h2
@@ -711,14 +711,14 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
             transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
           >
             <div>
-              <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-400 mb-2">
+              <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-600 mb-2">
                 Need Assistance?
               </p>
               <p
                 style={EDITORIAL}
                 className="text-[clamp(1rem,1.5vw,1.25rem)] font-light text-stone-700 leading-snug"
               >
-                Our concierge team is available Mon–Sat, 10 AM – 7 PM (PKT).
+                Our support team is available Mon–Sat, 10 AM – 7 PM (PKT).
               </p>
             </div>
 

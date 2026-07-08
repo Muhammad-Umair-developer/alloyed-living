@@ -7,7 +7,7 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
     <main className="min-h-screen bg-stone-50 flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <p className="text-2xl font-light text-stone-700 mb-2">Something went wrong</p>
-        <p className="text-sm text-stone-400 mb-8">
+        <p className="text-sm text-stone-600 mb-8">
           An unexpected error occurred. Try again, or sign out and back in if it persists.
         </p>
         <button

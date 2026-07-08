@@ -57,7 +57,7 @@ const VARIANT_CONFIG: Record<
   info: {
     bg:     "bg-stone-50",
     border: "border-stone-200",
-    icon:   <Info size={12} strokeWidth={1.5} className="text-stone-400" />,
+    icon:   <Info size={12} strokeWidth={1.5} className="text-stone-600" />,
     bar:    "bg-stone-400",
     label:  "text-stone-500",
   },
@@ -114,7 +114,7 @@ function ToastItem({
         onClick={dismiss}
         aria-label="Dismiss notification"
         className="absolute top-2.5 right-2.5 w-5 h-5 flex items-center justify-center
-                   text-stone-400 hover:text-stone-700 transition-colors duration-200
+                   text-stone-600 hover:text-stone-700 transition-colors duration-200
                    rounded-full hover:bg-stone-100/60 cursor-pointer"
       >
         <X size={10} strokeWidth={2} />

@@ -58,7 +58,7 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
             aria-checked={value === star}
             aria-label={`${star} star${star > 1 ? "s" : ""}`}
             className={`text-2xl leading-none cursor-pointer transition-colors duration-150
-              ${filled ? "text-amber-500" : "text-stone-300 hover:text-amber-300"}`}
+              ${filled ? "text-amber-500" : "text-stone-500 hover:text-amber-300"}`}
           >
             ★
           </button>
@@ -171,7 +171,7 @@ function ReviewForm({
           className="w-full bg-[#faf9f7] border border-stone-200 rounded-md p-4
                      text-sm text-neutral-800 leading-relaxed outline-none resize-none
                      focus:border-stone-500 transition-colors duration-300
-                     placeholder:text-stone-400"
+                     placeholder:text-stone-500"
         />
       </div>
 
@@ -340,7 +340,7 @@ export default function ProductDetailView({
                   <p
                     key={i}
                     className={`text-center text-[6.5px] tracking-[0.18em] uppercase leading-tight transition-colors duration-300 ${
-                      i === activeIdx ? "text-stone-800" : "text-stone-400"
+                      i === activeIdx ? "text-stone-800" : "text-stone-600"
                     }`}
                   >
                     {label}
@@ -539,7 +539,7 @@ export default function ProductDetailView({
                 { label: "Care",       value: "Dry cloth only" },
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <p className="text-[7px] tracking-[0.36em] uppercase text-stone-400 mb-1.5">
+                  <p className="text-[7px] tracking-[0.36em] uppercase text-stone-600 mb-1.5">
                     {label}
                   </p>
                   <p className="text-[0.85rem] text-stone-800 leading-snug">{value}</p>
@@ -596,7 +596,7 @@ export default function ProductDetailView({
                         <p className="text-[9px] tracking-[0.2em] uppercase text-stone-800 font-medium">
                           {review.author}
                         </p>
-                        <p className="text-[8px] tracking-[0.14em] text-stone-400 mt-1">
+                        <p className="text-[8px] tracking-[0.14em] text-stone-600 mt-1">
                           {formatReviewDate(review.createdAt)}
                         </p>
                       </div>
@@ -657,7 +657,7 @@ export default function ProductDetailView({
               <button
                 onClick={() => setToast(null)}
                 aria-label="Dismiss"
-                className="flex-shrink-0 text-stone-400 hover:text-stone-900
+                className="flex-shrink-0 text-stone-600 hover:text-stone-900
                            transition-colors duration-300 cursor-pointer"
               >
                 <X size={13} strokeWidth={1.5} />

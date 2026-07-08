@@ -11,10 +11,10 @@ export default function NotFound() {
         <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
           Page Not Found
         </p>
-        <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+        <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
           This piece has moved on
         </p>
-        <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+        <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
           The page you&apos;re looking for doesn&apos;t exist or is no longer available.
         </p>
         <Link

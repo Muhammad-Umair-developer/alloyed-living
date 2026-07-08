@@ -55,7 +55,7 @@ function TrackingInput() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md">
-      <p className="text-[8px] tracking-[0.52em] uppercase text-stone-400 mb-5 text-center">
+      <p className="text-[8px] tracking-[0.52em] uppercase text-stone-600 mb-5 text-center">
         Track Your Order
       </p>
 
@@ -76,7 +76,7 @@ function TrackingInput() {
             placeholder="Order number — e.g. AL-2024-00123"
             className="w-full bg-transparent py-3 pr-3 text-[12px] text-stone-700
                        tracking-[0.02em] outline-none
-                       placeholder:text-stone-300 placeholder:text-[10.5px]"
+                       placeholder:text-stone-500 placeholder:text-[10.5px]"
           />
           <motion.div
             className="absolute bottom-0 left-0 h-px bg-stone-800"
@@ -132,14 +132,14 @@ function TrackingInput() {
             className="overflow-hidden"
           >
             <div className="mt-4 p-4 bg-stone-50 border border-stone-200">
-              <p className="text-[7.5px] tracking-[0.3em] uppercase text-stone-400 mb-1">No Match Found</p>
+              <p className="text-[7.5px] tracking-[0.3em] uppercase text-stone-600 mb-1">No Match Found</p>
               <p className="text-[11px] text-stone-500 leading-relaxed">
                 Double-check your order number, or{" "}
                 <Link
                   href="/contact"
                   className="underline underline-offset-2 hover:text-stone-800 transition-colors duration-300"
                 >
-                  contact our concierge team
+                  contact our support team
                 </Link>
                 .
               </p>
@@ -182,7 +182,7 @@ function TierCard({ tier }: { tier: ShippingTier }) {
 
       {/* Rate + label */}
       <div>
-        <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-400 mb-2">{tier.label}</p>
+        <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-600 mb-2">{tier.label}</p>
         <h3
           style={EDITORIAL}
           className="text-[clamp(1.7rem,2.5vw,2.4rem)] font-light text-stone-900 leading-none"
@@ -194,11 +194,11 @@ function TierCard({ tier }: { tier: ShippingTier }) {
       {/* Window + carrier */}
       <div className="space-y-2.5">
         <div className="flex items-center gap-2.5">
-          <Clock size={10} strokeWidth={1.5} className="text-stone-400 flex-shrink-0" />
+          <Clock size={10} strokeWidth={1.5} className="text-stone-600 flex-shrink-0" />
           <span className="text-[11px] tracking-[0.03em] text-stone-600">{tier.window}</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <Truck size={10} strokeWidth={1.5} className="text-stone-400 flex-shrink-0" />
+          <Truck size={10} strokeWidth={1.5} className="text-stone-600 flex-shrink-0" />
           <span className="text-[11px] tracking-[0.03em] text-stone-600">{tier.carrier}</span>
         </div>
       </div>
@@ -235,7 +235,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
           className="flex-shrink-0 w-6 h-6 border border-stone-200 flex items-center justify-center
                      group-hover:border-stone-400 transition-colors duration-300"
         >
-          <span className="text-stone-400 text-base leading-none select-none">+</span>
+          <span className="text-stone-600 text-base leading-none select-none">+</span>
         </motion.div>
       </button>
 
@@ -275,7 +275,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
           aria-label="Shipping hero"
         >
           <motion.span
-            className="block text-[8px] tracking-[0.58em] uppercase text-stone-400 mb-7"
+            className="block text-[8px] tracking-[0.58em] uppercase text-stone-600 mb-7"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: EASE_CINEMATIC, delay: 0.1 }}
@@ -334,7 +334,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
           >
-            <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-400 mb-3">
+            <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-600 mb-3">
               Delivery Options
             </span>
             <h2
@@ -387,11 +387,11 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
             transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
           >
             <div className="w-11 h-11 border border-stone-200 flex items-center justify-center flex-shrink-0">
-              <Globe size={15} strokeWidth={1.2} className="text-stone-400" />
+              <Globe size={15} strokeWidth={1.2} className="text-stone-600" />
             </div>
 
             <div className="flex-1">
-              <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-400 mb-1.5">
+              <p className="text-[7.5px] tracking-[0.5em] uppercase text-stone-600 mb-1.5">
                 International Shipping
               </p>
               <p
@@ -430,7 +430,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, ease: EASE_CINEMATIC }}
             >
-              <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-400 mb-3">
+              <span className="block text-[7.5px] tracking-[0.52em] uppercase text-stone-600 mb-3">
                 Policies & FAQ
               </span>
               <h2

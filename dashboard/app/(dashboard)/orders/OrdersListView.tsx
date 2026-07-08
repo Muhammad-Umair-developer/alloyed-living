@@ -10,7 +10,7 @@ import StatusBadge from "@/src/components/ui/StatusBadge"
 import { toast } from "@/src/components/ui/ToastAlert"
 import { updateOrderStatusAction } from "@/src/actions/order-actions"
 
-const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned"]
+const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 const FILTERS: Array<OrderStatus | "all"> = ["all", ...STATUSES]
 
 export default function OrdersListView({ orders }: { orders: Order[] }) {
@@ -57,12 +57,12 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
           <table className="w-full text-left min-w-[720px]">
             <thead>
               <tr className="border-b border-stone-100 bg-stone-50/60">
-                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Order</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Customer</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Items</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Total</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Placed</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Status</th>
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Order</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Customer</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Items</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Total</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Placed</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Status</th>
                 <th className="w-16 px-4 py-3" />
               </tr>
             </thead>
@@ -72,7 +72,7 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
                   <td className="px-4 py-3 text-[13px] font-medium text-stone-800">{o.id}</td>
                   <td className="px-2 py-3">
                     <p className="text-[13px] text-stone-700">{o.customer.name}</p>
-                    <p className="text-[11px] text-stone-400">{o.customer.email}</p>
+                    <p className="text-[11px] text-stone-600">{o.customer.email}</p>
                   </td>
                   <td className="px-2 py-3 text-[13px] text-stone-600">{o.items.reduce((s, i) => s + i.quantity, 0)}</td>
                   <td className="px-2 py-3 text-[13px] text-stone-700 tabular-nums">PKR {o.total.toLocaleString()}</td>

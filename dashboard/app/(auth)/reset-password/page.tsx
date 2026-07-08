@@ -130,7 +130,7 @@ export default function DashboardResetPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <p className="text-[15px] font-semibold tracking-tight text-stone-900">Alloyed Living</p>
-          <p className="text-[10px] tracking-[0.2em] uppercase text-stone-400 mt-0.5">Admin Dashboard</p>
+          <p className="text-[10px] tracking-[0.2em] uppercase text-stone-600 mt-0.5">Admin Dashboard</p>
         </div>
 
         <div className="rounded-lg border border-stone-200 bg-white p-8 shadow-sm space-y-5">
@@ -208,7 +208,7 @@ export default function DashboardResetPasswordPage() {
                     type="button"
                     onClick={() => setShowPwd((v) => !v)}
                     aria-label={showPwd ? "Hide password" : "Show password"}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-600 hover:text-stone-700 transition-colors cursor-pointer"
                   >
                     {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>

@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.110.0",
     "@types/three": "^0.184.1",
     "framer-motion": "^12.41.0",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "react": "19.2.4",

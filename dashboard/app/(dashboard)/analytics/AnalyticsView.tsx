@@ -62,13 +62,13 @@ export default function AnalyticsView({ rows, totals }: { rows: Row[]; totals: T
     <div className="space-y-6">
       {/* Overall funnel */}
       <div className="rounded-lg border border-stone-200 bg-white p-6">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-5">Overall Funnel</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-5">Overall Funnel</p>
         <div className="space-y-4 max-w-lg">
           <FunnelStage label="Views" value={totals.views} max={totals.views} tone="#57534e" />
           <FunnelStage label="Add to Cart" value={totals.addToCart} max={totals.views} tone="#a8a29e" />
           <FunnelStage label="Purchases" value={totals.purchases} max={totals.views} tone="var(--accent)" />
         </div>
-        <p className="text-[12px] text-stone-400 mt-4">
+        <p className="text-[12px] text-stone-600 mt-4">
           {totals.views > 0 ? ((totals.purchases / totals.views) * 100).toFixed(1) : "0.0"}% of views convert to a purchase.
         </p>
       </div>
@@ -79,12 +79,12 @@ export default function AnalyticsView({ rows, totals }: { rows: Row[]; totals: T
         <table className="w-full text-left min-w-[640px]">
           <thead>
             <tr className="border-b border-stone-100 bg-stone-50/60">
-              <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Product</th>
+              <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Product</th>
               {COLUMNS.map((col) => (
-                <th key={col.key} className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">
+                <th key={col.key} className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">
                   <button onClick={() => toggleSort(col.key)} className="inline-flex items-center gap-1 hover:text-stone-700 transition-colors cursor-pointer">
                     {col.label}
-                    <ArrowUpDown size={11} className={sort === col.key ? "text-stone-600" : "text-stone-300"} />
+                    <ArrowUpDown size={11} className={sort === col.key ? "text-stone-600" : "text-stone-500"} />
                   </button>
                 </th>
               ))}
@@ -98,7 +98,7 @@ export default function AnalyticsView({ rows, totals }: { rows: Row[]; totals: T
                     <img src={r.image} alt={r.name} className="w-9 h-9 rounded-md object-cover bg-stone-100 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-[13px] font-medium text-stone-800 truncate max-w-[220px]">{r.name}</p>
-                      <p className="text-[11px] text-stone-400">{r.category}</p>
+                      <p className="text-[11px] text-stone-600">{r.category}</p>
                     </div>
                   </div>
                 </td>

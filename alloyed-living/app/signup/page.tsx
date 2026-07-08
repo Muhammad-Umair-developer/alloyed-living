@@ -68,7 +68,7 @@ function FloatingInput({
       <label
         htmlFor={id}
         className={`
-          absolute left-0 pointer-events-none text-stone-400
+          absolute left-0 pointer-events-none text-stone-600
           transition-all duration-300
           ${lifted
             ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-500"
@@ -112,7 +112,7 @@ function EyeToggle({ visible, onToggle, label }: {
       type="button"
       onClick={onToggle}
       aria-label={label}
-      className="cursor-pointer text-stone-300 hover:text-stone-600 transition-colors duration-300"
+      className="cursor-pointer text-stone-500 hover:text-stone-600 transition-colors duration-300"
     >
       {visible
         ? <EyeOff size={13} strokeWidth={1.5} />
@@ -243,7 +243,7 @@ function StatusModal({
         <p className="text-[12px] tracking-[0.02em] text-stone-800 mb-8 break-all">
           {email}
         </p>
-        <p className="text-[10px] leading-relaxed tracking-[0.08em] text-stone-400 mb-9">
+        <p className="text-[10px] leading-relaxed tracking-[0.08em] text-stone-600 mb-9">
           {isExists
             ? "Sign in to continue, or reset your password."
             : "Confirm your email, then sign in to begin."}
@@ -269,7 +269,7 @@ function StatusModal({
           <button
             type="button"
             onClick={onDismiss}
-            className="mt-5 text-[9px] tracking-[0.24em] uppercase text-stone-400
+            className="mt-5 text-[9px] tracking-[0.24em] uppercase text-stone-600
                        hover:text-stone-700 transition-colors duration-300 cursor-pointer"
           >
             Use a different email

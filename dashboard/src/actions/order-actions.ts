@@ -5,7 +5,7 @@ import { requireDashboardUser } from "@/src/lib/auth/require-admin"
 import { updateOrderStatus } from "@/src/lib/data/orders"
 import type { Order, OrderStatus } from "@/src/lib/data/types"
 
-const ORDER_STATUSES: readonly OrderStatus[] = ["pending", "shipped", "delivered", "returned"]
+const ORDER_STATUSES: readonly OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 
 export async function updateOrderStatusAction(id: string, status: OrderStatus): Promise<Order | null> {
   await requireDashboardUser()

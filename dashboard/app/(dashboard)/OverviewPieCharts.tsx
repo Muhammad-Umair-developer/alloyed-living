@@ -12,14 +12,14 @@ export default function OverviewPieCharts({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="rounded-lg border border-stone-200 bg-white p-6">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-5">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-5">
           Revenue by Category
         </p>
         <PieChart data={revenueByCategory} formatValue={(v) => `PKR ${v.toLocaleString()}`} />
       </div>
 
       <div className="rounded-lg border border-stone-200 bg-white p-6">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-5">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-5">
           Orders by Status
         </p>
         <PieChart data={ordersByStatus} />

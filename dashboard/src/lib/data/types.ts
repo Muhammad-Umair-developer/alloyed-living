@@ -170,6 +170,24 @@ export interface ShopPageContent {
   title: string
 }
 
+export interface FactoryLocationPageContent {
+  heroTitle: string
+  heroSubtitle: string
+  address: string
+  mapEmbedUrl: string
+  phone: string
+  hours: string
+}
+
+export interface CatalogPageContent {
+  heroTitle: string
+  heroSubtitle: string
+  intro: string
+  // Admin-uploaded PDF (Supabase Storage URL). When set, the storefront
+  // download button serves this exact file instead of generating one.
+  catalogPdfUrl: string | null
+}
+
 export type ContentPageFields =
   | ShippingPageContent
   | ReturnsPageContent
@@ -179,8 +197,20 @@ export type ContentPageFields =
   | FaqPageContent
   | HomePageContent
   | ShopPageContent
+  | FactoryLocationPageContent
+  | CatalogPageContent
 
-export type ContentSlug = "home" | "shop" | "shipping" | "returns" | "contact" | "about" | "faq" | "terms"
+export type ContentSlug =
+  | "home"
+  | "shop"
+  | "shipping"
+  | "returns"
+  | "contact"
+  | "about"
+  | "faq"
+  | "terms"
+  | "factory-location"
+  | "catalog"
 
 export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
   slug: ContentSlug
@@ -191,7 +221,7 @@ export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
 
 // ─── Orders ─────────────────────────────────────────────────────────────────
 
-export type OrderStatus = "pending" | "shipped" | "delivered" | "returned"
+export type OrderStatus = "pending" | "shipped" | "delivered" | "returned" | "exchanged"
 
 // Payment lifecycle, tracked separately from fulfilment status. Set by the
 // storefront's Safepay integration; the dashboard reads it for visibility.

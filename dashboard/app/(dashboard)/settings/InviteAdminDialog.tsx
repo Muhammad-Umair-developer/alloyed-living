@@ -189,7 +189,7 @@ export default function InviteAdminDialog({
                         </option>
                       ))}
                     </select>
-                    <p className="text-[11px] text-stone-400 mt-1.5 leading-relaxed">{ROLE_HINT[role]}</p>
+                    <p className="text-[11px] text-stone-600 mt-1.5 leading-relaxed">{ROLE_HINT[role]}</p>
                   </div>
 
                   <div className="flex justify-end gap-2 pt-1">

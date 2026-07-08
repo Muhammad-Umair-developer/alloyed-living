@@ -15,12 +15,12 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
         <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
           Something Went Wrong
         </p>
-        <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+        <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
           Please try again
         </p>
-        <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+        <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
           An unexpected error occurred. If this keeps happening, please contact our
-          concierge team.
+          support team.
         </p>
         <button
           onClick={reset}

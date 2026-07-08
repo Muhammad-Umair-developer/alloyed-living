@@ -5,6 +5,7 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   shipped:   "bg-sky-50 text-sky-700 border-sky-200",
   delivered: "bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/25",
   returned:  "bg-red-50 text-red-700 border-red-200",
+  exchanged: "bg-violet-50 text-violet-700 border-violet-200",
 }
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -12,6 +13,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   shipped:   "Shipped",
   delivered: "Delivered",
   returned:  "Returned",
+  exchanged: "Exchanged",
 }
 
 export default function StatusBadge({ status }: { status: OrderStatus }) {

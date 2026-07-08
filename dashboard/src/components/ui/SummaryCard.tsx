@@ -19,7 +19,7 @@ export default function SummaryCard({ icon: Icon, label, value, hint, index = 0 
         </div>
       </div>
       <p className="text-[24px] font-semibold tracking-tight text-stone-900">{value}</p>
-      {hint && <p className="text-[11px] text-stone-400 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-stone-600 mt-1">{hint}</p>}
     </AnimatedCard>
   )
 }

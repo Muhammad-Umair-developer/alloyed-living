@@ -71,7 +71,7 @@ function FloatingInput({
       <label
         htmlFor={id}
         className={`
-          absolute left-0 pointer-events-none text-stone-400
+          absolute left-0 pointer-events-none text-stone-600
           transition-all duration-300
           ${lifted
             ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-500"
@@ -314,7 +314,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
                   aria-label={showPwd ? "Hide password" : "Show password"}
-                  className="cursor-pointer text-stone-300 hover:text-stone-600
+                  className="cursor-pointer text-stone-500 hover:text-stone-600
                              transition-colors duration-300"
                 >
                   {showPwd

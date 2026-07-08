@@ -150,7 +150,7 @@ export default function ProductsListView({ products }: { products: Product[] }) 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={14} strokeWidth={1.75} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+          <Search size={14} strokeWidth={1.75} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-600" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -206,7 +206,7 @@ export default function ProductsListView({ products }: { products: Product[] }) 
               <button onClick={handleBulkCategory} disabled={isPending} className="px-2.5 py-1.5 text-[12px] font-medium text-white bg-stone-900 rounded-md hover:bg-stone-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
                 Apply
               </button>
-              <button onClick={() => setShowCategoryInput(false)} className="p-1.5 text-stone-400 hover:text-stone-700 cursor-pointer">
+              <button onClick={() => setShowCategoryInput(false)} className="p-1.5 text-stone-600 hover:text-stone-700 cursor-pointer">
                 <X size={13} />
               </button>
             </div>
@@ -230,7 +230,7 @@ export default function ProductsListView({ products }: { products: Product[] }) 
               <button onClick={handleBulkStock} disabled={isPending} className="px-2.5 py-1.5 text-[12px] font-medium text-white bg-stone-900 rounded-md hover:bg-stone-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
                 Apply
               </button>
-              <button onClick={() => setShowStockInput(false)} className="p-1.5 text-stone-400 hover:text-stone-700 cursor-pointer">
+              <button onClick={() => setShowStockInput(false)} className="p-1.5 text-stone-600 hover:text-stone-700 cursor-pointer">
                 <X size={13} />
               </button>
             </div>
@@ -275,11 +275,11 @@ export default function ProductsListView({ products }: { products: Product[] }) 
                 <th className="w-10 px-4 py-3">
                   <input type="checkbox" checked={allVisibleSelected} onChange={toggleAllVisible} className="cursor-pointer" />
                 </th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Product</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Category</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Price</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Stock</th>
-                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-400">Tags</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Product</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Category</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Price</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Stock</th>
+                <th className="px-2 py-3 text-[11px] font-medium uppercase tracking-wide text-stone-600">Tags</th>
                 <th className="w-24 px-4 py-3" />
               </tr>
             </thead>
@@ -294,7 +294,7 @@ export default function ProductsListView({ products }: { products: Product[] }) 
                       <img src={p.image} alt={p.name} className="w-11 h-11 rounded-md object-cover bg-stone-100 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[13px] font-medium text-stone-800 truncate max-w-[220px]">{p.name}</p>
-                        <p className="text-[11px] text-stone-400 truncate max-w-[220px]">{p.material}</p>
+                        <p className="text-[11px] text-stone-600 truncate max-w-[220px]">{p.material}</p>
                       </div>
                     </div>
                   </td>
@@ -302,7 +302,7 @@ export default function ProductsListView({ products }: { products: Product[] }) 
                   <td className="px-2 py-3 text-[13px] text-stone-700 tabular-nums">
                     {p.discountPrice ? (
                       <span>
-                        <span className="line-through text-stone-400 mr-1.5">PKR {p.price.toLocaleString()}</span>
+                        <span className="line-through text-stone-600 mr-1.5">PKR {p.price.toLocaleString()}</span>
                         PKR {p.discountPrice.toLocaleString()}
                       </span>
                     ) : (
@@ -319,15 +319,15 @@ export default function ProductsListView({ products }: { products: Product[] }) 
                       {p.tags.slice(0, 2).map((t) => (
                         <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">{t}</span>
                       ))}
-                      {p.tags.length > 2 && <span className="text-[10px] text-stone-400">+{p.tags.length - 2}</span>}
+                      {p.tags.length > 2 && <span className="text-[10px] text-stone-600">+{p.tags.length - 2}</span>}
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/products/${p.id}/edit`} className="p-1.5 text-stone-400 hover:text-stone-800 hover:bg-stone-100 rounded-md transition-colors" aria-label={`Edit ${p.name}`}>
+                      <Link href={`/products/${p.id}/edit`} className="p-1.5 text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-md transition-colors" aria-label={`Edit ${p.name}`}>
                         <Pencil size={14} strokeWidth={1.75} />
                       </Link>
-                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer" aria-label={`Delete ${p.name}`}>
+                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer" aria-label={`Delete ${p.name}`}>
                         <Trash2 size={14} strokeWidth={1.75} />
                       </button>
                     </div>
@@ -357,7 +357,7 @@ export default function ProductsListView({ products }: { products: Product[] }) 
         onCancel={() => setBulkDeleteOpen(false)}
       />
 
-      <div className="flex items-center gap-1 mt-4 text-[10px] text-stone-400">
+      <div className="flex items-center gap-1 mt-4 text-[10px] text-stone-600">
         <ChevronDown size={11} className="rotate-180" />
         Showing {filtered.length} of {products.length}
       </div>

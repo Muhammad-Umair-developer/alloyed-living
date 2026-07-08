@@ -330,7 +330,7 @@ const FilterPanel = memo(function FilterPanel({
           <ChevronDown
             size={11}
             strokeWidth={1.5}
-            className={`text-stone-300 transition-transform duration-400 ${dimOpen ? "rotate-180" : ""}`}
+            className={`text-stone-500 transition-transform duration-400 ${dimOpen ? "rotate-180" : ""}`}
           />
         </button>
 
@@ -551,7 +551,7 @@ function ActiveChips({
               <X
                 size={8}
                 strokeWidth={2}
-                className="text-stone-400 group-hover:text-stone-700 transition-colors duration-300"
+                className="text-stone-600 group-hover:text-stone-700 transition-colors duration-300"
               />
             </motion.button>
           ))}
@@ -566,7 +566,7 @@ function ActiveChips({
               transition={{ duration: 0.2 }}
               onClick={onClearAll}
               className="flex items-center px-3 py-1.5 text-[8px] tracking-[0.16em]
-                         uppercase text-stone-400 hover:text-stone-700
+                         uppercase text-stone-600 hover:text-stone-700
                          transition-colors duration-300 underline underline-offset-2"
             >
               Clear All
@@ -672,7 +672,7 @@ export default function ShopPageView({ products, content }: { products: Product[
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0  }}
             transition={{ duration: 0.8, ease: EASE_CINEMATIC }}
-            className="text-[8px] tracking-[0.52em] uppercase text-stone-400 mb-4"
+            className="text-[8px] tracking-[0.52em] uppercase text-stone-600 mb-4"
           >
             {content.eyebrow}
           </motion.p>
@@ -804,7 +804,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                 <span style={EDITORIAL} className="text-[0.95rem] font-light text-neutral-900 normal-case tracking-normal not-italic">
                   {toast}
                 </span>
-                <span className="mx-2 text-stone-400">·</span>
+                <span className="mx-2 text-stone-600">·</span>
                 added to your bag
               </p>
 
@@ -884,7 +884,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                 onClick={() => setSelectedProduct(null)}
                 aria-label="Close"
                 className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center
-                           text-neutral-400 hover:text-neutral-900 transition-colors duration-300 cursor-pointer"
+                           text-neutral-600 hover:text-neutral-900 transition-colors duration-300 cursor-pointer"
               >
                 <X size={16} strokeWidth={1.5} />
               </button>
@@ -1010,7 +1010,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Close filters"
                   className="w-7 h-7 flex items-center justify-center rounded-full
-                             text-stone-400 hover:text-stone-800 hover:bg-stone-100/50
+                             text-stone-600 hover:text-stone-800 hover:bg-stone-100/50
                              transition-colors duration-300"
                 >
                   <X size={14} strokeWidth={1.5} />

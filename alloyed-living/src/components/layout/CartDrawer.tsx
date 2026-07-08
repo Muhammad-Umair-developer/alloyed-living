@@ -65,7 +65,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={onClose}
                 aria-label="Close shopping bag"
                 className="w-7 h-7 flex items-center justify-center rounded-full
-                           text-stone-400 hover:text-stone-800 hover:bg-stone-100/70
+                           text-stone-600 hover:text-stone-800 hover:bg-stone-100/70
                            transition-colors duration-300 cursor-pointer"
               >
                 <X size={14} strokeWidth={1.5} />
@@ -79,7 +79,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   {/* Pulsing bag icon */}
                   <div className="relative">
                     <div className="w-16 h-16 rounded-full bg-stone-50 flex items-center justify-center">
-                      <ShoppingBag size={26} strokeWidth={1} className="text-stone-300" />
+                      <ShoppingBag size={26} strokeWidth={1} className="text-stone-500" />
                     </div>
                     <motion.div
                       className="absolute inset-0 rounded-full border border-stone-100"
@@ -164,7 +164,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               onClick={() => removeFromCart(item.id)}
                               aria-label={`Remove ${item.name}`}
                               className="flex-shrink-0 w-5 h-5 flex items-center justify-center
-                                         text-stone-300 hover:text-stone-700
+                                         text-stone-500 hover:text-stone-700
                                          transition-colors duration-300 cursor-pointer"
                             >
                               <X size={12} strokeWidth={1.5} />
@@ -177,7 +177,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               <button
                                 onClick={() => updateQuantity(item.id, -1)}
                                 aria-label="Decrease quantity"
-                                className="text-stone-400 hover:text-stone-700 transition-colors
+                                className="text-stone-600 hover:text-stone-700 transition-colors
                                            duration-300 leading-none flex items-center justify-center
                                            w-3 h-3 cursor-pointer"
                               >
@@ -189,7 +189,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               <button
                                 onClick={() => updateQuantity(item.id, 1)}
                                 aria-label="Increase quantity"
-                                className="text-stone-400 hover:text-stone-700 transition-colors
+                                className="text-stone-600 hover:text-stone-700 transition-colors
                                            duration-300 leading-none flex items-center justify-center
                                            w-3 h-3 cursor-pointer"
                               >

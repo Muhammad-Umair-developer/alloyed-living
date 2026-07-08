@@ -17,15 +17,15 @@ export default function CheckoutCancelPage() {
       <main className="min-h-screen bg-[#faf9f7] flex items-center justify-center px-6 pt-24">
         <div className="text-center max-w-sm">
           <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-stone-200 flex items-center justify-center mx-auto mb-8">
-            <XCircle size={20} strokeWidth={1.5} className="text-stone-400" />
+            <XCircle size={20} strokeWidth={1.5} className="text-stone-600" />
           </div>
           <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
             Payment Cancelled
           </p>
-          <p className="text-[10px] tracking-[0.28em] uppercase text-stone-400 mb-8">
+          <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
             Nothing was charged
           </p>
-          <p className="text-[11px] text-stone-400 tracking-wide leading-relaxed mb-10">
+          <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
             You cancelled before completing payment, so your order is on hold and no charge was made.
             Your cart is still saved — you can complete checkout whenever you&apos;re ready.
           </p>

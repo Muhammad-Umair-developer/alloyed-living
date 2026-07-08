@@ -8,7 +8,10 @@ import ContentPageEditor from "./ContentPageEditor"
 // Content is edited from this same dashboard — always read fresh.
 export const dynamic = "force-dynamic"
 
-const VALID_SLUGS: ContentSlug[] = ["home", "shop", "shipping", "returns", "contact", "about", "faq", "terms"]
+const VALID_SLUGS: ContentSlug[] = [
+  "home", "shop", "shipping", "returns", "contact", "about", "faq", "terms",
+  "factory-location", "catalog",
+]
 
 export default async function ContentSlugPage({
   params,

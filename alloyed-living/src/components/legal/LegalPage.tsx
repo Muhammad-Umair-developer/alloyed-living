@@ -73,7 +73,7 @@ function SectionBlock({
       transition={reduce ? undefined : { duration: 0.55, ease: EASE_CINEMATIC }}
     >
       <h2 className="flex items-baseline gap-3 mb-5">
-        <span className="text-[11px] tabular-nums text-stone-400 tracking-[0.1em] pt-1">
+        <span className="text-[11px] tabular-nums text-stone-600 tracking-[0.1em] pt-1">
           {String(index + 1).padStart(2, "0")}
         </span>
         <span
@@ -158,7 +158,7 @@ export default function LegalPage({ eyebrow, title, lastUpdated, intro, sections
         <section className="px-6 md:px-16 pt-14 md:pt-20 pb-10 md:pb-14 border-b border-stone-100">
           <div className="mx-auto max-w-6xl">
             <motion.span
-              className="block text-[8px] tracking-[0.52em] uppercase text-stone-400 mb-6"
+              className="block text-[8px] tracking-[0.52em] uppercase text-stone-600 mb-6"
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
               transition={reduce ? undefined : { duration: 0.6, ease: EASE_CINEMATIC, delay: 0.05 }}
@@ -177,7 +177,7 @@ export default function LegalPage({ eyebrow, title, lastUpdated, intro, sections
             </motion.h1>
 
             <motion.p
-              className="mt-8 text-[10px] tracking-[0.24em] uppercase text-stone-400"
+              className="mt-8 text-[10px] tracking-[0.24em] uppercase text-stone-600"
               initial={reduce ? false : { opacity: 0 }}
               animate={reduce ? undefined : { opacity: 1 }}
               transition={reduce ? undefined : { duration: 0.6, ease: EASE_CINEMATIC, delay: 0.3 }}
@@ -199,13 +199,13 @@ export default function LegalPage({ eyebrow, title, lastUpdated, intro, sections
             className="w-full flex items-center justify-between gap-3 px-6 py-3.5 cursor-pointer"
           >
             <span className="flex items-center gap-2.5 min-w-0">
-              <List size={13} strokeWidth={1.5} className="text-stone-400 shrink-0" />
+              <List size={13} strokeWidth={1.5} className="text-stone-600 shrink-0" />
               <span className="text-[11px] tracking-[0.06em] text-stone-600 truncate">{activeTitle}</span>
             </span>
             <ChevronDown
               size={14}
               strokeWidth={1.5}
-              className={`text-stone-400 shrink-0 transition-transform duration-200 ${tocOpen ? "rotate-180" : ""}`}
+              className={`text-stone-600 shrink-0 transition-transform duration-200 ${tocOpen ? "rotate-180" : ""}`}
             />
           </button>
           {tocOpen && (
@@ -220,7 +220,7 @@ export default function LegalPage({ eyebrow, title, lastUpdated, intro, sections
                         activeId === s.id ? "text-stone-900" : "text-stone-500 hover:text-stone-800"
                       }`}
                     >
-                      <span className="tabular-nums text-stone-400 text-[10px] pt-0.5">
+                      <span className="tabular-nums text-stone-600 text-[10px] pt-0.5">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       {s.title}
@@ -241,7 +241,7 @@ export default function LegalPage({ eyebrow, title, lastUpdated, intro, sections
                 aria-label="Table of contents"
                 className="sticky top-28 max-h-[calc(100vh-9rem)] overflow-auto pr-2"
               >
-                <p className="text-[8px] tracking-[0.4em] uppercase text-stone-400 mb-5">Contents</p>
+                <p className="text-[8px] tracking-[0.4em] uppercase text-stone-600 mb-5">Contents</p>
                 <ol className="space-y-2.5">
                   {sections.map((s, i) => (
                     <li key={s.id}>
@@ -252,7 +252,7 @@ export default function LegalPage({ eyebrow, title, lastUpdated, intro, sections
                         className={`group flex gap-2.5 text-[11.5px] leading-snug transition-colors duration-150 ${
                           activeId === s.id
                             ? "text-stone-900"
-                            : "text-stone-400 hover:text-stone-700"
+                            : "text-stone-600 hover:text-stone-700"
                         }`}
                       >
                         <span className="tabular-nums text-[10px] pt-0.5 shrink-0">

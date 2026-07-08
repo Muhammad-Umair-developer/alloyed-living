@@ -40,7 +40,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover object-[50%_15%] scale-[1.02]"
+            className="absolute inset-0 w-full h-full object-cover object-[50%_32%] scale-[1.08]"
             aria-hidden
           />
         )}
@@ -48,7 +48,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
           <img
             src={hero.imageUrl}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover object-[50%_15%] scale-[1.02]"
+            className="absolute inset-0 w-full h-full object-cover object-[50%_32%] scale-[1.08]"
             aria-hidden
           />
         )}
@@ -174,7 +174,7 @@ function EditorialSection({ story }: { story: HomePageContent["story"] }) {
           whileHover={{ y: -2, transition: SPRING_HOVER }}
         >
           <Link
-            href="/contact"
+            href="/our-story"
             className="inline-flex items-center gap-3 text-[8px] tracking-[0.44em]
                        uppercase text-stone-700 border-b border-stone-400 pb-0.5 cursor-pointer
                        hover:text-stone-950 hover:border-stone-800 transition-colors duration-500"
@@ -502,7 +502,7 @@ export default function HomePageView({ products, content }: { products: Product[
                 onClick={() => setSelected(null)}
                 aria-label="Close"
                 className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center
-                           text-neutral-400 hover:text-neutral-900 transition-colors duration-300 cursor-pointer"
+                           text-neutral-600 hover:text-neutral-900 transition-colors duration-300 cursor-pointer"
               >
                 <X size={16} strokeWidth={1.5} />
               </button>
@@ -597,7 +597,7 @@ export default function HomePageView({ products, content }: { products: Product[
                 <span style={EDITORIAL} className="text-[0.95rem] font-light text-neutral-900 normal-case tracking-normal">
                   {toast}
                 </span>
-                <span className="mx-2 text-stone-400">·</span>
+                <span className="mx-2 text-stone-600">·</span>
                 added to your bag
               </p>
               <button

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
+  Receipt,
   FileText,
   BarChart3,
   Settings,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/products", label: "Products", icon: Package, exact: false },
   { href: "/orders", label: "Orders", icon: ShoppingCart, exact: false },
+  { href: "/purchases", label: "Purchase Records", icon: Receipt, exact: false },
   { href: "/content", label: "Content Pages", icon: FileText, exact: false },
   { href: "/analytics", label: "Analytics", icon: BarChart3, exact: false },
 ] as const
@@ -65,7 +67,7 @@ export default function Sidebar() {
       <header className="lg:hidden fixed inset-x-0 top-0 z-40 flex items-center justify-between h-14 px-4 border-b border-stone-200 bg-white/90 backdrop-blur-md">
         <div className="leading-tight">
           <p className="text-[13px] font-semibold tracking-tight text-stone-900">Alloyed Living</p>
-          <p className="text-[9px] tracking-[0.2em] uppercase text-stone-400">Admin Dashboard</p>
+          <p className="text-[9px] tracking-[0.2em] uppercase text-stone-600">Admin Dashboard</p>
         </div>
         <button
           onClick={() => setOpen(true)}
@@ -94,10 +96,10 @@ export default function Sidebar() {
         `}
       >
         {/* Wordmark + mobile close */}
-        <div className="flex items-start justify-between px-6 pt-7 pb-6">
+        <div className="flex items-start justify-between px-5 pt-5 pb-4 flex-shrink-0">
           <div>
             <p className="text-[13px] font-semibold tracking-tight text-stone-900">Alloyed Living</p>
-            <p className="text-[10px] tracking-[0.2em] uppercase text-stone-400 mt-0.5">Admin Dashboard</p>
+            <p className="text-[10px] tracking-[0.2em] uppercase text-stone-600 mt-0.5">Admin Dashboard</p>
           </div>
           <button
             onClick={() => setOpen(false)}
@@ -108,8 +110,9 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto" aria-label="Dashboard navigation">
+        {/* Nav — scrolls only if truly needed (very short viewports); scrollbar
+            hidden so it never shows as a visible "slider" in the normal case. */}
+        <nav className="flex-1 min-h-0 px-3 space-y-0.5 overflow-y-auto scrollbar-none" aria-label="Dashboard navigation">
           {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
             const active = isActive(pathname, href, exact)
             return (
@@ -117,7 +120,7 @@ export default function Sidebar() {
                 key={href}
                 href={href}
                 className={`
-                  group relative flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px]
+                  group relative flex items-center gap-3 px-3 py-2 rounded-md text-[13px]
                   transition-colors duration-200
                   ${active
                     ? "bg-[var(--accent-soft)] text-[var(--accent)] font-medium"
@@ -127,7 +130,7 @@ export default function Sidebar() {
                 {active && (
                   <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-[var(--accent)]" />
                 )}
-                <Icon size={16} strokeWidth={1.75} className={active ? "text-[var(--accent)]" : "text-stone-400 group-hover:text-stone-600"} />
+                <Icon size={16} strokeWidth={1.75} className={active ? "text-[var(--accent)]" : "text-stone-600 group-hover:text-stone-600"} />
                 {label}
               </Link>
             )
@@ -135,46 +138,46 @@ export default function Sidebar() {
         </nav>
 
         {/* Bottom section */}
-        <div className="px-3 pb-4 pt-3 border-t border-stone-100 space-y-0.5">
+        <div className="flex-shrink-0 px-3 pb-2.5 pt-2 border-t border-stone-100 space-y-0.5">
           <Link
             href="/settings"
             className={`
-              flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] transition-colors duration-200
+              flex items-center gap-3 px-3 py-2 rounded-md text-[13px] transition-colors duration-200
               ${isActive(pathname, "/settings")
                 ? "bg-[var(--accent-soft)] text-[var(--accent)] font-medium"
                 : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"}
             `}
           >
-            <Settings size={16} strokeWidth={1.75} className="text-stone-400" />
+            <Settings size={16} strokeWidth={1.75} className="text-stone-600" />
             Settings
           </Link>
           <a
             href={STOREFRONT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition-colors duration-200"
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition-colors duration-200"
           >
-            <ExternalLink size={16} strokeWidth={1.75} className="text-stone-400" />
+            <ExternalLink size={16} strokeWidth={1.75} className="text-stone-600" />
             View Storefront
           </a>
         </div>
 
         {/* Account */}
-        <div className="px-3 pb-4 pt-3 border-t border-stone-100">
-          <div className="flex items-center gap-2.5 px-3 py-2">
+        <div className="flex-shrink-0 px-3 pb-3 pt-2 border-t border-stone-100">
+          <div className="flex items-center gap-2.5 px-3 py-1.5">
             <span className="w-7 h-7 flex-shrink-0 rounded-full bg-[var(--accent)] text-white flex items-center justify-center text-[11px] font-medium uppercase">
               {(displayName?.[0] ?? "A").toUpperCase()}
             </span>
             <div className="min-w-0">
               <p className="text-[12px] font-medium text-stone-800 truncate">{displayName}</p>
-              {user?.email && <p className="text-[10px] text-stone-400 truncate">{user.email}</p>}
+              {user?.email && <p className="text-[10px] text-stone-600 truncate">{user.email}</p>}
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="mt-1 w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors duration-200 cursor-pointer"
+            className="mt-0.5 w-full flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors duration-200 cursor-pointer"
           >
-            <LogOut size={16} strokeWidth={1.75} className="text-stone-400" />
+            <LogOut size={16} strokeWidth={1.75} className="text-stone-600" />
             Log out
           </button>
         </div>

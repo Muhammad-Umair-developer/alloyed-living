@@ -20,7 +20,7 @@ function AppearanceCard() {
   const { theme, resolvedTheme, setTheme } = useTheme()
   return (
     <div className="rounded-lg border border-stone-200 bg-white p-6">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-4">Appearance</p>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-4">Appearance</p>
       <div>
         <label className="block text-[12px] font-medium text-stone-700 mb-2">Theme</label>
         <div className="inline-flex rounded-md border border-stone-200 p-1 gap-1">
@@ -40,7 +40,7 @@ function AppearanceCard() {
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-stone-400 mt-2">
+        <p className="text-[11px] text-stone-600 mt-2">
           {theme === "system"
             ? `Following your device — currently ${resolvedTheme}.`
             : "Your choice is saved on this device."}
@@ -88,7 +88,7 @@ export default function SettingsView({
 
       {/* Store details */}
       <div className="rounded-lg border border-stone-200 bg-white p-6">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400 mb-4">Store Details</p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600 mb-4">Store Details</p>
         <div className="space-y-4">
           <div>
             <label className="block text-[12px] font-medium text-stone-700 mb-1.5">Store Name</label>
@@ -120,7 +120,7 @@ export default function SettingsView({
       {/* Admin roles */}
       <div className="rounded-lg border border-stone-200 bg-white p-6">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">Admin Roles</p>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Admin Roles</p>
           <button
             onClick={() => setInviteOpen(true)}
             disabled={!canInvite}
@@ -128,7 +128,7 @@ export default function SettingsView({
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
               canInvite
                 ? "text-white bg-stone-900 hover:bg-stone-700 cursor-pointer"
-                : "text-stone-400 bg-stone-50 cursor-not-allowed"
+                : "text-stone-600 bg-stone-50 cursor-not-allowed"
             }`}
           >
             <Plus size={13} /> Invite Admin
@@ -138,7 +138,7 @@ export default function SettingsView({
         {admins.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <div className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center mb-3">
-              <Users size={16} className="text-stone-300" />
+              <Users size={16} className="text-stone-500" />
             </div>
             <p className="text-[13px] text-stone-500">No admins yet</p>
           </div>
@@ -148,11 +148,11 @@ export default function SettingsView({
               <li key={admin.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0">
-                    <Users size={14} className="text-stone-400" />
+                    <Users size={14} className="text-stone-600" />
                   </div>
                   <div>
                     <p className="text-[13px] font-medium text-stone-800">{admin.fullName || admin.email || "—"}</p>
-                    <p className="text-[11px] text-stone-400">{admin.email}</p>
+                    <p className="text-[11px] text-stone-600">{admin.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -171,7 +171,7 @@ export default function SettingsView({
         )}
 
         {!canInvite && (
-          <p className="text-[11px] text-stone-400 mt-4 flex items-center gap-1.5">
+          <p className="text-[11px] text-stone-600 mt-4 flex items-center gap-1.5">
             <Lock size={11} /> Only owners can invite or manage admins.
           </p>
         )}
@@ -180,11 +180,11 @@ export default function SettingsView({
       {/* API keys — placeholder, needs backend */}
       <div className="rounded-lg border border-stone-200 bg-white p-6">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-400">API Keys</p>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">API Keys</p>
           <button
             disabled
             title="Requires a real backend — coming soon"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-stone-400 bg-stone-50 rounded-md cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-stone-600 bg-stone-50 rounded-md cursor-not-allowed"
           >
             <Plus size={13} /> Generate Key
           </button>
@@ -192,10 +192,10 @@ export default function SettingsView({
         {settings.apiKeys.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <div className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center mb-3">
-              <KeyRound size={16} className="text-stone-300" />
+              <KeyRound size={16} className="text-stone-500" />
             </div>
             <p className="text-[13px] text-stone-500">No API keys yet</p>
-            <p className="text-[11px] text-stone-400 mt-1 max-w-xs">
+            <p className="text-[11px] text-stone-600 mt-1 max-w-xs">
               Once a real backend is connected, generate keys here to let external services read and write storefront data.
             </p>
           </div>
@@ -204,7 +204,7 @@ export default function SettingsView({
             {settings.apiKeys.map((key) => (
               <li key={key.key} className="flex items-center justify-between py-3">
                 <span className="text-[13px] text-stone-700">{key.label}</span>
-                <code className="text-[11px] text-stone-400">{key.key}</code>
+                <code className="text-[11px] text-stone-600">{key.key}</code>
               </li>
             ))}
           </ul>
@@ -215,7 +215,7 @@ export default function SettingsView({
       <div className="rounded-lg border border-stone-200 bg-stone-50/50 p-6">
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-md bg-white border border-stone-200 flex items-center justify-center flex-shrink-0">
-            <Lock size={16} strokeWidth={1.75} className="text-stone-400" />
+            <Lock size={16} strokeWidth={1.75} className="text-stone-600" />
           </div>
           <div>
             <p className="text-[13px] font-medium text-stone-700">Authentication — Active</p>
