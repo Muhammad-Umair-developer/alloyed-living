@@ -55,7 +55,8 @@ export async function priceOrderItems(
     if (product.stock < quantity) {
       return { ok: false, error: `Only ${product.stock} of "${product.name}" left in stock.` }
     }
-    const unitPrice = product.discountPrice ?? product.price
+    const unitPrice =
+      product.discountPrice != null && product.discountPrice > 0 ? product.discountPrice : product.price
     subtotal += unitPrice * quantity
     items.push({
       productId,
