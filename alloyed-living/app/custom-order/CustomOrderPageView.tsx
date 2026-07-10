@@ -491,14 +491,27 @@ export default function CustomOrderPageView({
       <Header />
 
       <main className="min-h-screen bg-[#faf9f7]">
-        {/* ══ Hero band — full-bleed dark, asymmetric ══ */}
+        {/* ══ Hero band — full-bleed dark, asymmetric with custom background image ══ */}
         <section className="relative bg-neutral-950 text-white overflow-hidden">
+          {/* Background Image Layer */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src="/img.png" // Replace with your actual image path
+              alt="Bespoke Commission Hero Background"
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Cinematic dark overlay mask to maintain structural contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/55 to-neutral-950/45" />
+          </div>
+
           <div
             className="absolute -top-24 -right-24 w-[26rem] h-[26rem] rounded-full
-                       bg-[radial-gradient(circle,rgba(212,175,120,0.18),transparent_70%)] pointer-events-none"
+                       bg-[radial-gradient(circle,rgba(212,175,120,0.14),transparent_70%)] pointer-events-none z-10"
             aria-hidden
           />
-          <div className="relative px-6 md:px-16 lg:px-24 pt-40 pb-24 lg:pb-32">
+          
+          {/* Elevated Content Layer via z-10 */}
+          <div className="relative z-10 px-6 md:px-16 lg:px-24 pt-40 pb-24 lg:pb-32">
             <div className="grid lg:grid-cols-[1.4fr_0.6fr] gap-10 items-end">
               <div>
                 <motion.span
@@ -527,19 +540,6 @@ export default function CustomOrderPageView({
                   {content.heroSubtitle}
                 </motion.p>
               </div>
-
-              {/* Asymmetric decorative index */}
-              {/* <motion.div
-                className="hidden lg:flex flex-col items-end gap-2 pb-3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.9, ease: EASE_CINEMATIC, delay: 0.4 }}
-              >
-                <Sparkles size={26} strokeWidth={1} className="text-amber-200/60" />
-                <span style={EDITORIAL} className="text-[7rem] leading-none font-extralight text-white/10 select-none">
-                  01
-                </span>
-              </motion.div> */}
             </div>
           </div>
         </section>
