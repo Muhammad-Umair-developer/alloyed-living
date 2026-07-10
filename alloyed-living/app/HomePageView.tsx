@@ -62,7 +62,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
 
         {/* Eyebrow */}
         <motion.span
-          className="block text-[9px] tracking-[0.58em] uppercase text-amber-200/55 mb-10"
+          className="block text-[12px] tracking-[0.58em] uppercase text-white font-semibold mb-10"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
@@ -96,8 +96,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
         {/* Tagline */}
         <motion.p
           style={EDITORIAL}
-          className="text-[clamp(0.88rem,1.5vw,1.05rem)] font-light italic
-                     text-white/95 max-w-xs tracking-wide leading-relaxed mb-12"
+          className="text-lg font-semibold italic text-white max-w-xs tracking-wide leading-relaxed mb-12"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.75 }}
@@ -161,7 +160,7 @@ function EditorialSection({ story }: { story: HomePageContent["story"] }) {
 
         <p
           style={EDITORIAL}
-          className="text-[clamp(0.95rem,1.5vw,1.1rem)] font-light italic text-neutral-700
+          className="text-[clamp(0.95rem,1.5vw,1.1rem)] font-semibold italic text-neutral-700
                      leading-relaxed max-w-2xl mx-auto mb-14"
         >
           {story.body}
@@ -227,8 +226,7 @@ function ShopRoomSection({ shopRoom }: { shopRoom: HomePageContent["shopRoom"] }
         </h2>
         <p
           style={EDITORIAL}
-          className="text-[clamp(0.88rem,1.3vw,1rem)] italic font-light
-                     text-white/95 max-w-sm leading-relaxed mb-12"
+          className="text-lg font-semibold italic text-white max-w-xs tracking-wide leading-relaxed mb-12"
         >
           {shopRoom.subtitle}
         </p>
@@ -309,7 +307,7 @@ function ProductCard({ piece, index, onSelect }: { piece: FeaturedPiece; index: 
           className="absolute top-4 right-4 backdrop-blur-md bg-white/80
                       border border-white/30 px-4 py-2"
         >
-          <span className="text-[7.5px] tracking-[0.3em] uppercase text-stone-700 font-medium">
+          <span className="text-[7.5px] tracking-[0.3em] uppercase text-black font-medium">
             PKR {piece.price.toLocaleString()}
           </span>
         </div>
@@ -351,7 +349,7 @@ function ProductCard({ piece, index, onSelect }: { piece: FeaturedPiece; index: 
         <span className="block text-[7.5px] tracking-[0.28em] text-stone-600 mb-4">
           {piece.category}
         </span>
-        <p className="text-[0.78rem] text-neutral-800 leading-relaxed mb-5 max-w-sm">
+        <p className="text-[0.78rem] font-semibold text-neutral-800 leading-relaxed mb-5 max-w-sm">
           {piece.description}
         </p>
         <span className="text-[7.5px] tracking-[0.3em] text-stone-600">

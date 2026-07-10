@@ -55,17 +55,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           >
             {/* ── Header ── */}
             <div className="flex items-center justify-between px-8 pt-9 pb-7 border-b border-stone-100/60">
-              <p className="text-[9px] tracking-[0.42em] uppercase text-stone-700 font-light">
+              <p className="text-[9px] tracking-[0.42em] uppercase text-black font-light">
                 Shopping Bag
                 {cartCount > 0 && (
-                  <span className="ml-3 text-stone-700">({cartCount})</span>
+                  <span className="ml-3 text-black">({cartCount})</span>
                 )}
               </p>
               <button
                 onClick={onClose}
                 aria-label="Close shopping bag"
                 className="w-7 h-7 flex items-center justify-center rounded-full
-                           text-stone-600 hover:text-stone-800 hover:bg-stone-100/70
+                           text-black hover:text-stone-800 hover:bg-stone-100/70
                            transition-colors duration-300 cursor-pointer"
               >
                 <X size={14} strokeWidth={1.5} />
@@ -89,11 +89,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-[10px] tracking-[0.32em] uppercase text-stone-700">
+                    <p className="text-[14px] tracking-[0.32em] uppercase text-black">
                       Your bag is empty
                     </p>
                     <p
-                      className="text-sm text-stone-700 font-light leading-relaxed max-w-[200px] mx-auto"
+                      className="text-sm text-black font-medium leading-relaxed max-w-[200px] mx-auto"
                       style={EDITORIAL}
                     >
                       Browse our handcrafted collection made for the modern home
@@ -104,7 +104,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     href="/shop"
                     onClick={onClose}
                     className="group flex items-center gap-2.5 text-[9px] tracking-[0.32em] uppercase
-                               text-stone-600 border-b border-stone-200 pb-0.5
+                               text-black border-b border-stone-200 pb-0.5
                                hover:border-stone-700 hover:text-stone-800 transition-all duration-500
                                cursor-pointer"
                   >
