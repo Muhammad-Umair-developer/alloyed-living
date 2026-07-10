@@ -81,11 +81,11 @@ export default function OurStoryPageView() {
             >
               Made by Hand,
               <br />
-              <em className="not-italic italic font-extralight text-stone-300">Built to Last.</em>
+              <em className="not-italic italic font-extralight text-stone-100">Built to Last.</em>
             </motion.h1>
             <motion.p
               style={EDITORIAL}
-              className="text-[clamp(0.95rem,1.4vw,1.1rem)] font-light italic text-stone-300
+              className="text-[clamp(0.95rem,1.4vw,1.1rem)] font-light italic text-stone-100
                          max-w-md leading-relaxed mt-8"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -135,7 +135,7 @@ export default function OurStoryPageView() {
             We turn steel into furniture.&rdquo;
           </motion.blockquote>
           <motion.p
-            className="text-center text-[8px] tracking-[0.4em] uppercase text-stone-400 mt-8"
+            className="text-center text-[8px] tracking-[0.4em] uppercase text-stone-200 mt-8"
             {...fadeUp(0.1)}
           >
             — The Alloyed Living Workshop
@@ -237,7 +237,7 @@ export default function OurStoryPageView() {
           </div>
 
           <motion.div className="relative z-10 max-w-xl mx-auto text-center" {...fadeUp(0)}>
-            <span className="block text-[7.5px] tracking-[0.5em] uppercase text-white/80 mb-6">
+            <span className="block text-[7.5px] tracking-[0.5em] uppercase text-white/95 mb-6">
               See It In Person
             </span>
             <h2

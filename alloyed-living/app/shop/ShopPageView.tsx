@@ -348,7 +348,7 @@ const FilterPanel = memo(function FilterPanel({
                   <div key={key} className="flex flex-col gap-1.5">
                     <label
                       htmlFor={`dim-${key}`}
-                      className="text-[7px] tracking-[0.28em] uppercase text-stone-500"
+                      className="text-[7px] tracking-[0.28em] uppercase text-stone-700"
                     >
                       {key === "dimH" ? "H" : key === "dimW" ? "W" : "D"}&nbsp;<span className="normal-case text-[6px]">cm</span>
                     </label>
@@ -372,7 +372,7 @@ const FilterPanel = memo(function FilterPanel({
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[7px] text-stone-500 tracking-wide leading-relaxed">
+              <p className="mt-3 text-[7px] text-stone-700 tracking-wide leading-relaxed">
                 Shows pieces with min. H · W · D in cm
               </p>
             </motion.div>
@@ -495,7 +495,7 @@ const ProductCard = memo(function ProductCard({ product, onSelect }: ProductCard
           <Link
             href={`/shop/${product.id}`}
             className="inline-block text-[7px] tracking-[0.28em] uppercase
-                       text-stone-500 hover:text-stone-900 transition-colors duration-300
+                       text-stone-700 hover:text-stone-900 transition-colors duration-300
                        underline underline-offset-[3px] mt-1"
           >
             View Details
@@ -758,7 +758,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                     <div className="w-5 h-5 rounded-full border border-stone-200" />
                   </div>
                   <p className="text-[8px] tracking-[0.42em] uppercase text-stone-600">No Items Found</p>
-                  <p style={EDITORIAL} className="text-lg font-light text-stone-500 max-w-[220px] leading-relaxed">
+                  <p style={EDITORIAL} className="text-lg font-light text-stone-700 max-w-[220px] leading-relaxed">
                     Try adjusting your filters to find more pieces
                   </p>
                   <button
@@ -917,7 +917,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                   {selectedProduct.description}
                 </p>
 
-                <p className="text-[9px] tracking-[0.18em] text-neutral-500 leading-relaxed">
+                <p className="text-[9px] tracking-[0.18em] text-neutral-700 leading-relaxed">
                   H&nbsp;{selectedProduct.dimensions.h}&nbsp;·&nbsp;
                   W&nbsp;{selectedProduct.dimensions.w}&nbsp;·&nbsp;
                   D&nbsp;{selectedProduct.dimensions.d}&nbsp;cm
@@ -1005,7 +1005,7 @@ export default function ShopPageView({ products, content }: { products: Product[
               {/* Drawer header */}
               <div className="flex items-center justify-between px-7 pt-2 pb-5
                               border-b border-stone-100/60 flex-shrink-0">
-                <p className="text-[9px] tracking-[0.44em] uppercase text-stone-500">Filter &amp; Sort</p>
+                <p className="text-[9px] tracking-[0.44em] uppercase text-stone-700">Filter &amp; Sort</p>
                 <button
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Close filters"

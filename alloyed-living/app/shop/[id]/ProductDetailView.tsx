@@ -86,7 +86,7 @@ function ReviewForm({
     return (
       <div className="bg-white border border-stone-100 p-8 flex flex-col items-start gap-4">
         <div>
-          <p className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-2">
+          <p className="text-[8px] tracking-[0.46em] uppercase text-stone-700 mb-2">
             Share Your Experience
           </p>
           <p style={EDITORIAL} className="text-[1.4rem] font-light text-neutral-900">
@@ -138,10 +138,10 @@ function ReviewForm({
       className="bg-white border border-stone-100 p-8 space-y-6"
     >
       <div>
-        <p className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-2">
+        <p className="text-[8px] tracking-[0.46em] uppercase text-stone-700 mb-2">
           Write a Review
         </p>
-        <p className="text-[9px] tracking-[0.2em] text-stone-500">
+        <p className="text-[9px] tracking-[0.2em] text-stone-700">
           Reviewing as{" "}
           <span className="text-stone-900 font-medium">{displayName}</span>
         </p>
@@ -259,7 +259,7 @@ export default function ProductDetailView({
           <Link
             href="/shop"
             className="inline-flex items-center gap-2 text-[8px] tracking-[0.3em] uppercase
-                       text-stone-500 hover:text-stone-900 transition-colors duration-300"
+                       text-stone-700 hover:text-stone-900 transition-colors duration-300"
           >
             <ArrowLeft size={11} strokeWidth={1.5} />
             Back to Shop
@@ -358,7 +358,7 @@ export default function ProductDetailView({
             className="flex flex-col gap-5 lg:sticky lg:top-[88px]"
           >
             {/* Category */}
-            <span className="text-[7px] tracking-[0.42em] uppercase text-stone-500">
+            <span className="text-[7px] tracking-[0.42em] uppercase text-stone-700">
               {product.category}
             </span>
 
@@ -378,7 +378,7 @@ export default function ProductDetailView({
                   <StarRating rating={summary.average} />
                   <a
                     href="#reviews"
-                    className="text-[8px] tracking-[0.2em] text-stone-500 hover:text-stone-800 transition-colors duration-300"
+                    className="text-[8px] tracking-[0.2em] text-stone-700 hover:text-stone-800 transition-colors duration-300"
                   >
                     {summary.average.toFixed(1)} · {summary.count}{" "}
                     {summary.count === 1 ? "review" : "reviews"}
@@ -387,7 +387,7 @@ export default function ProductDetailView({
               ) : (
                 <a
                   href="#reviews"
-                  className="text-[8px] tracking-[0.2em] text-stone-500 hover:text-stone-800 transition-colors duration-300"
+                  className="text-[8px] tracking-[0.2em] text-stone-700 hover:text-stone-800 transition-colors duration-300"
                 >
                   No reviews yet — be the first
                 </a>
@@ -445,7 +445,7 @@ export default function ProductDetailView({
             )}
 
             {/* Dimensions */}
-            <p className="text-[9px] tracking-[0.2em] text-stone-500 leading-relaxed">
+            <p className="text-[9px] tracking-[0.2em] text-stone-700 leading-relaxed">
               H&nbsp;{product.dimensions.h}&nbsp;·&nbsp;
               W&nbsp;{product.dimensions.w}&nbsp;·&nbsp;
               D&nbsp;{product.dimensions.d}&nbsp;cm
@@ -493,7 +493,7 @@ export default function ProductDetailView({
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.7, ease: EASE_CINEMATIC }}
           >
-            <p className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-4">
+            <p className="text-[8px] tracking-[0.46em] uppercase text-stone-700 mb-4">
               About This Piece
             </p>
             <h2
@@ -559,7 +559,7 @@ export default function ProductDetailView({
           >
             <div className="flex flex-wrap items-start justify-between gap-6 mb-12">
               <div>
-                <p className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-3">
+                <p className="text-[8px] tracking-[0.46em] uppercase text-stone-700 mb-3">
                   Customer Reviews
                 </p>
                 <h2
@@ -607,7 +607,7 @@ export default function ProductDetailView({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-stone-500 leading-relaxed mb-12 max-w-md">
+              <p className="text-sm text-stone-700 leading-relaxed mb-12 max-w-md">
                 No reviews yet. Be the first to share your experience with this piece.
               </p>
             )}

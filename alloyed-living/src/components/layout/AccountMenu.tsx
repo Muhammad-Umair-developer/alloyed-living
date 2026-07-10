@@ -105,7 +105,7 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
             <div className="px-4 py-3 border-b border-stone-100">
               <p className="text-[11px] font-medium text-stone-900 truncate">{displayName}</p>
               {user.email && (
-                <p className="text-[10px] tracking-[0.04em] text-stone-500 truncate mt-0.5">{user.email}</p>
+                <p className="text-[10px] tracking-[0.04em] text-stone-700 truncate mt-0.5">{user.email}</p>
               )}
             </div>
             <button

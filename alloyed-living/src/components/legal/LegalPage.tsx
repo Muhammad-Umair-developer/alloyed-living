@@ -95,7 +95,7 @@ function SectionBlock({
 
         {section.subsections?.map((sub, i) => (
           <div key={i} className="mt-7 first:mt-6">
-            <h3 className="text-[11px] font-medium tracking-[0.18em] uppercase text-stone-500 mb-3">
+            <h3 className="text-[11px] font-medium tracking-[0.18em] uppercase text-stone-700 mb-3">
               {sub.title}
             </h3>
             {sub.placeholder && <PlaceholderNote label={sub.title} />}

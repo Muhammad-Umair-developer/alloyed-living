@@ -29,7 +29,7 @@ function FooterLink({ label, href }: { label: string; href: string }) {
         href={href}
         className="
           relative inline-block
-          text-[11px] tracking-[0.14em] text-neutral-300
+          text-[11px] tracking-[0.14em] text-neutral-100
           cursor-pointer transition-colors duration-300 hover:text-white
           after:absolute after:bottom-[-1px] after:left-0
           after:h-px after:w-0 after:bg-white after:content-['']
@@ -69,7 +69,7 @@ export default function Footer() {
             <p
               style={EDITORIAL}
               className="text-[1.05rem] font-light leading-[1.72] tracking-[0.01em]
-                         text-neutral-400 max-w-[240px]"
+                         text-neutral-200 max-w-[240px]"
             >
               Where bold design meets fine craftsmanship.
             </p>
@@ -77,7 +77,7 @@ export default function Footer() {
 
           {/* ─ Col 2: Navigate ─ */}
           <div>
-            <p className="text-[8px] tracking-[0.4em] uppercase text-neutral-500 mb-7">
+            <p className="text-[8px] tracking-[0.4em] uppercase text-neutral-300 mb-7">
               Navigate
             </p>
             <ul className="space-y-4">
@@ -89,7 +89,7 @@ export default function Footer() {
 
           {/* ─ Col 3: Customer Care ─ */}
           <div>
-            <p className="text-[8px] tracking-[0.4em] uppercase text-neutral-500 mb-7">
+            <p className="text-[8px] tracking-[0.4em] uppercase text-neutral-300 mb-7">
               Customer Care
             </p>
             <ul className="space-y-4">
@@ -101,20 +101,20 @@ export default function Footer() {
 
           {/* ─ Col 4: Contact / Pakistan ─ */}
           <div>
-            <p className="text-[8px] tracking-[0.4em] uppercase text-neutral-500 mb-7">
+            <p className="text-[8px] tracking-[0.4em] uppercase text-neutral-300 mb-7">
               Pakistan
             </p>
             <div className="space-y-6">
 
               <div>
-                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-400 mb-2">
+                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-200 mb-2">
                   Helpline
                 </p>
                 <a
                   href="tel:+92511234567"
                   className="
                     relative inline-block
-                    text-[11px] tracking-[0.14em] text-neutral-300
+                    text-[11px] tracking-[0.14em] text-neutral-100
                     cursor-pointer transition-colors duration-300 hover:text-white
                     after:absolute after:bottom-[-1px] after:left-0
                     after:h-px after:w-0 after:bg-white after:content-['']
@@ -127,14 +127,14 @@ export default function Footer() {
               </div>
 
               <div>
-                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-400 mb-2">
+                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-200 mb-2">
                   Email
                 </p>
                 <a
                   href="mailto:hello@alloyedliving.com"
                   className="
                     relative inline-block
-                    text-[11px] tracking-[0.14em] text-neutral-300
+                    text-[11px] tracking-[0.14em] text-neutral-100
                     cursor-pointer transition-colors duration-300 hover:text-white
                     after:absolute after:bottom-[-1px] after:left-0
                     after:h-px after:w-0 after:bg-white after:content-['']
@@ -147,10 +147,10 @@ export default function Footer() {
               </div>
 
               <div>
-                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-400 mb-2">
+                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-200 mb-2">
                   Hours
                 </p>
-                <p className="text-[11px] tracking-[0.08em] text-neutral-400 leading-relaxed">
+                <p className="text-[11px] tracking-[0.08em] text-neutral-200 leading-relaxed">
                   Mon – Sat, 10 am – 7 pm PKT
                 </p>
               </div>
@@ -167,20 +167,20 @@ export default function Footer() {
         px-8 md:px-12 lg:px-20 py-6
         flex flex-col sm:flex-row items-center justify-between gap-4
       ">
-        <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-400">
+        <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-200">
           © 2026 Alloyed Living. All rights reserved.
         </p>
         <div className="flex items-center gap-7">
           <Link
             href="/privacy"
-            className="text-[8px] tracking-[0.2em] uppercase text-neutral-400
+            className="text-[8px] tracking-[0.2em] uppercase text-neutral-200
                        cursor-pointer hover:text-neutral-100 transition-colors duration-300"
           >
             Privacy Policy
           </Link>
           <Link
             href="/terms"
-            className="text-[8px] tracking-[0.2em] uppercase text-neutral-400
+            className="text-[8px] tracking-[0.2em] uppercase text-neutral-200
                        cursor-pointer hover:text-neutral-100 transition-colors duration-300"
           >
             Terms of Use

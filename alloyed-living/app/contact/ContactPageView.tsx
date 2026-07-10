@@ -321,7 +321,7 @@ export default function ContactPageView({ content }: { content: ContactPageConte
             {/* Header copy */}
             <div className="flex flex-col gap-6">
               <motion.span
-                className="block text-[8px] tracking-[0.52em] uppercase text-stone-400"
+                className="block text-[8px] tracking-[0.52em] uppercase text-stone-200"
                 {...fadeUp(0.05)}
               >
                 Get in Touch
@@ -335,7 +335,7 @@ export default function ContactPageView({ content }: { content: ContactPageConte
               >
                 {lead}
                 <br />
-                <em className="not-italic italic font-extralight text-stone-300">
+                <em className="not-italic italic font-extralight text-stone-100">
                   {emphasis}
                 </em>
               </motion.h1>
@@ -351,7 +351,7 @@ export default function ContactPageView({ content }: { content: ContactPageConte
               <motion.p
                 style={EDITORIAL}
                 className="text-[clamp(1rem,1.4vw,1.12rem)] font-light italic
-                           text-stone-300 max-w-xs leading-relaxed mt-2"
+                           text-stone-100 max-w-xs leading-relaxed mt-2"
                 {...fadeUp(0.24)}
               >
                 {content.heroSubtitle}
@@ -360,14 +360,14 @@ export default function ContactPageView({ content }: { content: ContactPageConte
 
             {/* Alternative contact links */}
             <motion.div className="flex flex-col gap-5" {...fadeUp(0.38)}>
-              <span className="text-[7.5px] tracking-[0.44em] uppercase text-stone-500">
+              <span className="text-[7.5px] tracking-[0.44em] uppercase text-stone-300">
                 Or reach us directly
               </span>
 
               <a
                 href={`mailto:${content.email}`}
                 className="group inline-flex items-center gap-4
-                           text-[0.82rem] text-stone-300
+                           text-[0.82rem] text-stone-100
                            hover:text-white transition-colors duration-400"
               >
                 <span
@@ -384,7 +384,7 @@ export default function ContactPageView({ content }: { content: ContactPageConte
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-4
-                           text-[0.82rem] text-stone-300
+                           text-[0.82rem] text-stone-100
                            hover:text-white transition-colors duration-400"
               >
                 <span
@@ -396,7 +396,7 @@ export default function ContactPageView({ content }: { content: ContactPageConte
                 WhatsApp Chat
               </a>
 
-              <div className="flex items-center gap-4 text-[0.78rem] text-stone-400">
+              <div className="flex items-center gap-4 text-[0.78rem] text-stone-200">
                 <span className="w-8 h-8 rounded-full border border-stone-700 flex items-center justify-center shrink-0">
                   <Clock size={13} strokeWidth={1.5} />
                 </span>
@@ -421,7 +421,7 @@ export default function ContactPageView({ content }: { content: ContactPageConte
                        flex flex-col justify-start"
           >
             <motion.div className="mb-12" {...fadeUp(0.18)}>
-              <span className="block text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-3">
+              <span className="block text-[8px] tracking-[0.46em] uppercase text-stone-700 mb-3">
                 Send a Message
               </span>
               <h2

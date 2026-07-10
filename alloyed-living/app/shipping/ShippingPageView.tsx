@@ -133,7 +133,7 @@ function TrackingInput() {
           >
             <div className="mt-4 p-4 bg-stone-50 border border-stone-200">
               <p className="text-[7.5px] tracking-[0.3em] uppercase text-stone-600 mb-1">No Match Found</p>
-              <p className="text-[11px] text-stone-500 leading-relaxed">
+              <p className="text-[11px] text-stone-700 leading-relaxed">
                 Double-check your order number, or{" "}
                 <Link
                   href="/contact"
@@ -205,7 +205,7 @@ function TierCard({ tier }: { tier: ShippingTier }) {
 
       {/* Note */}
       <div className="border-t border-stone-100/80 pt-5">
-        <p className="text-[11px] text-stone-500 leading-relaxed">{tier.note}</p>
+        <p className="text-[11px] text-stone-700 leading-relaxed">{tier.note}</p>
       </div>
     </motion.article>
   )
@@ -293,7 +293,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
           >
             {lead}
             <br />
-            <em className="not-italic font-extralight italic text-stone-500">{emphasis}</em>
+            <em className="not-italic font-extralight italic text-stone-700">{emphasis}</em>
           </motion.h1>
 
           <motion.div
@@ -306,7 +306,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
 
           <motion.p
             style={EDITORIAL}
-            className="text-[clamp(0.95rem,1.4vw,1.08rem)] font-light italic text-stone-500
+            className="text-[clamp(0.95rem,1.4vw,1.08rem)] font-light italic text-stone-700
                        max-w-xs mx-auto leading-relaxed mb-16"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -406,7 +406,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
               <Link
                 href="/contact"
                 className="group inline-flex items-center gap-2 text-[7.5px] tracking-[0.4em]
-                           uppercase text-stone-500 border-b border-stone-300 pb-0.5
+                           uppercase text-stone-700 border-b border-stone-300 pb-0.5
                            hover:text-stone-900 hover:border-stone-700 transition-colors duration-400"
               >
                 Notify Me{" "}
@@ -477,7 +477,7 @@ export default function ShippingPageView({ content }: { content: ShippingPageCon
               <Link
                 href="/returns"
                 className="group inline-flex items-center gap-3 text-[8px] tracking-[0.44em]
-                           uppercase text-stone-500 border-b border-stone-200 pb-0.5
+                           uppercase text-stone-700 border-b border-stone-200 pb-0.5
                            hover:text-stone-900 hover:border-stone-700 transition-colors duration-400"
               >
                 Returns & Exchanges

@@ -58,7 +58,7 @@ const VARIANT_CONFIG: Record<
     border: "border-stone-200",
     icon:   <Info size={12} strokeWidth={1.5} className="text-stone-600" />,
     bar:    "bg-stone-400",
-    label:  "text-stone-500",
+    label:  "text-stone-700",
   },
 }
 

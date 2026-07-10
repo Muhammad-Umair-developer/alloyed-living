@@ -350,7 +350,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
     <div>
       {/* Items */}
       {items.length === 0 ? (
-        <p className="text-[10px] tracking-[0.18em] text-stone-500 py-6 text-center">
+        <p className="text-[10px] tracking-[0.18em] text-stone-700 py-6 text-center">
           Your cart is empty.
         </p>
       ) : (
@@ -372,7 +372,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
                     {item.name}
                   </p>
                   {item.material && (
-                    <p className="text-[8px] tracking-[0.22em] uppercase text-stone-500 mt-0.5">
+                    <p className="text-[8px] tracking-[0.22em] uppercase text-stone-700 mt-0.5">
                       {item.material}
                     </p>
                   )}
@@ -410,7 +410,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
       {/* Trust line */}
       <div className="flex items-center gap-2 mt-6 pt-5 border-t border-stone-100/60">
         <Lock size={10} strokeWidth={1.5} className="text-stone-600 flex-shrink-0" />
-        <p className="text-[8px] tracking-[0.18em] text-stone-500 leading-relaxed">
+        <p className="text-[8px] tracking-[0.18em] text-stone-700 leading-relaxed">
           Secure checkout — your data is encrypted end-to-end
         </p>
       </div>
@@ -433,7 +433,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-6 py-4 bg-[#f7f5f2] cursor-pointer hover:bg-[#f0ede9] transition-colors duration-300"
       >
-        <span className="text-[8px] tracking-[0.44em] uppercase text-stone-500">Order Summary</span>
+        <span className="text-[8px] tracking-[0.44em] uppercase text-stone-700">Order Summary</span>
         <div className="flex items-center gap-3">
           <span style={EDITORIAL} className="text-[0.92rem] text-stone-700 font-light">
             PKR {(subtotal + delivery).toLocaleString()}
@@ -485,11 +485,11 @@ function CodPanel() {
           <li key={i} className="flex gap-4">
             <span
               style={EDITORIAL}
-              className="text-[1rem] font-light text-stone-500 leading-tight flex-shrink-0 w-6"
+              className="text-[1rem] font-light text-stone-700 leading-tight flex-shrink-0 w-6"
             >
               {String(i + 1).padStart(2, "0")}
             </span>
-            <p className="text-[11px] text-stone-500 tracking-[0.04em] leading-relaxed pt-0.5">
+            <p className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed pt-0.5">
               {text}
             </p>
           </li>
@@ -557,7 +557,7 @@ function PaymentSection({
                   Secure Redirect
                 </p>
               </div>
-              <p className="text-[11px] text-stone-500 tracking-[0.04em] leading-relaxed">
+              <p className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed">
                 You&apos;ll be securely redirected to Safepay to complete payment in PKR. Card
                 details are entered on Safepay&apos;s PCI-compliant page and never touch our
                 servers.
@@ -980,7 +980,7 @@ export default function CheckoutPage() {
               </motion.button>
 
               <p className="mt-4 flex items-center justify-center gap-1.5
-                            text-[8px] tracking-[0.16em] text-stone-500">
+                            text-[8px] tracking-[0.16em] text-stone-700">
                 <Lock size={9} strokeWidth={1.5} />
                 256-bit SSL encryption
                 {method === "safepay" && " · Payments secured by Safepay"}

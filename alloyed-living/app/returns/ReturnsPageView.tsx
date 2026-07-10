@@ -221,7 +221,7 @@ function ReturnPortal() {
 
             <p className="text-[10px] text-stone-600 leading-relaxed bg-stone-50 border border-stone-100 p-4">
               Your order number appears in your confirmation email or SMS.{" "}
-              <span className="text-stone-500">For demo purposes, enter any text and email.</span>
+              <span className="text-stone-700">For demo purposes, enter any text and email.</span>
             </p>
 
             <motion.button
@@ -335,7 +335,7 @@ function ReturnPortal() {
                       </p>
                     </div>
 
-                    <p className="text-[10px] tracking-[0.08em] text-stone-500 flex-shrink-0">
+                    <p className="text-[10px] tracking-[0.08em] text-stone-700 flex-shrink-0">
                       {it.price}
                     </p>
                   </motion.label>
@@ -420,7 +420,7 @@ function ReturnPortal() {
               Return Label:{" "}
               <span className="text-stone-700 font-medium">{returnLabel}</span>
             </p>
-            <p className="text-[11px] text-stone-500 leading-relaxed max-w-sm mx-auto mb-10">
+            <p className="text-[11px] text-stone-700 leading-relaxed max-w-sm mx-auto mb-10">
               A prepaid return label has been sent to{" "}
               <span className="text-stone-700">{email}</span>. Please drop off your package
               within 7 days. Our team will confirm receipt within 24 hours.
@@ -542,7 +542,7 @@ function PolicySection({ policies }: { policies: ReturnsPageContent["policies"] 
 
             <div className="flex items-start gap-3 p-4 border border-amber-100/70 bg-amber-50/30">
               <AlertCircle size={11} strokeWidth={1.5} className="text-amber-400 mt-0.5 flex-shrink-0" />
-              <p className="text-[10px] text-stone-500 leading-relaxed">
+              <p className="text-[10px] text-stone-700 leading-relaxed">
                 Custom, made-to-order, and final-sale items are excluded from all return and exchange policies.
               </p>
             </div>
@@ -590,7 +590,7 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
             >
               {lead}
               <br />
-              <em className="not-italic font-extralight italic text-stone-500">{emphasis}</em>
+              <em className="not-italic font-extralight italic text-stone-700">{emphasis}</em>
             </motion.h1>
 
             <motion.div
@@ -603,7 +603,7 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
 
             <motion.p
               style={EDITORIAL}
-              className="text-[clamp(0.95rem,1.4vw,1.08rem)] font-light italic text-stone-500
+              className="text-[clamp(0.95rem,1.4vw,1.08rem)] font-light italic text-stone-700
                          max-w-sm leading-relaxed"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -739,7 +739,7 @@ export default function ReturnsPageView({ content }: { content: ReturnsPageConte
               <Link
                 href="/shipping"
                 className="group inline-flex items-center gap-3 text-[8px] tracking-[0.44em]
-                           uppercase text-stone-500 border-b border-stone-200 pb-0.5
+                           uppercase text-stone-700 border-b border-stone-200 pb-0.5
                            hover:text-stone-900 hover:border-stone-700 transition-colors duration-400"
               >
                 Shipping Info

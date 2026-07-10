@@ -83,7 +83,7 @@ export default function Header() {
                 >
                   <Link
                     href={link.href}
-                    className="text-[9px] tracking-[0.34em] uppercase text-stone-500
+                    className="text-[9px] tracking-[0.34em] uppercase text-stone-700
                                cursor-pointer hover:text-stone-900 transition-colors duration-500"
                   >
                     {link.label}
@@ -265,7 +265,7 @@ export default function Header() {
                     <Link
                       href={link.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-[10px] tracking-[0.34em] uppercase text-stone-500
+                      className="text-[10px] tracking-[0.34em] uppercase text-stone-700
                                  cursor-pointer hover:text-stone-900 transition-colors duration-500"
                     >
                       {link.label}

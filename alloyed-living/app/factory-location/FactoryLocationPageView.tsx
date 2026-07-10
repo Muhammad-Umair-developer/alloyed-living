@@ -55,7 +55,7 @@ export default function FactoryLocationPageView({ content }: { content: FactoryL
             {/* Header copy */}
             <div className="flex flex-col gap-6">
               <motion.span
-                className="block text-[8px] tracking-[0.52em] uppercase text-stone-400"
+                className="block text-[8px] tracking-[0.52em] uppercase text-stone-200"
                 {...fadeUp(0.05)}
               >
                 Factory Location
@@ -69,7 +69,7 @@ export default function FactoryLocationPageView({ content }: { content: FactoryL
               >
                 {lead}
                 <br />
-                <em className="not-italic italic font-extralight text-stone-300">
+                <em className="not-italic italic font-extralight text-stone-100">
                   {emphasis}
                 </em>
               </motion.h1>
@@ -85,7 +85,7 @@ export default function FactoryLocationPageView({ content }: { content: FactoryL
               <motion.p
                 style={EDITORIAL}
                 className="text-[clamp(1rem,1.4vw,1.12rem)] font-light italic
-                           text-stone-300 max-w-xs leading-relaxed mt-2"
+                           text-stone-100 max-w-xs leading-relaxed mt-2"
                 {...fadeUp(0.24)}
               >
                 {content.heroSubtitle}
@@ -94,11 +94,11 @@ export default function FactoryLocationPageView({ content }: { content: FactoryL
 
             {/* Location details */}
             <motion.div className="flex flex-col gap-5" {...fadeUp(0.38)}>
-              <span className="text-[7.5px] tracking-[0.44em] uppercase text-stone-500">
+              <span className="text-[7.5px] tracking-[0.44em] uppercase text-stone-300">
                 Visit The Workshop
               </span>
 
-              <div className="flex items-start gap-4 text-[0.82rem] text-stone-300">
+              <div className="flex items-start gap-4 text-[0.82rem] text-stone-100">
                 <span
                   className="w-8 h-8 rounded-full border border-stone-700 flex items-center justify-center
                              shrink-0"
@@ -111,7 +111,7 @@ export default function FactoryLocationPageView({ content }: { content: FactoryL
               <a
                 href={`tel:${content.phone.replace(/\s+/g, "")}`}
                 className="group inline-flex items-center gap-4
-                           text-[0.82rem] text-stone-300
+                           text-[0.82rem] text-stone-100
                            hover:text-white transition-colors duration-400"
               >
                 <span
@@ -123,14 +123,14 @@ export default function FactoryLocationPageView({ content }: { content: FactoryL
                 {content.phone}
               </a>
 
-              <div className="flex items-center gap-4 text-[0.78rem] text-stone-400">
+              <div className="flex items-center gap-4 text-[0.78rem] text-stone-200">
                 <span className="w-8 h-8 rounded-full border border-stone-700 flex items-center justify-center shrink-0">
                   <Clock size={13} strokeWidth={1.5} />
                 </span>
                 {content.hours}
               </div>
 
-              <div className="flex items-center gap-4 text-[0.78rem] text-stone-400 mt-2 pt-6 border-t border-stone-800">
+              <div className="flex items-center gap-4 text-[0.78rem] text-stone-200 mt-2 pt-6 border-t border-stone-800">
                 <span className="w-8 h-8 rounded-full border border-stone-700 flex items-center justify-center shrink-0">
                   <Flame size={13} strokeWidth={1.5} />
                 </span>

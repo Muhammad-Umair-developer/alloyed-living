@@ -62,7 +62,7 @@ function FloatingInput({
           absolute left-0 pointer-events-none text-stone-600
           transition-all duration-300
           ${lifted
-            ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-500"
+            ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-700"
             : "top-[1.35rem] text-[12px] tracking-wide"
           }
         `}
@@ -295,7 +295,7 @@ export default function ResetPasswordPage() {
   if (status === "checking") {
     return (
       <Shell eyebrow="One moment" title={<>Reset<br />Password.</>}>
-        <div className="flex items-center gap-3 text-stone-500">
+        <div className="flex items-center gap-3 text-stone-700">
           <motion.span
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

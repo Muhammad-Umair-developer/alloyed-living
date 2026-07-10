@@ -164,12 +164,12 @@ export default function CatalogPageView({ products, content }: { products: Produ
           >
             {lead}
             <br />
-            <em className="not-italic font-extralight italic text-stone-500">{emphasis}</em>
+            <em className="not-italic font-extralight italic text-stone-700">{emphasis}</em>
           </motion.h1>
 
           <motion.p
             style={EDITORIAL}
-            className="text-[clamp(0.95rem,1.4vw,1.08rem)] font-light italic text-stone-500
+            className="text-[clamp(0.95rem,1.4vw,1.08rem)] font-light italic text-stone-700
                        max-w-lg mx-auto leading-relaxed mb-6"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -204,7 +204,7 @@ export default function CatalogPageView({ products, content }: { products: Produ
             transition={{ duration: 0.6, ease: EASE_CINEMATIC, delay: 0.74 }}
           >
             {CRAFT_POINTS.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2.5 text-[10px] tracking-[0.08em] text-stone-500">
+              <div key={label} className="flex items-center gap-2.5 text-[10px] tracking-[0.08em] text-stone-700">
                 <Icon size={13} strokeWidth={1.5} className="text-stone-600" />
                 {label}
               </div>
@@ -227,7 +227,7 @@ export default function CatalogPageView({ products, content }: { products: Produ
             >
               Every Piece Is Made From Steel
             </h2>
-            <p className="text-[9px] tracking-[0.32em] uppercase text-stone-500">
+            <p className="text-[9px] tracking-[0.32em] uppercase text-stone-700">
               {products.length} {products.length === 1 ? "Piece" : "Pieces"}
             </p>
           </motion.div>

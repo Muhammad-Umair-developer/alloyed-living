@@ -58,7 +58,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <p className="text-[9px] tracking-[0.42em] uppercase text-stone-700 font-light">
                 Shopping Bag
                 {cartCount > 0 && (
-                  <span className="ml-3 text-stone-500">({cartCount})</span>
+                  <span className="ml-3 text-stone-700">({cartCount})</span>
                 )}
               </p>
               <button
@@ -89,11 +89,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-[10px] tracking-[0.32em] uppercase text-stone-500">
+                    <p className="text-[10px] tracking-[0.32em] uppercase text-stone-700">
                       Your bag is empty
                     </p>
                     <p
-                      className="text-sm text-stone-500 font-light leading-relaxed max-w-[200px] mx-auto"
+                      className="text-sm text-stone-700 font-light leading-relaxed max-w-[200px] mx-auto"
                       style={EDITORIAL}
                     >
                       Browse our handcrafted collection made for the modern home
@@ -183,7 +183,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               >
                                 <Minus size={9} strokeWidth={2} />
                               </button>
-                              <span className="text-[10px] text-stone-500 tracking-wide min-w-[1rem] text-center tabular-nums">
+                              <span className="text-[10px] text-stone-700 tracking-wide min-w-[1rem] text-center tabular-nums">
                                 {item.quantity}
                               </span>
                               <button
@@ -231,7 +231,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     </span>
                   </div>
 
-                  <p className="text-[9px] text-stone-500 tracking-wide">
+                  <p className="text-[9px] text-stone-700 tracking-wide">
                     Shipping and taxes will be shown at checkout
                   </p>
 

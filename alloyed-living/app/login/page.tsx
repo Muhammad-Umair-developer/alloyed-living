@@ -74,7 +74,7 @@ function FloatingInput({
           absolute left-0 pointer-events-none text-stone-600
           transition-all duration-300
           ${lifted
-            ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-500"
+            ? "top-0 text-[8px] tracking-[0.28em] uppercase text-stone-700"
             : "top-[1.35rem] text-[12px] tracking-wide"
           }
         `}
@@ -371,7 +371,7 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="flex items-center gap-4 my-8">
               <div className="flex-1 h-px bg-stone-100" />
-              <span className="text-[8px] tracking-[0.24em] uppercase text-stone-500">
+              <span className="text-[8px] tracking-[0.24em] uppercase text-stone-700">
                 or continue with
               </span>
               <div className="flex-1 h-px bg-stone-100" />

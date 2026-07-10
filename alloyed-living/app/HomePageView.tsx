@@ -97,7 +97,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
         <motion.p
           style={EDITORIAL}
           className="text-[clamp(0.88rem,1.5vw,1.05rem)] font-light italic
-                     text-white/80 max-w-xs tracking-wide leading-relaxed mb-12"
+                     text-white/95 max-w-xs tracking-wide leading-relaxed mb-12"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.75 }}
@@ -115,7 +115,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
           <Link
             href="/shop"
             className="group inline-flex items-center gap-3 border border-white/20
-                       px-10 py-4 text-[8.5px] tracking-[0.46em] uppercase text-white/60
+                       px-10 py-4 text-[8.5px] tracking-[0.46em] uppercase text-white/90
                        backdrop-blur-sm bg-white/5 cursor-pointer
                        hover:bg-white/12 hover:border-white/40 hover:text-white
                        transition-all duration-700"
@@ -216,19 +216,19 @@ function ShopRoomSection({ shopRoom }: { shopRoom: HomePageContent["shopRoom"] }
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <span className="block text-[8.5px] tracking-[0.48em] uppercase text-white/80 mb-4">
+        <span className="block text-[8.5px] tracking-[0.48em] uppercase text-white/95 mb-4">
           {shopRoom.eyebrow}
         </span>
         <h2
           style={EDITORIAL}
-          className="text-[clamp(2rem,4.5vw,3.8rem)] font-light text-white/90 leading-tight mb-5"
+          className="text-[clamp(2rem,4.5vw,3.8rem)] font-light text-white leading-tight mb-5"
         >
           {shopRoom.title}
         </h2>
         <p
           style={EDITORIAL}
           className="text-[clamp(0.88rem,1.3vw,1rem)] italic font-light
-                     text-white/80 max-w-sm leading-relaxed mb-12"
+                     text-white/95 max-w-sm leading-relaxed mb-12"
         >
           {shopRoom.subtitle}
         </p>
@@ -240,7 +240,7 @@ function ShopRoomSection({ shopRoom }: { shopRoom: HomePageContent["shopRoom"] }
           <Link
             href="/shop"
             className="group inline-flex items-center gap-3 border border-white/20
-                       px-9 py-3.5 text-[8px] tracking-[0.44em] uppercase text-white/75
+                       px-9 py-3.5 text-[8px] tracking-[0.44em] uppercase text-white/95
                        backdrop-blur-sm bg-white/5 cursor-pointer
                        hover:bg-white/12 hover:border-white/40 hover:text-white/90
                        transition-all duration-700"
@@ -538,7 +538,7 @@ export default function HomePageView({ products, content }: { products: Product[
                   {selected.description}
                 </p>
 
-                <p className="text-[9px] tracking-[0.18em] text-neutral-500">
+                <p className="text-[9px] tracking-[0.18em] text-neutral-700">
                   H&nbsp;{selected.dimensions.h}&nbsp;·&nbsp;
                   W&nbsp;{selected.dimensions.w}&nbsp;·&nbsp;
                   D&nbsp;{selected.dimensions.d}&nbsp;cm
