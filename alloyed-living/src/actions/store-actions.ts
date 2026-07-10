@@ -77,10 +77,22 @@ export async function placeOrderAction(
   if (paymentMethod === "cod") {
     // COD is confirmed on placement: count the sale and email the summary now.
     // Safepay orders do both from the webhook once payment is verified.
-    await Promise.all(
-      order.items.map((item) => trackPurchase(item.productId, item.quantity, item.price * item.quantity)),
-    )
-    await sendOrderConfirmationEmail(order, { method: "cod", paid: false })
+    
+    // 1. Isolate the analytics pipeline from the core execution flow
+    try {
+      await Promise.all(
+        order.items.map((item) => trackPurchase(item.productId, item.quantity, item.price * item.quantity)),
+      )
+    } catch (analyticsError) {
+      console.error("Non-blocking analytics tracking failure in production:", analyticsError)
+    }
+
+    // 2. Isolate the email engine and safely log specific production failures
+    try {
+      await sendOrderConfirmationEmail(order, { method: "cod", paid: false })
+    } catch (emailError) {
+      console.error("CRITICAL: Production COD order confirmation email dispatch failure:", emailError)
+    }
   }
 
   return { orderId: order.id }

@@ -11,7 +11,7 @@ import type { Order } from "@/src/lib/data/types"
 // Server-only: RESEND_API_KEY is read from the environment and never reaches the
 // client. The `from` address must be on a domain verified in your Resend account.
 // Set EMAIL_FROM in production; the resend.dev fallback only delivers to your own
-// Resend account email.
+// Resend account email.[cite: 3]
 const FROM_ADDRESS = process.env.EMAIL_FROM ?? "Alloyed Living <onboarding@resend.dev>"
 
 export type OrderEmailMethod = "safepay" | "cod"
@@ -75,6 +75,13 @@ export async function sendOrderConfirmationEmail(
   if (!to) {
     console.error(`[order-email] Order ${order.id} has no customer email; skipping.`)
     return { ok: false, error: "no recipient" }
+  }
+
+  // Warning for production developers tracking telemetry configs
+  if (FROM_ADDRESS.includes("onboarding@resend.dev") && process.env.NODE_ENV === "production") {
+    console.warn(
+      `[order-email] WARNING: Using Resend onboarding fallback address in production. Deliveries to external customers like (${to}) will fail until process.env.EMAIL_FROM is properly configured.`
+    );
   }
 
   const { method, paid } = opts
@@ -164,7 +171,7 @@ export async function sendOrderConfirmationEmail(
 
   try {
     const resend = new Resend(apiKey)
-    const { error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: FROM_ADDRESS,
       to,
       subject:
@@ -176,13 +183,15 @@ export async function sendOrderConfirmationEmail(
       html,
       text: textLines.join("\n"),
     })
+    
     if (error) {
-      console.error(`[order-email] Resend error for order ${order.id}:`, error)
-      return { ok: false, error: "send failed" }
+      console.error(`[order-email] Resend edge API error for order ${order.id}:`, error)
+      return { ok: false, error: error.message || "send failed" }
     }
+    
     return { ok: true }
   } catch (err) {
-    console.error(`[order-email] Unexpected failure for order ${order.id}:`, err)
+    console.error(`[order-email] Unexpected structural connection failure for order ${order.id}:`, err)
     return { ok: false, error: "send failed" }
   }
 }

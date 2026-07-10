@@ -102,11 +102,11 @@ export default function Header() {
                 aria-label="Toggle search"
                 className="group cursor-pointer"
               >
-                <Search
+                {/* <Search
                   size={17}
                   strokeWidth={1.5}
                   className="text-stone-500 transition-colors duration-500 group-hover:text-stone-900"
-                />
+                /> */}
               </button>
 
               {/* User / Login / Account menu */}
