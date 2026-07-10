@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { getProduct } from "@/src/lib/data/products"
+import { getProduct, getProducts } from "@/src/lib/data/products"
 import PageHeader from "@/src/components/ui/PageHeader"
 import ProductForm from "../../ProductForm"
 
@@ -12,13 +12,15 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const product = await getProduct(id)
+  const [product, products] = await Promise.all([getProduct(id), getProducts()])
   if (!product) notFound()
+
+  const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort()
 
   return (
     <div>
       <PageHeader title="Edit Product" description={product.name} />
-      <ProductForm product={product} />
+      <ProductForm product={product} categories={categories} />
     </div>
   )
 }

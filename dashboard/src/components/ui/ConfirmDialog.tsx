@@ -57,6 +57,7 @@ export default function ConfirmDialog({
             <p className="text-[13px] text-stone-500 leading-relaxed mb-6">{description}</p>
             <div className="flex justify-end gap-2">
               <button
+                type="button"
                 onClick={onCancel}
                 disabled={loading}
                 className="px-4 py-2 text-[13px] font-medium text-stone-600 rounded-md hover:bg-stone-100 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
@@ -64,6 +65,7 @@ export default function ConfirmDialog({
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={onConfirm}
                 disabled={loading}
                 className={`

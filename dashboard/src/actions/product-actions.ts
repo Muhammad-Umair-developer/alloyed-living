@@ -10,6 +10,8 @@ import {
   bulkDeleteProducts,
   bulkUpdateCategory,
   bulkUpdateStock,
+  renameCategory,
+  deleteCategory,
 } from "@/src/lib/data/products"
 import type { Product, ProductInput } from "@/src/lib/data/types"
 
@@ -66,5 +68,19 @@ export async function bulkUpdateCategoryAction(ids: string[], category: string):
 export async function bulkUpdateStockAction(ids: string[], stock: number): Promise<void> {
   await requireDashboardUser()
   await bulkUpdateStock(ids, stock)
+  await revalidateProductRoutes()
+}
+
+// Rename a category across the whole catalog (every product using `from`).
+export async function renameCategoryAction(from: string, to: string): Promise<void> {
+  await requireDashboardUser()
+  await renameCategory(from, to)
+  await revalidateProductRoutes()
+}
+
+// Delete a category — products that used it are left uncategorized.
+export async function deleteCategoryAction(name: string): Promise<void> {
+  await requireDashboardUser()
+  await deleteCategory(name)
   await revalidateProductRoutes()
 }

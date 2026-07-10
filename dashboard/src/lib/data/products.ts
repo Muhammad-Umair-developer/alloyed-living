@@ -126,6 +126,27 @@ export async function bulkUpdateCategory(ids: string[], category: string): Promi
   if (error) throw error
 }
 
+// Categories aren't a separate table — they live as the `category` string on
+// each product. Renaming/deleting one therefore rewrites every product that
+// carries it. Deleting leaves those products uncategorized (empty category).
+export async function renameCategory(from: string, to: string): Promise<void> {
+  const supabase = createSupabaseAdminClient()
+  const { error } = await supabase
+    .from("products")
+    .update({ category: to, updated_at: new Date().toISOString() })
+    .eq("category", from)
+  if (error) throw error
+}
+
+export async function deleteCategory(name: string): Promise<void> {
+  const supabase = createSupabaseAdminClient()
+  const { error } = await supabase
+    .from("products")
+    .update({ category: "", updated_at: new Date().toISOString() })
+    .eq("category", name)
+  if (error) throw error
+}
+
 export async function bulkUpdateStock(ids: string[], stock: number): Promise<void> {
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase

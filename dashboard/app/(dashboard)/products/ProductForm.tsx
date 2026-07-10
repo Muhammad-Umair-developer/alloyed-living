@@ -2,14 +2,27 @@
 
 import { useId, useState, useTransition, type ChangeEvent } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, X, ArrowLeft, Upload, Eye } from "lucide-react"
+import { Plus, X, ArrowLeft, Upload, Eye, Trash2, Pencil } from "lucide-react"
 import Link from "next/link"
 import type { Product, ProductInput } from "@/src/lib/data/types"
 import { toast } from "@/src/components/ui/ToastAlert"
-import { createProductAction, updateProductAction } from "@/src/actions/product-actions"
+import RichTextEditor from "@/src/components/ui/RichTextEditor"
+import ConfirmDialog from "@/src/components/ui/ConfirmDialog"
+import {
+  createProductAction,
+  updateProductAction,
+  renameCategoryAction,
+  deleteCategoryAction,
+} from "@/src/actions/product-actions"
+
+// Largest image the upload route accepts (mirrors MAX_IMAGE_BYTES in
+// app/api/upload/route.ts) — checked client-side so an oversized file is caught
+// with a clear message instead of failing mid-request.
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024
 
 interface ProductFormProps {
   product?: Product
+  categories?: string[]
 }
 
 // Evokes the storefront's editorial serif inside the dashboard preview without
@@ -63,13 +76,28 @@ function ImageUrlInput({
     e.target.value = ""
     if (!file) return
 
+    // Catch oversized images up front. Without this, a too-large file trips the
+    // server's request-size limit, which returns a non-JSON body — parsing it
+    // used to surface as a cryptic "unexpected token R" console error instead of
+    // telling the admin what actually went wrong.
+    if (file.type.startsWith("image/") && file.size > MAX_IMAGE_BYTES) {
+      toast.error("Image too large — please use an image under 8MB.")
+      return
+    }
+
     setUploading(true)
     try {
       const body = new FormData()
       body.append("file", file)
       const res = await fetch("/api/upload", { method: "POST", body })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? "Upload failed")
+
+      // The response may not be JSON (e.g. a request-too-large error page), so
+      // parse defensively and treat a size failure as "Image too large".
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        if (res.status === 413) throw new Error("Image too large — please use an image under 8MB.")
+        throw new Error(data?.error ?? "Upload failed.")
+      }
       onChange(data.url)
       toast.success("Image uploaded.")
     } catch (err) {
@@ -130,6 +158,17 @@ interface PreviewProps {
 function fmtPKR(price: string): string {
   const n = Number(price)
   return Number.isFinite(n) && n > 0 ? `PKR ${n.toLocaleString()}` : "PKR —"
+}
+
+// A discount only counts when it's a real, positive number — a blank or 0 means
+// "no discount" (and must never blank out / zero the real price).
+function activeDiscount(discountPrice: string): number | null {
+  const n = Number(discountPrice)
+  return discountPrice.trim() && Number.isFinite(n) && n > 0 ? n : null
+}
+
+function looksLikeHtml(s: string): boolean {
+  return /<\/?[a-z][\s\S]*>/i.test(s)
 }
 
 function LivePreview(p: PreviewProps) {
@@ -202,7 +241,14 @@ function LivePreview(p: PreviewProps) {
               <span className="text-[9px] text-stone-600">rating summary</span>
             </div>
             <p className="text-[13px] font-semibold text-stone-900 mt-1">
-              {p.discountPrice.trim() ? fmtPKR(p.discountPrice) : fmtPKR(p.price)}
+              {activeDiscount(p.discountPrice) !== null ? (
+                <>
+                  <span className="line-through font-normal text-stone-500 mr-1.5">{fmtPKR(p.price)}</span>
+                  {fmtPKR(p.discountPrice)}
+                </>
+              ) : (
+                fmtPKR(p.price)
+              )}
             </p>
           </div>
 
@@ -226,11 +272,18 @@ function LivePreview(p: PreviewProps) {
           {/* Full description */}
           <div>
             <p className="text-[9px] tracking-[0.2em] uppercase text-stone-600 mb-1.5">About this piece</p>
-            <p className="text-[11px] text-stone-600 leading-relaxed line-clamp-4 whitespace-pre-line">
-              {p.longDescription.trim() ||
-                p.description.trim() ||
-                "The full description shown on the detail page appears here."}
-            </p>
+            {p.longDescription.trim() && looksLikeHtml(p.longDescription) ? (
+              <div
+                className="rte-content text-[11px] text-stone-600 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: p.longDescription }}
+              />
+            ) : (
+              <p className="text-[11px] text-stone-600 leading-relaxed line-clamp-4 whitespace-pre-line">
+                {p.longDescription.trim() ||
+                  p.description.trim() ||
+                  "The full description shown on the detail page appears here."}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -238,7 +291,7 @@ function LivePreview(p: PreviewProps) {
   )
 }
 
-export default function ProductForm({ product }: ProductFormProps) {
+export default function ProductForm({ product, categories = [] }: ProductFormProps) {
   const router = useRouter()
   const isEdit = !!product
   const [isPending, startTransition] = useTransition()
@@ -249,6 +302,21 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [longDescription, setLongDescription] = useState(product?.longDescription ?? "")
   const [features, setFeatures] = useState<string[]>(product?.features?.length ? product.features : [""])
   const [category, setCategory] = useState(product?.category ?? "")
+  // Category picker list — seeded from the categories already used across the
+  // catalog, plus this product's own. Admins can add or remove entries here; a
+  // new one is saved to the catalog the moment a product is created under it.
+  const [categoryList, setCategoryList] = useState<string[]>(() => {
+    const seed = new Set(categories.filter(Boolean))
+    if (product?.category) seed.add(product.category)
+    return Array.from(seed).sort()
+  })
+  const [newCategoryDraft, setNewCategoryDraft] = useState("")
+  // Category rename/delete are catalog-wide, so they run through their own
+  // transition (kept separate from the product Save button's pending state).
+  const [categoryPending, startCategoryTransition] = useTransition()
+  const [renaming, setRenaming] = useState(false)
+  const [renameDraft, setRenameDraft] = useState("")
+  const [deleteCategoryTarget, setDeleteCategoryTarget] = useState<string | null>(null)
   const [price, setPrice] = useState(product?.price?.toString() ?? "")
   const [discountPrice, setDiscountPrice] = useState(product?.discountPrice?.toString() ?? "")
   const [stock, setStock] = useState(product?.stock?.toString() ?? "0")
@@ -273,6 +341,66 @@ export default function ProductForm({ product }: ProductFormProps) {
   }
   function removeGalleryRow(idx: number) {
     setGallery((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  function addCategory() {
+    const c = newCategoryDraft.trim()
+    if (!c) return
+    setCategoryList((prev) => (prev.includes(c) ? prev : [...prev, c].sort()))
+    setCategory(c)
+    setNewCategoryDraft("")
+    setErrors((prev) => ({ ...prev, category: "" }))
+  }
+
+  function startRename() {
+    setRenameDraft(category)
+    setRenaming(true)
+  }
+
+  function cancelRename() {
+    setRenaming(false)
+    setRenameDraft("")
+  }
+
+  function saveRename() {
+    const from = category
+    const to = renameDraft.trim()
+    if (!from || !to || to === from) {
+      cancelRename()
+      return
+    }
+    if (categoryList.includes(to)) {
+      toast.error(`"${to}" already exists.`)
+      return
+    }
+    startCategoryTransition(async () => {
+      try {
+        await renameCategoryAction(from, to)
+        setCategoryList((prev) => Array.from(new Set(prev.map((x) => (x === from ? to : x)))).sort())
+        setCategory(to)
+        cancelRename()
+        toast.success(`Category renamed to "${to}".`)
+      } catch {
+        toast.error("Couldn't rename the category.")
+      }
+    })
+  }
+
+  function confirmDeleteCategory() {
+    const name = deleteCategoryTarget
+    if (!name) return
+    startCategoryTransition(async () => {
+      try {
+        await deleteCategoryAction(name)
+        setCategoryList((prev) => prev.filter((x) => x !== name))
+        if (category === name) setCategory("")
+        toast.success(`Category "${name}" deleted.`)
+      } catch {
+        toast.error("Couldn't delete the category.")
+      } finally {
+        setDeleteCategoryTarget(null)
+      }
+    })
   }
 
   function updateFeature(idx: number, val: string) {
@@ -311,7 +439,8 @@ export default function ProductForm({ product }: ProductFormProps) {
       description: description.trim(),
       longDescription: longDescription.trim() || undefined,
       price: Number(price),
-      discountPrice: discountPrice.trim() ? Number(discountPrice) : null,
+      // 0 / blank / negative means "no discount" — never store it as a price.
+      discountPrice: activeDiscount(discountPrice),
       category: category.trim(),
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
       sizes: sizes.split(",").map((s) => s.trim()).filter(Boolean),
@@ -360,8 +489,79 @@ export default function ProductForm({ product }: ProductFormProps) {
               <Field label="Material" hint="A short material label shown under the product name.">
                 <input value={material} onChange={(e) => setMaterial(e.target.value)} className={inputCls} placeholder="Black Steel + Sheesham Wood" />
               </Field>
-              <Field label="Category" hint="Used for shop filtering — match an existing category (e.g. Seating, Tables) to group with similar products.">
-                <input value={category} onChange={(e) => setCategory(e.target.value)} className={inputCls} placeholder="Seating" />
+              <Field label="Category" hint="Used for shop filtering — pick an existing category, or add a new one. Editing or deleting a category updates every product that uses it. New categories are saved to the catalog when this product is created.">
+                {renaming ? (
+                  // Inline rename — applies across the whole catalog on save.
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      value={renameDraft}
+                      onChange={(e) => setRenameDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); saveRename() }
+                        if (e.key === "Escape") { e.preventDefault(); cancelRename() }
+                      }}
+                      autoFocus
+                      className={`${inputCls} cursor-text`}
+                      placeholder="New category name"
+                    />
+                    <button type="button" onClick={saveRename} disabled={categoryPending} className="flex-shrink-0 px-2.5 py-2 text-[12px] font-medium text-white bg-stone-900 rounded-md hover:bg-stone-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
+                      {categoryPending ? "Saving…" : "Save"}
+                    </button>
+                    <button type="button" onClick={cancelRename} className="flex-shrink-0 p-2 text-stone-600 hover:text-stone-900 cursor-pointer" aria-label="Cancel rename">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <select value={category} onChange={(e) => setCategory(e.target.value)} className={`${inputCls} cursor-pointer`}>
+                      <option value="">Select a category…</option>
+                      {categoryList.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+
+                    {/* Add a category inline */}
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <input
+                        value={newCategoryDraft}
+                        onChange={(e) => setNewCategoryDraft(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCategory() } }}
+                        className={`${inputCls} text-[12px] py-1.5`}
+                        placeholder="Add a new category…"
+                      />
+                      <button
+                        type="button"
+                        onClick={addCategory}
+                        className="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 text-[12px] font-medium rounded-md border border-stone-200 text-stone-600 hover:bg-stone-50 cursor-pointer transition-colors"
+                      >
+                        <Plus size={13} /> Add
+                      </button>
+                    </div>
+
+                    {/* Edit / delete the selected category */}
+                    {category && categoryList.includes(category) && (
+                      <div className="mt-1.5 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={startRename}
+                          disabled={categoryPending}
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-600 hover:text-stone-900 cursor-pointer transition-colors disabled:opacity-50"
+                        >
+                          <Pencil size={12} /> Edit “{category}”
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteCategoryTarget(category)}
+                          disabled={categoryPending}
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-600 hover:text-red-600 cursor-pointer transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 {errors.category && <p className="text-[11px] text-red-600 mt-1">{errors.category}</p>}
               </Field>
             </div>
@@ -429,14 +629,12 @@ export default function ProductForm({ product }: ProductFormProps) {
             <SectionHeader title="Full Description" where="“About this piece” on the detail page" />
             <Field
               label="Detailed Description"
-              hint="The long write-up shown in the “About This Piece” section of the product page. Leave a blank line between paragraphs. Optional — falls back to the short description if empty."
+              hint="The long write-up shown in the “About This Piece” section of the product page. Use the toolbar for bold text and bullet points. Optional — falls back to the short description if empty."
             >
-              <textarea
+              <RichTextEditor
                 value={longDescription}
-                onChange={(e) => setLongDescription(e.target.value)}
-                rows={6}
-                className={`${inputCls} resize-y`}
-                placeholder={"Tell the full story of this piece — materials, craftsmanship, and how it lives in a home.\n\nLeave a blank line to start a new paragraph."}
+                onChange={setLongDescription}
+                placeholder="Tell the full story of this piece — materials, craftsmanship, and how it lives in a home. Use bold and bullet points to highlight key details."
               />
             </Field>
           </section>
@@ -567,6 +765,16 @@ export default function ProductForm({ product }: ProductFormProps) {
           {isPending ? "Saving…" : isEdit ? "Save Changes" : "Create Product"}
         </button>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteCategoryTarget}
+        title="Delete category?"
+        description={`"${deleteCategoryTarget}" will be removed from the catalog. Any products using it will be left uncategorized.`}
+        confirmLabel="Delete category"
+        loading={categoryPending}
+        onConfirm={confirmDeleteCategory}
+        onCancel={() => setDeleteCategoryTarget(null)}
+      />
     </form>
   )
 }

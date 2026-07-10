@@ -22,6 +22,22 @@ function formatReviewDate(iso: string): string {
   return d.toLocaleDateString("en-US", { month: "long", year: "numeric" })
 }
 
+// The dashboard now stores the long description as a small HTML string (bold +
+// bullet formatting). Older products are still plain text — detect which we
+// have so plain text keeps its paragraph-splitting behaviour.
+function looksLikeHtml(s: string): boolean {
+  return /<\/?[a-z][\s\S]*>/i.test(s)
+}
+
+// Defence-in-depth: the dashboard only writes a whitelisted tag set, but strip
+// anything executable before rendering admin content into the public page.
+function sanitizeDescriptionHtml(html: string): string {
+  return html
+    .replace(/<\/?(?:script|style|iframe|object|embed|link|meta)[^>]*>/gi, "")
+    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/(?:href|src)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, "")
+}
+
 function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) {
   const cls = size === "lg" ? "text-base" : "text-sm"
   const rounded = Math.round(rating)
@@ -504,18 +520,25 @@ export default function ProductDetailView({
             </h2>
 
             {product.longDescription ? (
-              product.longDescription
-                .split(/\n{2,}/)
-                .map((para) => para.trim())
-                .filter(Boolean)
-                .map((para, i) => (
-                  <p
-                    key={i}
-                    className="text-[0.95rem] text-neutral-700 leading-loose max-w-2xl mb-5 whitespace-pre-line"
-                  >
-                    {para}
-                  </p>
-                ))
+              looksLikeHtml(product.longDescription) ? (
+                <div
+                  className="product-rich-text text-[0.95rem] text-neutral-700 leading-loose max-w-2xl"
+                  dangerouslySetInnerHTML={{ __html: sanitizeDescriptionHtml(product.longDescription) }}
+                />
+              ) : (
+                product.longDescription
+                  .split(/\n{2,}/)
+                  .map((para) => para.trim())
+                  .filter(Boolean)
+                  .map((para, i) => (
+                    <p
+                      key={i}
+                      className="text-[0.95rem] text-neutral-700 leading-loose max-w-2xl mb-5 whitespace-pre-line"
+                    >
+                      {para}
+                    </p>
+                  ))
+              )
             ) : (
               <>
                 <p className="text-[0.95rem] text-neutral-700 leading-loose max-w-2xl mb-5">

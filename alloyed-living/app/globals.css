@@ -55,6 +55,14 @@ input[type="search"]::-webkit-search-cancel-button {
   display: none;
 }
 
+/* Rich-text product descriptions authored in the dashboard (bold + bullets).
+   Tailwind's reset strips list markers, so restore them only inside this block. */
+.product-rich-text ul { list-style: disc; padding-left: 1.5rem; margin: 0 0 1.25rem; }
+.product-rich-text ol { list-style: decimal; padding-left: 1.5rem; margin: 0 0 1.25rem; }
+.product-rich-text li { margin: 0.25rem 0; }
+.product-rich-text p { margin: 0 0 1.25rem; }
+.product-rich-text strong, .product-rich-text b { font-weight: 600; }
+
 /* Force hide the Next.js/Turbopack dev compilation indicator badge */
 html body [nextjs-portal],
 html body #__next-toast-container,
