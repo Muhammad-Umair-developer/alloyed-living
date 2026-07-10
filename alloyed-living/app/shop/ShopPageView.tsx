@@ -935,7 +935,16 @@ export default function ShopPageView({ products, content }: { products: Product[
                 </p>
 
                 <p className="text-xl font-semibold tracking-wider text-neutral-900">
-                  PKR {selectedProduct.price.toLocaleString()}
+                  {selectedProduct.discountPrice != null && selectedProduct.discountPrice > 0 ? (
+                    <>
+                      <span className="line-through font-normal text-neutral-400 mr-2">
+                        PKR {selectedProduct.price.toLocaleString()}
+                      </span>
+                      PKR {selectedProduct.discountPrice.toLocaleString()}
+                    </>
+                  ) : (
+                    <>PKR {selectedProduct.price.toLocaleString()}</>
+                  )}
                 </p>
 
                 <motion.button

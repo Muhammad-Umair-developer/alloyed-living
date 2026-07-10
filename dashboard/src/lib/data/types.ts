@@ -188,6 +188,20 @@ export interface CatalogPageContent {
   catalogPdfUrl: string | null
 }
 
+export interface CustomOrderStep {
+  title: string
+  description: string
+}
+
+export interface CustomOrderPageContent {
+  eyebrow: string
+  heroTitle: string
+  heroSubtitle: string
+  steps: CustomOrderStep[]
+  formHeading: string
+  formSubheading: string
+}
+
 export type ContentPageFields =
   | ShippingPageContent
   | ReturnsPageContent
@@ -199,6 +213,7 @@ export type ContentPageFields =
   | ShopPageContent
   | FactoryLocationPageContent
   | CatalogPageContent
+  | CustomOrderPageContent
 
 export type ContentSlug =
   | "home"
@@ -211,6 +226,7 @@ export type ContentSlug =
   | "terms"
   | "factory-location"
   | "catalog"
+  | "custom-order"
 
 export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
   slug: ContentSlug

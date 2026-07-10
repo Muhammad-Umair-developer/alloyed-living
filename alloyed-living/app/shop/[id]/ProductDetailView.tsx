@@ -412,7 +412,16 @@ export default function ProductDetailView({
 
             {/* Price */}
             <p className="text-[1.65rem] font-semibold text-neutral-900 tracking-wide">
-              PKR {product.price.toLocaleString()}
+              {product.discountPrice != null && product.discountPrice > 0 ? (
+                <>
+                  <span className="line-through font-normal text-neutral-400 mr-2.5">
+                    PKR {product.price.toLocaleString()}
+                  </span>
+                  PKR {product.discountPrice.toLocaleString()}
+                </>
+              ) : (
+                <>PKR {product.price.toLocaleString()}</>
+              )}
             </p>
 
             {/* Material label */}

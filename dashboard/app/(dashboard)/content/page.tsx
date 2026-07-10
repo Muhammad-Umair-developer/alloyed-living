@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, ShoppingBag, Truck, RotateCcw, Mail, Info, HelpCircle, FileText, ArrowRight, MapPin, Download } from "lucide-react"
+import { Home, ShoppingBag, Truck, RotateCcw, Mail, Info, HelpCircle, FileText, ArrowRight, MapPin, Download, Sparkles } from "lucide-react"
 import { getAllContentPages } from "@/src/lib/data/content"
 import PageHeader from "@/src/components/ui/PageHeader"
 import type { ContentSlug } from "@/src/lib/data/types"
@@ -18,6 +18,7 @@ const PAGE_META: Record<ContentSlug, { icon: typeof Truck; description: string }
   terms: { icon: FileText, description: "Terms & conditions copy." },
   "factory-location": { icon: MapPin, description: "Address, map embed, phone, and hours shown on the Factory Location page." },
   catalog: { icon: Download, description: "Hero copy and intro shown above the downloadable product catalog." },
+  "custom-order": { icon: Sparkles, description: "Hero copy, motivating intro, and the “how it works” steps shown on the Custom Order page." },
 }
 
 export default async function ContentPagesPage() {

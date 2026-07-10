@@ -15,6 +15,8 @@ import type {
   ShopPageContent,
   FactoryLocationPageContent,
   CatalogPageContent,
+  CustomOrderPageContent,
+  CustomOrderStep,
   HeroMediaType,
   ShippingTier,
   FAQ,
@@ -807,6 +809,60 @@ function CatalogEditor({ slug, initial }: { slug: "catalog"; initial: CatalogPag
   )
 }
 
+// ─── Custom Order ─────────────────────────────────────────────────────────────
+
+function CustomOrderEditor({ slug, initial }: { slug: "custom-order"; initial: CustomOrderPageContent }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [fields, setFields] = useState(initial)
+
+  function updateStep(i: number, patch: Partial<CustomOrderStep>) {
+    setFields((f) => ({ ...f, steps: f.steps.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) }))
+  }
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateContentPageAction(slug, fields)
+      toast.success("Custom Order page updated.")
+      router.refresh()
+    })
+  }
+
+  return (
+    <div>
+      <Card>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Hero</p>
+        <Field label="Eyebrow"><input value={fields.eyebrow} onChange={(e) => setFields((f) => ({ ...f, eyebrow: e.target.value }))} className={inputCls} /></Field>
+        <Field label="Hero Title"><input value={fields.heroTitle} onChange={(e) => setFields((f) => ({ ...f, heroTitle: e.target.value }))} className={inputCls} /></Field>
+        <Field label="Hero Subtitle" hint="The motivating line under the title.">
+          <textarea value={fields.heroSubtitle} onChange={(e) => setFields((f) => ({ ...f, heroSubtitle: e.target.value }))} rows={3} className={`${inputCls} resize-none`} />
+        </Field>
+
+        <RepeatableHeader
+          title="How It Works — Steps"
+          onAdd={() => setFields((f) => ({ ...f, steps: [...f.steps, { title: "New Step", description: "" }] }))}
+        />
+        {fields.steps.map((step, i) => (
+          <div key={i} className="border border-stone-100 rounded-md p-4 space-y-3">
+            <div className="flex justify-end">
+              <RemoveButton onClick={() => setFields((f) => ({ ...f, steps: f.steps.filter((_, idx) => idx !== i) }))} />
+            </div>
+            <Field label="Step Title"><input value={step.title} onChange={(e) => updateStep(i, { title: e.target.value })} className={inputCls} /></Field>
+            <Field label="Step Description"><textarea value={step.description} onChange={(e) => updateStep(i, { description: e.target.value })} rows={2} className={`${inputCls} resize-none`} /></Field>
+          </div>
+        ))}
+
+        <div className="border-t border-stone-100 pt-6 space-y-6">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Form Section</p>
+          <Field label="Form Heading"><input value={fields.formHeading} onChange={(e) => setFields((f) => ({ ...f, formHeading: e.target.value }))} className={inputCls} /></Field>
+          <Field label="Form Subheading"><input value={fields.formSubheading} onChange={(e) => setFields((f) => ({ ...f, formSubheading: e.target.value }))} className={inputCls} /></Field>
+        </div>
+      </Card>
+      <SaveBar pending={isPending} onSave={handleSave} />
+    </div>
+  )
+}
+
 // ─── Root switch ──────────────────────────────────────────────────────────────
 
 export default function ContentPageEditor({ page, products }: { page: ContentPage; products: Product[] }) {
@@ -831,5 +887,7 @@ export default function ContentPageEditor({ page, products }: { page: ContentPag
       return <FactoryLocationEditor slug="factory-location" initial={page.fields as FactoryLocationPageContent} />
     case "catalog":
       return <CatalogEditor slug="catalog" initial={page.fields as CatalogPageContent} />
+    case "custom-order":
+      return <CustomOrderEditor slug="custom-order" initial={page.fields as CustomOrderPageContent} />
   }
 }

@@ -1,6 +1,6 @@
 import "server-only"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
-import type { ContentPage, ContentPageFields, ContentSlug } from "./types"
+import type { ContentPage, ContentPageFields, ContentSlug, CustomOrderPageContent } from "./types"
 
 type ContentStore = Record<ContentSlug, ContentPage>
 type ContentRow = { slug: string; title: string; fields: ContentPageFields; updated_at: string }
@@ -14,6 +14,46 @@ function rowToPage(r: ContentRow): ContentPage {
   }
 }
 
+// The Custom Order page is seeded via migration, but ships with a built-in
+// default so the editor and storefront still work before/without that row —
+// the first save upserts it. Keep this in sync with the seed migration.
+const CUSTOM_ORDER_DEFAULT_FIELDS: CustomOrderPageContent = {
+  eyebrow: "Bespoke",
+  heroTitle: "Made For You Alone",
+  heroSubtitle:
+    "You imagined something the world doesn't have yet — be proud of that. Share your idea and our craftsmen will forge it into a piece that is yours, and yours alone.",
+  steps: [
+    {
+      title: "Share Your Vision",
+      description: "Describe the piece you dream of — a brand-new idea, or a bold twist on something you already love.",
+    },
+    {
+      title: "We Shape It Together",
+      description: "Our craftsmen turn your concept into a plan — materials, dimensions and finish — and send it back for your blessing.",
+    },
+    {
+      title: "Built By Hand",
+      description: "Your one-of-a-kind piece is forged by hand in our Lahore workshop and delivered to your door.",
+    },
+  ],
+  formHeading: "Start Your Commission",
+  formSubheading: "Tell us what you have in mind",
+}
+
+// A built-in default for content pages that may not have a DB row yet. Only the
+// Custom Order page has one today; every other slug returns null (unchanged).
+function contentDefault(slug: ContentSlug): ContentPage | null {
+  if (slug === "custom-order") {
+    return {
+      slug: "custom-order",
+      title: "Custom Order",
+      updatedAt: new Date(0).toISOString(),
+      fields: CUSTOM_ORDER_DEFAULT_FIELDS,
+    }
+  }
+  return null
+}
+
 export async function getAllContentPages(): Promise<ContentStore> {
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase.from("content_pages").select("*")
@@ -21,6 +61,12 @@ export async function getAllContentPages(): Promise<ContentStore> {
   const store = {} as ContentStore
   for (const row of (data ?? []) as ContentRow[]) {
     store[row.slug as ContentSlug] = rowToPage(row)
+  }
+  // Surface pages that have a built-in default but no row yet (Custom Order),
+  // so they still appear in the editor list.
+  if (!store["custom-order"]) {
+    const def = contentDefault("custom-order")
+    if (def) store["custom-order"] = def
   }
   return store
 }
@@ -30,7 +76,10 @@ export async function getContentPage<T extends ContentPageFields = ContentPageFi
 ): Promise<ContentPage<T> | null> {
   const supabase = createSupabaseAdminClient()
   const { data } = await supabase.from("content_pages").select("*").eq("slug", slug).maybeSingle()
-  return data ? (rowToPage(data as ContentRow) as ContentPage<T>) : null
+  if (data) return rowToPage(data as ContentRow) as ContentPage<T>
+  // Fall back to a built-in default when the row hasn't been seeded yet
+  // (null for every slug except Custom Order — unchanged behaviour otherwise).
+  return contentDefault(slug) as ContentPage<T> | null
 }
 
 
@@ -39,19 +88,25 @@ export async function updateContentPage(
   fields: Partial<ContentPageFields>,
 ): Promise<ContentPage> {
   const supabase = createSupabaseAdminClient()
-  const { data: existingRow, error: readErr } = await supabase
+  const { data: existingRow } = await supabase
     .from("content_pages")
     .select("*")
     .eq("slug", slug)
-    .single()
-  if (readErr) throw readErr
-  const existing = rowToPage(existingRow as ContentRow)
+    .maybeSingle()
+
+  // Existing row wins; otherwise fall back to a built-in default so a not-yet-
+  // seeded page (Custom Order) is created on its first save.
+  const existing = existingRow ? rowToPage(existingRow as ContentRow) : contentDefault(slug)
+  if (!existing) throw new Error(`Unknown content page: ${slug}`)
+
   const updatedAt = new Date().toISOString()
   const mergedFields = { ...existing.fields, ...fields }
   const { data, error } = await supabase
     .from("content_pages")
-    .update({ fields: mergedFields, updated_at: updatedAt })
-    .eq("slug", slug)
+    .upsert(
+      { slug, title: existing.title, fields: mergedFields, updated_at: updatedAt },
+      { onConflict: "slug" },
+    )
     .select("*")
     .single()
   if (error) throw error

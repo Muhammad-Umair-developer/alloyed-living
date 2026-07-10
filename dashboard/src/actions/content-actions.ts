@@ -19,6 +19,7 @@ const STOREFRONT_PATHS_BY_SLUG: Record<ContentSlug, string[]> = {
   terms: ["/terms"],
   "factory-location": ["/factory-location"],
   catalog: ["/catalog"],
+  "custom-order": ["/custom-order"],
 }
 
 export async function updateContentPageAction(
