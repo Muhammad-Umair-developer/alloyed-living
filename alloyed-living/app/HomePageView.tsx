@@ -81,7 +81,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
         >
           <span className="block">{hero.titleLine1}</span>
-          <span className="block font-extralight italic">{hero.titleLine2}</span>
+          <span className="block font-extralight ">{hero.titleLine2}</span>
         </motion.h1>
 
         {/* Divider rule */}
@@ -96,7 +96,7 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
         {/* Tagline */}
         <motion.p
           style={EDITORIAL}
-          className="text-lg font-semibold italic text-white max-w-xs tracking-wide leading-relaxed mb-12"
+          className="text-lg font-normal text-white max-w-xs tracking-wide leading-relaxed mb-12"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.75 }}
@@ -160,7 +160,7 @@ function EditorialSection({ story }: { story: HomePageContent["story"] }) {
 
         <p
           style={EDITORIAL}
-          className="text-[clamp(0.95rem,1.5vw,1.1rem)] font-semibold italic text-neutral-700
+          className="text-[clamp(1rem,1.5vw,1.4rem)] font-normal text-neutral-700
                      leading-relaxed max-w-2xl mx-auto mb-14"
         >
           {story.body}
@@ -226,7 +226,7 @@ function ShopRoomSection({ shopRoom }: { shopRoom: HomePageContent["shopRoom"] }
         </h2>
         <p
           style={EDITORIAL}
-          className="text-lg font-semibold italic text-white max-w-xs tracking-wide leading-relaxed mb-12"
+          className="text-lg font-normal text-white max-w-xs tracking-wide leading-relaxed mb-12"
         >
           {shopRoom.subtitle}
         </p>
