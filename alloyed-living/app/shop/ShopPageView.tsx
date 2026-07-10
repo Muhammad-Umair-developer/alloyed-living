@@ -47,14 +47,10 @@ const MATERIALS: { id: string; color: string; label: string }[] = [
 ]
 
 
-const CATEGORY_NAV = [
-  "Seating",
-  "Tables",
-  "Storage Systems",
-  "Outdoor Furniture",
-] as const
-
-type CategoryNav = (typeof CATEGORY_NAV)[number] | null
+// The category nav is derived from the live catalog (see ShopPageView) so it
+// always reflects the products that actually exist — when every product is
+// deleted, no categories are shown.
+type CategoryNav = string | null
 
 const SORT_LABELS: Record<SortKey, string> = {
   "new":        "New Arrivals",
@@ -201,12 +197,13 @@ interface FilterPanelProps {
   filters:          FilterState
   onChange:         <K extends keyof FilterState>(key: K, val: FilterState[K]) => void
   onClearAll:       () => void
+  categories:       string[]
   activeCategory:   CategoryNav
   onCategoryChange: (cat: CategoryNav) => void
 }
 
 const FilterPanel = memo(function FilterPanel({
-  filters, onChange, onClearAll, activeCategory, onCategoryChange,
+  filters, onChange, onClearAll, categories, activeCategory, onCategoryChange,
 }: FilterPanelProps) {
   const [dimOpen, setDimOpen] = useState(false)
 
@@ -223,28 +220,30 @@ const FilterPanel = memo(function FilterPanel({
     <div className="space-y-10">
 
       {/* ── Category Navigation ── */}
-      <div className="space-y-4 mb-8 pb-8 border-b border-stone-100">
-        {CATEGORY_NAV.map((cat) => {
-          const isActive = activeCategory === cat
-          return (
-            <button
-              key={cat}
-              onClick={() => onCategoryChange(isActive ? null : cat)}
-              className={`
-                block w-full text-left cursor-pointer
-                font-semibold text-lg tracking-tight
-                transition-all duration-300
-                ${isActive
-                  ? "text-neutral-900 underline underline-offset-[5px] decoration-[1.5px] translate-x-1"
-                  : "text-neutral-900 hover:translate-x-1 hover:text-neutral-500"
-                }
-              `}
-            >
-              {cat}
-            </button>
-          )
-        })}
-      </div>
+      {categories.length > 0 && (
+        <div className="space-y-4 mb-8 pb-8 border-b border-stone-100">
+          {categories.map((cat) => {
+            const isActive = activeCategory === cat
+            return (
+              <button
+                key={cat}
+                onClick={() => onCategoryChange(isActive ? null : cat)}
+                className={`
+                  block w-full text-left cursor-pointer
+                  font-semibold text-lg tracking-tight
+                  transition-all duration-300
+                  ${isActive
+                    ? "text-neutral-900 underline underline-offset-[5px] decoration-[1.5px] translate-x-1"
+                    : "text-neutral-900 hover:translate-x-1 hover:text-neutral-500"
+                  }
+                `}
+              >
+                {cat}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Section header */}
       <div className="flex items-baseline justify-between">
@@ -594,6 +593,13 @@ export default function ShopPageView({ products, content }: { products: Product[
 
   const clearAll = useCallback(() => setFilters(INITIAL_FILTERS), [])
 
+  // Category nav reflects the live catalog — distinct, non-empty categories in
+  // the order products first introduce them. Empty when there are no products.
+  const categoryNav = useMemo(
+    () => Array.from(new Set(products.map((p) => p.category).filter(Boolean))),
+    [products],
+  )
+
   // Derived: filtered + sorted products
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
@@ -701,6 +707,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                 filters={filters}
                 onChange={setFilter}
                 onClearAll={clearAll}
+                categories={categoryNav}
                 activeCategory={activeCategory}
                 onCategoryChange={setActiveCategory}
               />
@@ -1023,6 +1030,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                   filters={filters}
                   onChange={setFilter}
                   onClearAll={clearAll}
+                  categories={categoryNav}
                   activeCategory={activeCategory}
                   onCategoryChange={setActiveCategory}
                 />
