@@ -14,7 +14,7 @@ const NAV_LINKS = [
 ]
 
 const CARE_LINKS = [
-  { label: "Shipping Details",    href: "/shipping"         },
+  { label: "Shipping Details",     href: "/shipping"         },
   { label: "Returns & Exchanges", href: "/returns"          },
   { label: "Factory Location",    href: "/factory-location" },
   { label: "Product Catalog",     href: "/catalog"          },
@@ -153,6 +153,47 @@ export default function Footer() {
                 <p className="text-[11px] tracking-[0.08em] text-neutral-200 leading-relaxed">
                   Mon – Sat, 10 am – 7 pm PKT
                 </p>
+              </div>
+
+              {/* ─ Social Links ─ */}
+              <div>
+                <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-200 mb-3">
+                  Follow Us
+                </p>
+                <div className="flex items-center gap-5">
+                  <a
+                    href="https://www.instagram.com/alloyedliving?igsh=MXBhbGdwZWV6ZnE5NQ=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="
+                      relative inline-block
+                      text-[11px] tracking-[0.14em] text-neutral-100
+                      cursor-pointer transition-colors duration-300 hover:text-white
+                      after:absolute after:bottom-[-1px] after:left-0
+                      after:h-px after:w-0 after:bg-white after:content-['']
+                      after:transition-[width] after:duration-300 after:ease-out
+                      hover:after:w-full
+                    "
+                  >
+                    Instagram
+                  </a>
+                  <a
+                    href="https://www.facebook.com/share/1BdEw54ASu/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="
+                      relative inline-block
+                      text-[11px] tracking-[0.14em] text-neutral-100
+                      cursor-pointer transition-colors duration-300 hover:text-white
+                      after:absolute after:bottom-[-1px] after:left-0
+                      after:h-px after:w-0 after:bg-white after:content-['']
+                      after:transition-[width] after:duration-300 after:ease-out
+                      hover:after:w-full
+                    "
+                  >
+                    Facebook
+                  </a>
+                </div>
               </div>
 
             </div>
