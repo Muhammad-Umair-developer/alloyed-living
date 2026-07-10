@@ -39,14 +39,6 @@ const PRICE_MAX = 150000
 const SPRING_DRAWER = { type: "spring", stiffness: 350, damping: 38, mass: 1 } as const
 const EASE_CINEMATIC: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
-const MATERIALS: { id: string; color: string; label: string }[] = [
-  { id: "Black Steel + Solid Sheesham Wood",      color: "#8B5E3C", label: "Sheesham Wood" },
-  { id: "Black Steel + Solid Oak Wood",            color: "#9B7355", label: "Oak Wood"      },
-  { id: "Black Steel + Solid Pine Wood",           color: "#C4A265", label: "Pine Wood"     },
-  { id: "Powder-Coated Steel + Solid Acacia Wood", color: "#A07040", label: "Acacia Wood"   },
-]
-
-
 // The category nav is derived from the live catalog (see ShopPageView) so it
 // always reflects the products that actually exist — when every product is
 // deleted, no categories are shown.
@@ -198,12 +190,13 @@ interface FilterPanelProps {
   onChange:         <K extends keyof FilterState>(key: K, val: FilterState[K]) => void
   onClearAll:       () => void
   categories:       string[]
+  materialOptions:  string[]
   activeCategory:   CategoryNav
   onCategoryChange: (cat: CategoryNav) => void
 }
 
 const FilterPanel = memo(function FilterPanel({
-  filters, onChange, onClearAll, categories, activeCategory, onCategoryChange,
+  filters, onChange, onClearAll, categories, materialOptions, activeCategory, onCategoryChange,
 }: FilterPanelProps) {
   const [dimOpen, setDimOpen] = useState(false)
 
@@ -281,43 +274,47 @@ const FilterPanel = memo(function FilterPanel({
         />
       </section>
 
-      {/* Material Matrix */}
-      <section>
-        <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-5">Material</p>
-        <div className="flex flex-wrap gap-4">
-          {MATERIALS.map((mat) => {
-            const active = filters.materials.includes(mat.id)
-            return (
-              <button
-                key={mat.id}
-                onClick={() => toggleMaterial(mat.id)}
-                aria-pressed={active}
-                className="group flex flex-col items-center gap-2 w-10 focus:outline-none"
-              >
-                <div
-                  className={`
-                    w-10 h-10 rounded-full transition-all duration-500
-                    ring-offset-[3px] ring-offset-[#faf9f7]
-                    ${active
-                      ? "ring-2 ring-stone-800 scale-105"
-                      : "ring-0 group-hover:ring-1 group-hover:ring-stone-300 group-hover:scale-105"}
-                  `}
-                  style={{ backgroundColor: mat.color }}
-                />
-                <span
-                  className={`
-                    text-[7px] tracking-[0.1em] uppercase leading-tight text-center
-                    transition-colors duration-300
-                    ${active ? "text-stone-800" : "text-stone-500 group-hover:text-stone-700"}
-                  `}
+      {/* Material — a clean checkbox list built from the materials products
+          actually use (empty when there are none). */}
+      {materialOptions.length > 0 && (
+        <section>
+          <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-4">Material</p>
+          <div className="space-y-1">
+            {materialOptions.map((mat) => {
+              const active = filters.materials.includes(mat)
+              return (
+                <button
+                  key={mat}
+                  onClick={() => toggleMaterial(mat)}
+                  aria-pressed={active}
+                  className="group flex items-center gap-2.5 w-full text-left py-1 focus:outline-none"
                 >
-                  {mat.label}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </section>
+                  <span
+                    className={`
+                      flex-shrink-0 w-4 h-4 rounded-[3px] border flex items-center justify-center
+                      transition-colors duration-300
+                      ${active
+                        ? "bg-stone-800 border-stone-800"
+                        : "bg-transparent border-stone-300 group-hover:border-stone-500"}
+                    `}
+                  >
+                    {active && <Check size={11} strokeWidth={2.5} className="text-white" />}
+                  </span>
+                  <span
+                    className={`
+                      text-[11px] tracking-[0.02em] leading-snug
+                      transition-colors duration-300
+                      ${active ? "text-stone-900 font-medium" : "text-stone-600 group-hover:text-stone-800"}
+                    `}
+                  >
+                    {mat}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Spatial Dimensions */}
       <section>
@@ -600,6 +597,12 @@ export default function ShopPageView({ products, content }: { products: Product[
     [products],
   )
 
+  // Material filter options — distinct, non-empty materials in the live catalog.
+  const materialNav = useMemo(
+    () => Array.from(new Set(products.map((p) => p.material).filter(Boolean))),
+    [products],
+  )
+
   // Derived: filtered + sorted products
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
@@ -708,6 +711,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                 onChange={setFilter}
                 onClearAll={clearAll}
                 categories={categoryNav}
+                materialOptions={materialNav}
                 activeCategory={activeCategory}
                 onCategoryChange={setActiveCategory}
               />
@@ -1031,6 +1035,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                   onChange={setFilter}
                   onClearAll={clearAll}
                   categories={categoryNav}
+                  materialOptions={materialNav}
                   activeCategory={activeCategory}
                   onCategoryChange={setActiveCategory}
                 />
