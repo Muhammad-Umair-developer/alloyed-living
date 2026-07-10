@@ -45,7 +45,7 @@ const EASE_CINEMATIC: [number, number, number, number] = [0.16, 1, 0.3, 1]
 type CategoryNav = string | null
 
 const SORT_LABELS: Record<SortKey, string> = {
-  "new":        "New Arrivals",
+  "new":         "New Arrivals",
   "price-asc":  "Price: Low to High",
   "price-desc": "Price: High to Low",
 }
@@ -69,8 +69,8 @@ function formatPKR(val: number): string {
 
 function isDefaultFilters(f: FilterState): boolean {
   return (
-    f.priceMin  === INITIAL_FILTERS.priceMin &&
-    f.priceMax  === INITIAL_FILTERS.priceMax &&
+    f.priceMin   === INITIAL_FILTERS.priceMin &&
+    f.priceMax   === INITIAL_FILTERS.priceMax &&
     f.materials.length === 0 &&
     !f.dimH && !f.dimW && !f.dimD
   )
@@ -445,7 +445,7 @@ const ProductCard = memo(function ProductCard({ product, onSelect }: ProductCard
         {/* Category badge */}
         <div className="absolute top-4 left-4 z-10">
           <span className="text-[7px] tracking-[0.28em] uppercase text-stone-700
-                           bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                             bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
             {product.category}
           </span>
         </div>
@@ -484,9 +484,21 @@ const ProductCard = memo(function ProductCard({ product, onSelect }: ProductCard
         <p className="text-[8px] tracking-[0.26em] uppercase text-stone-600">
           {product.material}
         </p>
+        
+        {/* Updated Price Layout to reflect discount settings */}
         <p className="text-[10px] tracking-[0.18em] text-stone-700 pt-0.5">
-          PKR {product.price.toLocaleString()}
+          {product.discountPrice != null && product.discountPrice > 0 ? (
+            <>
+              <span className="line-through font-normal text-stone-400 mr-2">
+                PKR {product.price.toLocaleString()}
+              </span>
+              PKR {product.discountPrice.toLocaleString()}
+            </>
+          ) : (
+            <>PKR {product.price.toLocaleString()}</>
+          )}
         </p>
+        
         <div onClick={(e) => e.stopPropagation()}>
           <Link
             href={`/shop/${product.id}`}
@@ -788,7 +800,7 @@ export default function ShopPageView({ products, content }: { products: Product[
         </div>
       </main>
 
-      {/* ════ Success toast ════ */}
+      {/* ─── Success toast ─── */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -833,7 +845,7 @@ export default function ShopPageView({ products, content }: { products: Product[
         )}
       </AnimatePresence>
 
-      {/* ════ Mobile filter pill ════ */}
+      {/* ─── Mobile filter pill ─── */}
       <div className="lg:hidden fixed bottom-6 inset-x-0 flex justify-center z-40 pointer-events-none">
         <motion.button
           initial={{ y: 80, opacity: 0 }}
@@ -867,7 +879,7 @@ export default function ShopPageView({ products, content }: { products: Product[
         </motion.button>
       </div>
 
-      {/* ════ Product detail modal ════ */}
+      {/* ─── Product detail modal ─── */}
       <AnimatePresence>
         {selectedProduct && (
           <motion.div
@@ -928,7 +940,7 @@ export default function ShopPageView({ products, content }: { products: Product[
                   {selectedProduct.description}
                 </p>
 
-                <p className="text-[9px] tracking-[0.18em] text-neutral-700 leading-relaxed">
+                <p className="text-[9px] tracking-[0.2em] text-neutral-700 leading-relaxed">
                   H&nbsp;{selectedProduct.dimensions.h}&nbsp;·&nbsp;
                   W&nbsp;{selectedProduct.dimensions.w}&nbsp;·&nbsp;
                   D&nbsp;{selectedProduct.dimensions.d}&nbsp;cm
@@ -984,7 +996,7 @@ export default function ShopPageView({ products, content }: { products: Product[
         )}
       </AnimatePresence>
 
-      {/* ════ Mobile filter drawer ════ */}
+      {/* ─── Mobile filter drawer ─── */}
       <AnimatePresence>
         {drawerOpen && (
           <>
