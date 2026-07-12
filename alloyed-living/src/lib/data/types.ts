@@ -197,6 +197,12 @@ export interface CustomOrderPageContent {
   eyebrow: string
   heroTitle: string
   heroSubtitle: string
+  /** Optional hero background image (URL or /public path). Falls back to a
+   *  built-in default on the storefront when empty. */
+  heroImage?: string
+  /** Optional editable inspiration-gallery cards. Falls back to a built-in set
+   *  on the storefront when empty/undefined. */
+  galleryItems?: Array<{ imageUrl: string; caption: string }>
   steps: CustomOrderStep[]
   formHeading: string
   formSubheading: string

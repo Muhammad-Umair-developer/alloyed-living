@@ -37,23 +37,40 @@ export const CUSTOM_ORDER_DEFAULT: CustomOrderPageContent = {
   heroTitle: "Made For You Alone",
   heroSubtitle:
     "You imagined something the world doesn't have yet — be proud of that. Share your idea and our craftsmen will forge it into a piece that is yours, and yours alone.",
+  heroImage: "/img.png",
   steps: [
     {
       title: "Share Your Vision",
-      description: "Describe the piece you dream of — a brand-new idea, or a bold twist on something you already love.",
+      description: "Describe your idea, dimensions and finish — and upload any sketches or reference images that inspire you.",
     },
     {
-      title: "We Shape It Together",
-      description: "Our craftsmen turn your concept into a plan — materials, dimensions and finish — and send it back for your blessing.",
+      title: "Design & Refine",
+      description: "Our team turns your concept into a precise blueprint and digital model, sent back for your approval.",
     },
     {
-      title: "Built By Hand",
-      description: "Your one-of-a-kind piece is forged by hand in our Lahore workshop and delivered to your door.",
+      title: "Forged in Steel",
+      description: "Skilled artisans craft your piece from high-grade raw metal, entirely by hand in our Lahore workshop.",
+    },
+    {
+      title: "Delivered to You",
+      description: "Your one-of-a-kind piece is carefully packed and shipped directly to your space.",
     },
   ],
   formHeading: "Start Your Commission",
   formSubheading: "Tell us what you have in mind",
 }
+
+// Fallback hero image when the admin hasn't set one (or a saved URL is blank).
+const HERO_FALLBACK = "/img.png"
+
+// Inspiration gallery fallback — used when the admin hasn't configured any
+// gallery items (content.galleryItems empty/undefined) so the section never
+// breaks. Images are existing catalog stills; captions emphasise custom capability.
+const INSPIRATION_FALLBACK: NonNullable<CustomOrderPageContent["galleryItems"]> = [
+  { imageUrl: "/2.jpg.jpeg", caption: "Bespoke Dimensions" },
+  { imageUrl: "/6.jpg.jpeg", caption: "Custom Finishes" },
+  { imageUrl: "/9.jpg.jpeg", caption: "Industrial Craftsmanship" },
+]
 
 function fadeUp(delay = 0) {
   return {
@@ -493,10 +510,11 @@ export default function CustomOrderPageView({
       <main className="min-h-screen bg-[#faf9f7]">
         {/* ══ Hero band — full-bleed dark, asymmetric with custom background image ══ */}
         <section className="relative bg-neutral-950 text-white overflow-hidden">
-          {/* Background Image Layer */}
+          {/* Background Image Layer — dynamic, set from the dashboard content
+              editor (content.heroImage) with a built-in fallback. */}
           <div className="absolute inset-0 z-0">
             <img
-              src="/img.png" // Replace with your actual image path
+              src={content.heroImage || HERO_FALLBACK}
               alt="Bespoke Commission Hero Background"
               className="w-full h-full object-cover object-center"
             />
@@ -539,41 +557,104 @@ export default function CustomOrderPageView({
                 >
                   {content.heroSubtitle}
                 </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, ease: "easeOut", delay: 0.42 }}
+                >
+                  <a
+                    href="#commission-form"
+                    className="group mt-10 inline-flex items-center gap-4 border border-white/25
+                               bg-white/5 backdrop-blur-sm px-9 py-4 text-[8.5px] tracking-[0.44em] uppercase text-white
+                               hover:bg-white hover:text-neutral-950 transition-colors duration-500"
+                  >
+                    Start Your Commission
+                    <ArrowRight size={11} strokeWidth={1.5} className="translate-x-0 group-hover:translate-x-2 transition-transform duration-500" />
+                  </a>
+                </motion.div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ══ How it works — staggered visual steps ══ */}
+        {/* ══ The Creative Journey — step-by-step cards ══ */}
         <section className="px-6 md:px-16 lg:px-24 py-20 md:py-28 border-b border-stone-200/70">
-          <motion.p
-            className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-12"
-            {...fadeUp(0)}
-          >
-            How It Works
-          </motion.p>
-          <div className="grid gap-y-12 md:gap-8 md:grid-cols-3">
+          <motion.div className="max-w-2xl mb-14 md:mb-16" {...fadeUp(0)}>
+            <p className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-5">The Creative Journey</p>
+            <h2 style={EDITORIAL} className="text-[clamp(1.8rem,3.4vw,2.9rem)] font-light text-stone-900 leading-[1.06]">
+              From a single sketch to forged steel
+            </h2>
+          </motion.div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {content.steps.map((step, i) => (
               <motion.div
                 key={i}
-                className={`flex flex-col gap-3 ${i === 1 ? "md:mt-10" : i === 2 ? "md:mt-20" : ""}`}
-                {...fadeUp(0.1 + i * 0.12)}
+                className="group relative flex flex-col h-full rounded-xl border border-stone-200 bg-white/60 backdrop-blur-sm
+                           p-6 md:p-7 transition-all duration-500 hover:border-stone-300
+                           hover:shadow-[0_24px_60px_rgba(0,0,0,0.06)] hover:-translate-y-1"
+                {...fadeUp(0.1 + i * 0.1)}
               >
-                <span style={EDITORIAL} className="text-[2.6rem] leading-none font-extralight text-stone-300">
+                <span style={EDITORIAL} className="text-[2.6rem] leading-none font-extralight text-stone-300 transition-colors duration-500 group-hover:text-stone-400">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="w-8 h-px bg-stone-800" />
-                <h3 style={EDITORIAL} className="text-[1.35rem] font-light text-stone-900 leading-tight">
+                <span className="mt-4 mb-5 w-8 h-px bg-stone-800 transition-all duration-500 group-hover:w-14" />
+                <h3 style={EDITORIAL} className="text-[1.3rem] font-light text-stone-900 leading-tight">
                   {step.title}
                 </h3>
-                <p className="text-[0.85rem] text-stone-600 leading-relaxed max-w-xs">{step.description}</p>
+                <p className="mt-3 text-[0.85rem] text-stone-600 leading-relaxed">{step.description}</p>
               </motion.div>
             ))}
           </div>
         </section>
 
+        {/* ══ Inspiration Gallery — bespoke possibilities ══ */}
+        <section className="px-6 md:px-16 lg:px-24 py-20 md:py-28 border-b border-stone-200/70">
+          <motion.div className="max-w-2xl mb-14 md:mb-16" {...fadeUp(0)}>
+            <p className="text-[8px] tracking-[0.46em] uppercase text-stone-500 mb-5">Inspiration Gallery</p>
+            <h2 style={EDITORIAL} className="text-[clamp(1.8rem,3.4vw,2.9rem)] font-light text-stone-900 leading-[1.06]">
+              What bespoke can become
+            </h2>
+            <p className="mt-5 text-[0.92rem] text-stone-600 leading-relaxed max-w-lg">
+              A starting point, not a limit. Every commission is shaped around your space, your finish and
+              the way you live with the piece.
+            </p>
+          </motion.div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {(content.galleryItems?.length ? content.galleryItems : INSPIRATION_FALLBACK).map((item, i) => (
+              <motion.a
+                key={i}
+                href="#commission-form"
+                className="group relative block overflow-hidden rounded-xl bg-stone-900
+                           aspect-[4/5] lg:aspect-[3/4] shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
+                {...fadeUp(0.1 + i * 0.12)}
+              >
+                <img
+                  src={item.imageUrl}
+                  alt={item.caption}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover object-center
+                             transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/85 via-neutral-950/20 to-transparent
+                                transition-opacity duration-500 group-hover:from-neutral-950/90" />
+                <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
+                  <h3
+                    style={EDITORIAL}
+                    className="text-[1.4rem] font-light text-white leading-tight
+                               transition-transform duration-500 group-hover:-translate-y-0.5"
+                  >
+                    {item.caption}
+                  </h3>
+                </div>
+              </motion.a>
+            ))}
+          </div>
+        </section>
+
         {/* ══ Form block — asymmetric grid, elevated card ══ */}
-        <section className="px-6 md:px-16 lg:px-24 py-20 md:py-28">
+        <section id="commission-form" className="scroll-mt-24 px-6 md:px-16 lg:px-24 py-20 md:py-28">
           <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-12 lg:gap-20 items-start">
             {/* Left — motivating copy */}
             <motion.div className="lg:sticky lg:top-28" {...fadeUp(0)}>

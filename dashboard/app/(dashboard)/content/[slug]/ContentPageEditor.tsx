@@ -811,13 +811,34 @@ function CatalogEditor({ slug, initial }: { slug: "catalog"; initial: CatalogPag
 
 // ─── Custom Order ─────────────────────────────────────────────────────────────
 
+// Built-in gallery used when a saved row predates the galleryItems field, so the
+// editor always has cards to show. Mirrors the storefront/content defaults.
+const CUSTOM_ORDER_GALLERY_FALLBACK: NonNullable<CustomOrderPageContent["galleryItems"]> = [
+  { imageUrl: "/2.jpg.jpeg", caption: "Bespoke Dimensions" },
+  { imageUrl: "/6.jpg.jpeg", caption: "Custom Finishes" },
+  { imageUrl: "/9.jpg.jpeg", caption: "Industrial Craftsmanship" },
+]
+
 function CustomOrderEditor({ slug, initial }: { slug: "custom-order"; initial: CustomOrderPageContent }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [fields, setFields] = useState(initial)
+  // Normalise galleryItems so rows saved before this field existed still edit cleanly.
+  const [fields, setFields] = useState<CustomOrderPageContent>({
+    ...initial,
+    galleryItems: initial.galleryItems?.length ? initial.galleryItems : CUSTOM_ORDER_GALLERY_FALLBACK,
+  })
+
+  const galleryItems = fields.galleryItems ?? []
 
   function updateStep(i: number, patch: Partial<CustomOrderStep>) {
     setFields((f) => ({ ...f, steps: f.steps.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) }))
+  }
+
+  function updateGalleryItem(i: number, patch: Partial<{ imageUrl: string; caption: string }>) {
+    setFields((f) => ({
+      ...f,
+      galleryItems: (f.galleryItems ?? []).map((g, idx) => (idx === i ? { ...g, ...patch } : g)),
+    }))
   }
 
   function handleSave() {
@@ -832,6 +853,17 @@ function CustomOrderEditor({ slug, initial }: { slug: "custom-order"; initial: C
     <div>
       <Card>
         <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Hero</p>
+        <Field
+          label="Hero Background Image"
+          hint="Upload a file (up to 8MB) or paste a path under /public or a full URL. Sits behind the hero with a dark overlay; leave empty to use the built-in default."
+        >
+          <MediaUrlInput
+            kind="image"
+            value={fields.heroImage ?? ""}
+            onChange={(url) => setFields((f) => ({ ...f, heroImage: url || undefined }))}
+            placeholder="/img.png or https://…"
+          />
+        </Field>
         <Field label="Eyebrow"><input value={fields.eyebrow} onChange={(e) => setFields((f) => ({ ...f, eyebrow: e.target.value }))} className={inputCls} /></Field>
         <Field label="Hero Title"><input value={fields.heroTitle} onChange={(e) => setFields((f) => ({ ...f, heroTitle: e.target.value }))} className={inputCls} /></Field>
         <Field label="Hero Subtitle" hint="The motivating line under the title.">
@@ -851,6 +883,29 @@ function CustomOrderEditor({ slug, initial }: { slug: "custom-order"; initial: C
             <Field label="Step Description"><textarea value={step.description} onChange={(e) => updateStep(i, { description: e.target.value })} rows={2} className={`${inputCls} resize-none`} /></Field>
           </div>
         ))}
+
+        <div className="border-t border-stone-100 pt-6 space-y-6">
+          <RepeatableHeader
+            title="Inspiration Gallery Items"
+            onAdd={() => setFields((f) => ({ ...f, galleryItems: [...(f.galleryItems ?? []), { imageUrl: "", caption: "New Caption" }] }))}
+          />
+          {galleryItems.map((item, i) => (
+            <div key={i} className="border border-stone-100 rounded-md p-4 space-y-3">
+              <div className="flex justify-end">
+                <RemoveButton onClick={() => setFields((f) => ({ ...f, galleryItems: (f.galleryItems ?? []).filter((_, idx) => idx !== i) }))} />
+              </div>
+              <Field label="Image" hint="Upload a file (up to 8MB) or paste a path under /public or a full URL.">
+                <MediaUrlInput
+                  kind="image"
+                  value={item.imageUrl}
+                  onChange={(url) => updateGalleryItem(i, { imageUrl: url })}
+                  placeholder="/2.jpg.jpeg or https://…"
+                />
+              </Field>
+              <Field label="Caption"><input value={item.caption} onChange={(e) => updateGalleryItem(i, { caption: e.target.value })} className={inputCls} /></Field>
+            </div>
+          ))}
+        </div>
 
         <div className="border-t border-stone-100 pt-6 space-y-6">
           <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Form Section</p>

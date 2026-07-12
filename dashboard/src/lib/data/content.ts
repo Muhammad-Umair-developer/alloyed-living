@@ -22,18 +22,28 @@ const CUSTOM_ORDER_DEFAULT_FIELDS: CustomOrderPageContent = {
   heroTitle: "Made For You Alone",
   heroSubtitle:
     "You imagined something the world doesn't have yet — be proud of that. Share your idea and our craftsmen will forge it into a piece that is yours, and yours alone.",
+  heroImage: "/img.png",
+  galleryItems: [
+    { imageUrl: "/2.jpg.jpeg", caption: "Bespoke Dimensions" },
+    { imageUrl: "/6.jpg.jpeg", caption: "Custom Finishes" },
+    { imageUrl: "/9.jpg.jpeg", caption: "Industrial Craftsmanship" },
+  ],
   steps: [
     {
       title: "Share Your Vision",
-      description: "Describe the piece you dream of — a brand-new idea, or a bold twist on something you already love.",
+      description: "Describe your idea, dimensions and finish — and upload any sketches or reference images that inspire you.",
     },
     {
-      title: "We Shape It Together",
-      description: "Our craftsmen turn your concept into a plan — materials, dimensions and finish — and send it back for your blessing.",
+      title: "Design & Refine",
+      description: "Our team turns your concept into a precise blueprint and digital model, sent back for your approval.",
     },
     {
-      title: "Built By Hand",
-      description: "Your one-of-a-kind piece is forged by hand in our Lahore workshop and delivered to your door.",
+      title: "Forged in Steel",
+      description: "Skilled artisans craft your piece from high-grade raw metal, entirely by hand in our Lahore workshop.",
+    },
+    {
+      title: "Delivered to You",
+      description: "Your one-of-a-kind piece is carefully packed and shipped directly to your space.",
     },
   ],
   formHeading: "Start Your Commission",
