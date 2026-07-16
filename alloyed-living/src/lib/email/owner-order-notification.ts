@@ -9,11 +9,15 @@ import type { Order } from "@/src/lib/data/types"
 // channel the customer email and contact form already use.
 //
 // Server-only: RESEND_API_KEY is read from the environment and never reaches
-// the client. The `from` address must be on a domain verified in Resend — the
-// same EMAIL_FROM the customer email uses. The recipient is the owner inbox:
-// ORDER_NOTIFICATION_EMAIL if set, else CONTACT_FORM_TO_EMAIL, else the default
-// owner inbox below — so new-order alerts arrive without any extra env config.
-const FROM_ADDRESS = process.env.EMAIL_FROM ?? "Alloyed Living <onboarding@resend.dev>"
+// the client. The recipient is the owner inbox: ORDER_NOTIFICATION_EMAIL if set,
+// else CONTACT_FORM_TO_EMAIL, else the default owner inbox below — so new-order
+// alerts arrive without any extra env config.
+//
+// The `from` address must be on a domain verified in Resend. New-order alerts
+// are sent FROM the orders@ inbox (not the customer-facing no-reply@ used by
+// EMAIL_FROM), overridable via ORDER_NOTIFICATION_FROM. Both live on the same
+// verified alloyedliving.com domain, so deliverability is unchanged.
+const FROM_ADDRESS = process.env.ORDER_NOTIFICATION_FROM ?? "Alloyed Living <orders@alloyedliving.com>"
 
 // Owner inbox that receives new-order alerts when no override env var is set.
 const DEFAULT_OWNER_INBOX = "orders@alloyedliving.com"
