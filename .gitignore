@@ -1,5 +1,6 @@
 # Local tooling
 .claude/
+.Products
 
 # Supabase CLI cache (linked-project state — machine-local)
 supabase/.temp/

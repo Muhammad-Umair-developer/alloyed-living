@@ -208,6 +208,16 @@ export interface CustomOrderPageContent {
   formSubheading: string
 }
 
+export interface FooterPageContent {
+  tagline: string
+  phone: string
+  email: string
+  hours: string
+  instagramUrl: string
+  facebookUrl: string
+  copyright: string
+}
+
 export type ContentPageFields =
   | ShippingPageContent
   | ReturnsPageContent
@@ -220,6 +230,7 @@ export type ContentPageFields =
   | FactoryLocationPageContent
   | CatalogPageContent
   | CustomOrderPageContent
+  | FooterPageContent
 
 export type ContentSlug =
   | "home"
@@ -233,6 +244,7 @@ export type ContentSlug =
   | "factory-location"
   | "catalog"
   | "custom-order"
+  | "footer"
 
 export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
   slug: ContentSlug

@@ -17,13 +17,16 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null)
   const paths = Array.isArray(body?.paths) ? body.paths.filter((p: unknown) => typeof p === "string") : []
+  // "layout" revalidates every route nested under the given path's layout —
+  // used for the footer, which renders on all pages via the root layout.
+  const type = body?.type === "layout" ? "layout" : "page"
   if (paths.length === 0) {
     return NextResponse.json({ error: "No paths provided" }, { status: 400 })
   }
 
   for (const path of paths) {
-    revalidatePath(path)
+    revalidatePath(path, type)
   }
 
-  return NextResponse.json({ revalidated: true, paths })
+  return NextResponse.json({ revalidated: true, paths, type })
 }

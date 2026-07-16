@@ -8,7 +8,10 @@ import "server-only"
 // a change across. Best-effort: if the storefront is briefly unreachable, the
 // dashboard write itself still succeeds and the storefront's ISR timer is the
 // fallback.
-export async function revalidateStorefront(paths: string[]): Promise<void> {
+export async function revalidateStorefront(
+  paths: string[],
+  type: "page" | "layout" = "page",
+): Promise<void> {
   const baseUrl = process.env.STOREFRONT_URL
   const secret = process.env.STOREFRONT_REVALIDATE_SECRET
   if (!baseUrl || !secret) {
@@ -23,7 +26,7 @@ export async function revalidateStorefront(paths: string[]): Promise<void> {
         "content-type": "application/json",
         "x-revalidate-secret": secret,
       },
-      body: JSON.stringify({ paths }),
+      body: JSON.stringify({ paths, type }),
     })
     if (!res.ok) {
       console.error(`[revalidateStorefront] Storefront returned ${res.status} for paths:`, paths)

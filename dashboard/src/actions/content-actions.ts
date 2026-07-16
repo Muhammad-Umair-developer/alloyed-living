@@ -7,7 +7,9 @@ import { updateContentPage } from "@/src/lib/data/content"
 import type { ContentPageFields, ContentSlug } from "@/src/lib/data/types"
 
 // Maps a content slug to the storefront route(s) it renders on — "home" is
-// the only slug that isn't just "/<slug>".
+// the only slug that isn't just "/<slug>". "footer" is special: it renders on
+// every page via the root layout, so it revalidates the layout instead (see
+// the `type: "layout"` branch below).
 const STOREFRONT_PATHS_BY_SLUG: Record<ContentSlug, string[]> = {
   home: ["/"],
   shop: ["/shop"],
@@ -20,6 +22,7 @@ const STOREFRONT_PATHS_BY_SLUG: Record<ContentSlug, string[]> = {
   "factory-location": ["/factory-location"],
   catalog: ["/catalog"],
   "custom-order": ["/custom-order"],
+  footer: ["/"],
 }
 
 export async function updateContentPageAction(
@@ -30,5 +33,7 @@ export async function updateContentPageAction(
   await updateContentPage(slug, fields)
   revalidatePath("/content")
   revalidatePath(`/content/${slug}`)
-  await revalidateStorefront(STOREFRONT_PATHS_BY_SLUG[slug] ?? [])
+  // The footer lives in the root layout, so revalidate the whole layout tree
+  // on the storefront rather than a single page path.
+  await revalidateStorefront(STOREFRONT_PATHS_BY_SLUG[slug] ?? [], slug === "footer" ? "layout" : "page")
 }

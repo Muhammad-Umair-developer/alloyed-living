@@ -1,9 +1,24 @@
 import Link from "next/link"
+import { getContentPage } from "@/src/lib/data/content"
+import type { FooterPageContent } from "@/src/lib/data/types"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const EDITORIAL: React.CSSProperties = {
   fontFamily: "var(--font-editorial, 'Cormorant Garamond', Georgia, serif)",
+}
+
+// Fallback used when the footer content row hasn't been seeded yet. Mirrors
+// FOOTER_DEFAULT_FIELDS in dashboard/src/lib/data/content.ts and the seed
+// migration — keep the three in sync.
+const FOOTER_DEFAULT: FooterPageContent = {
+  tagline: "Where bold design meets fine craftsmanship.",
+  phone: "+92 51 123 4567",
+  email: "hello@alloyedliving.com",
+  hours: "Mon – Sat, 10 am – 7 pm PKT",
+  instagramUrl: "https://www.instagram.com/alloyedliving?igsh=MXBhbGdwZWV6ZnE5NQ==",
+  facebookUrl: "https://www.facebook.com/share/1BdEw54ASu/",
+  copyright: "© 2026 Alloyed Living. All rights reserved.",
 }
 
 const NAV_LINKS = [
@@ -45,7 +60,21 @@ function FooterLink({ label, href }: { label: string; href: string }) {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
-export default function Footer() {
+export default async function Footer() {
+  // Merge with defaults so a missing field (or an unseeded row) never renders
+  // blank. Best-effort: if the fetch fails, fall back entirely to defaults.
+  let content = FOOTER_DEFAULT
+  try {
+    const page = await getContentPage<FooterPageContent>("footer")
+    if (page) content = { ...FOOTER_DEFAULT, ...page.fields }
+  } catch {
+    content = FOOTER_DEFAULT
+  }
+
+  // The display phone doubles as the tap-to-call link; strip spaces/dashes so
+  // the tel: URI is valid regardless of how the admin formats the number.
+  const telHref = `tel:${content.phone.replace(/[^\d+]/g, "")}`
+
   return (
     <footer className="bg-neutral-950 text-neutral-100 border-t border-neutral-800">
 
@@ -71,7 +100,7 @@ export default function Footer() {
               className="text-[1.05rem] font-light leading-[1.72] tracking-[0.01em]
                          text-neutral-200 max-w-[240px]"
             >
-              Where bold design meets fine craftsmanship.
+              {content.tagline}
             </p>
           </div>
 
@@ -111,7 +140,7 @@ export default function Footer() {
                   Helpline
                 </p>
                 <a
-                  href="tel:+92511234567"
+                  href={telHref}
                   className="
                     relative inline-block
                     text-[11px] tracking-[0.14em] text-neutral-100
@@ -122,7 +151,7 @@ export default function Footer() {
                     hover:after:w-full
                   "
                 >
-                  +92 51 123 4567
+                  {content.phone}
                 </a>
               </div>
 
@@ -131,7 +160,7 @@ export default function Footer() {
                   Email
                 </p>
                 <a
-                  href="mailto:hello@alloyedliving.com"
+                  href={`mailto:${content.email}`}
                   className="
                     relative inline-block
                     text-[11px] tracking-[0.14em] text-neutral-100
@@ -142,7 +171,7 @@ export default function Footer() {
                     hover:after:w-full
                   "
                 >
-                  hello@alloyedliving.com
+                  {content.email}
                 </a>
               </div>
 
@@ -151,7 +180,7 @@ export default function Footer() {
                   Hours
                 </p>
                 <p className="text-[11px] tracking-[0.08em] text-neutral-200 leading-relaxed">
-                  Mon – Sat, 10 am – 7 pm PKT
+                  {content.hours}
                 </p>
               </div>
 
@@ -162,7 +191,7 @@ export default function Footer() {
                 </p>
                 <div className="flex items-center gap-5">
                   <a
-                    href="https://www.instagram.com/alloyedliving?igsh=MXBhbGdwZWV6ZnE5NQ=="
+                    href={content.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
@@ -178,7 +207,7 @@ export default function Footer() {
                     Instagram
                   </a>
                   <a
-                    href="https://www.facebook.com/share/1BdEw54ASu/"
+                    href={content.facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
@@ -209,7 +238,7 @@ export default function Footer() {
         flex flex-col sm:flex-row items-center justify-between gap-4
       ">
         <p className="text-[8px] tracking-[0.24em] uppercase text-neutral-200">
-          © 2026 Alloyed Living. All rights reserved.
+          {content.copyright}
         </p>
         <div className="flex items-center gap-7">
           <Link

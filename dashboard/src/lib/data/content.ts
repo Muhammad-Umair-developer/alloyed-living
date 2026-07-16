@@ -1,6 +1,6 @@
 import "server-only"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
-import type { ContentPage, ContentPageFields, ContentSlug, CustomOrderPageContent } from "./types"
+import type { ContentPage, ContentPageFields, ContentSlug, CustomOrderPageContent, FooterPageContent } from "./types"
 
 type ContentStore = Record<ContentSlug, ContentPage>
 type ContentRow = { slug: string; title: string; fields: ContentPageFields; updated_at: string }
@@ -50,8 +50,22 @@ const CUSTOM_ORDER_DEFAULT_FIELDS: CustomOrderPageContent = {
   formSubheading: "Tell us what you have in mind",
 }
 
-// A built-in default for content pages that may not have a DB row yet. Only the
-// Custom Order page has one today; every other slug returns null (unchanged).
+// The Footer isn't a standalone route — it renders on every storefront page via
+// the root layout. Like Custom Order, it ships with a built-in default so the
+// editor and storefront work before/without a seeded row; the first save
+// upserts it. Keep in sync with the seed migration and the storefront fallback.
+const FOOTER_DEFAULT_FIELDS: FooterPageContent = {
+  tagline: "Where bold design meets fine craftsmanship.",
+  phone: "+92 51 123 4567",
+  email: "hello@alloyedliving.com",
+  hours: "Mon – Sat, 10 am – 7 pm PKT",
+  instagramUrl: "https://www.instagram.com/alloyedliving?igsh=MXBhbGdwZWV6ZnE5NQ==",
+  facebookUrl: "https://www.facebook.com/share/1BdEw54ASu/",
+  copyright: "© 2026 Alloyed Living. All rights reserved.",
+}
+
+// A built-in default for content pages that may not have a DB row yet. The
+// Custom Order and Footer pages have one; every other slug returns null.
 function contentDefault(slug: ContentSlug): ContentPage | null {
   if (slug === "custom-order") {
     return {
@@ -59,6 +73,14 @@ function contentDefault(slug: ContentSlug): ContentPage | null {
       title: "Custom Order",
       updatedAt: new Date(0).toISOString(),
       fields: CUSTOM_ORDER_DEFAULT_FIELDS,
+    }
+  }
+  if (slug === "footer") {
+    return {
+      slug: "footer",
+      title: "Footer",
+      updatedAt: new Date(0).toISOString(),
+      fields: FOOTER_DEFAULT_FIELDS,
     }
   }
   return null
@@ -72,11 +94,13 @@ export async function getAllContentPages(): Promise<ContentStore> {
   for (const row of (data ?? []) as ContentRow[]) {
     store[row.slug as ContentSlug] = rowToPage(row)
   }
-  // Surface pages that have a built-in default but no row yet (Custom Order),
-  // so they still appear in the editor list.
-  if (!store["custom-order"]) {
-    const def = contentDefault("custom-order")
-    if (def) store["custom-order"] = def
+  // Surface pages that have a built-in default but no row yet (Custom Order,
+  // Footer), so they still appear in the editor list.
+  for (const slug of ["custom-order", "footer"] as const) {
+    if (!store[slug]) {
+      const def = contentDefault(slug)
+      if (def) store[slug] = def
+    }
   }
   return store
 }

@@ -17,6 +17,7 @@ import type {
   CatalogPageContent,
   CustomOrderPageContent,
   CustomOrderStep,
+  FooterPageContent,
   HeroMediaType,
   ShippingTier,
   FAQ,
@@ -918,6 +919,64 @@ function CustomOrderEditor({ slug, initial }: { slug: "custom-order"; initial: C
   )
 }
 
+// ─── Footer ───────────────────────────────────────────────────────────────────
+
+function FooterEditor({ slug, initial }: { slug: "footer"; initial: FooterPageContent }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [fields, setFields] = useState(initial)
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateContentPageAction(slug, fields)
+      toast.success("Footer updated.")
+      router.refresh()
+    })
+  }
+
+  return (
+    <div>
+      <Card>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Brand</p>
+        <Field label="Tagline" hint="The short line under the brand name in the footer.">
+          <textarea value={fields.tagline} onChange={(e) => setFields((f) => ({ ...f, tagline: e.target.value }))} rows={2} className={`${inputCls} resize-none`} />
+        </Field>
+
+        <div className="border-t border-stone-100 pt-6 space-y-6">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Contact</p>
+          <Field label="Helpline Phone" hint="Shown as the helpline number; also becomes the tap-to-call link.">
+            <input value={fields.phone} onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))} className={inputCls} placeholder="+92 51 123 4567" />
+          </Field>
+          <Field label="Email" hint="Shown in the footer; also becomes the mailto link.">
+            <input value={fields.email} onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))} className={inputCls} placeholder="hello@alloyedliving.com" />
+          </Field>
+          <Field label="Hours">
+            <input value={fields.hours} onChange={(e) => setFields((f) => ({ ...f, hours: e.target.value }))} className={inputCls} placeholder="Mon – Sat, 10 am – 7 pm PKT" />
+          </Field>
+        </div>
+
+        <div className="border-t border-stone-100 pt-6 space-y-6">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Social Links</p>
+          <Field label="Instagram URL" hint="Full link, e.g. https://www.instagram.com/yourhandle">
+            <input value={fields.instagramUrl} onChange={(e) => setFields((f) => ({ ...f, instagramUrl: e.target.value }))} className={inputCls} placeholder="https://www.instagram.com/…" />
+          </Field>
+          <Field label="Facebook URL" hint="Full link, e.g. https://www.facebook.com/yourpage">
+            <input value={fields.facebookUrl} onChange={(e) => setFields((f) => ({ ...f, facebookUrl: e.target.value }))} className={inputCls} placeholder="https://www.facebook.com/…" />
+          </Field>
+        </div>
+
+        <div className="border-t border-stone-100 pt-6 space-y-6">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">Bottom Bar</p>
+          <Field label="Copyright">
+            <input value={fields.copyright} onChange={(e) => setFields((f) => ({ ...f, copyright: e.target.value }))} className={inputCls} placeholder="© 2026 Alloyed Living. All rights reserved." />
+          </Field>
+        </div>
+      </Card>
+      <SaveBar pending={isPending} onSave={handleSave} />
+    </div>
+  )
+}
+
 // ─── Root switch ──────────────────────────────────────────────────────────────
 
 export default function ContentPageEditor({ page, products }: { page: ContentPage; products: Product[] }) {
@@ -944,5 +1003,7 @@ export default function ContentPageEditor({ page, products }: { page: ContentPag
       return <CatalogEditor slug="catalog" initial={page.fields as CatalogPageContent} />
     case "custom-order":
       return <CustomOrderEditor slug="custom-order" initial={page.fields as CustomOrderPageContent} />
+    case "footer":
+      return <FooterEditor slug="footer" initial={page.fields as FooterPageContent} />
   }
 }
