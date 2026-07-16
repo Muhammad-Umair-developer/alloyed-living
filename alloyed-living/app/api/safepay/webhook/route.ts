@@ -3,6 +3,7 @@ import { createSafepayClient, getSafepayEnvironment } from "@/src/lib/safepay/cl
 import { getOrder, getOrderByPaymentRef, setOrderPayment } from "@/src/lib/data/orders"
 import { trackPurchase } from "@/src/lib/data/analytics"
 import { sendOrderConfirmationEmail } from "@/src/lib/email/order-confirmation"
+import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-order-notification"
 
 // Safepay webhook — the AUTHORITATIVE source of truth for payment status.
 // The order is only marked "paid" here, after the webhook signature is verified
@@ -121,6 +122,14 @@ export async function POST(req: NextRequest) {
       )
     } catch (e) {
       console.error("[safepay webhook] order confirmation email failed", e)
+    }
+    try {
+      await sendOwnerOrderNotificationEmail(
+        { ...order, paymentStatus: "paid" },
+        { method: "safepay", paid: true },
+      )
+    } catch (e) {
+      console.error("[safepay webhook] owner order-notification email failed", e)
     }
   }
 

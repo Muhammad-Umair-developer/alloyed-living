@@ -6,6 +6,7 @@ import { createOrder } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
 import { sendOrderConfirmationEmail } from "@/src/lib/email/order-confirmation"
+import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-order-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
 import type { OrderInput, Review } from "@/src/lib/data/types"
@@ -92,6 +93,13 @@ export async function placeOrderAction(
       await sendOrderConfirmationEmail(order, { method: "cod", paid: false })
     } catch (emailError) {
       console.error("CRITICAL: Production COD order confirmation email dispatch failure:", emailError)
+    }
+
+    // 3. Notify the owner of the new order (separate inbox; never blocks the order).
+    try {
+      await sendOwnerOrderNotificationEmail(order, { method: "cod", paid: false })
+    } catch (ownerEmailError) {
+      console.error("Non-blocking owner order-notification email failure (COD):", ownerEmailError)
     }
   }
 
