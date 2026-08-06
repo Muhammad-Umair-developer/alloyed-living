@@ -34,6 +34,40 @@ function pkr(n: number): string {
   return `PKR ${Math.round(n).toLocaleString("en-PK")}`
 }
 
+// Reused in both the pre-upload (awaiting/rejected) and post-upload (settled)
+// states, so the item breakdown carried by the old awaiting-payment email is
+// still visible here even after that email was removed.
+function OrderItemsSummary({ items }: { items: OrderItem[] }) {
+  if (items.length === 0) return null
+  return (
+    <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 text-left mb-10">
+      <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-4">Order Summary</p>
+      <ul className="divide-y divide-stone-100/80">
+        {items.map((item, i) => (
+          <li key={`${item.productId}-${i}`} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+            {item.image ? (
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-12 h-12 rounded-sm object-cover object-center flex-shrink-0"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-sm bg-gradient-to-br from-stone-100 to-amber-50 flex-shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] text-stone-700 leading-snug truncate">{item.name}</p>
+              <p className="text-[10px] tracking-[0.1em] text-stone-600 mt-0.5">Qty {item.quantity}</p>
+            </div>
+            <p className="text-[11px] text-stone-600 tracking-[0.04em] flex-shrink-0">
+              {pkr(item.price * item.quantity)}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -142,33 +176,7 @@ export default function ConfirmView(props: ConfirmViewProps) {
             payment. A confirmation email will follow. Thank you for your patience.
           </p>
 
-          {items.length > 0 && (
-            <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 text-left mb-10">
-              <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-4">Order Summary</p>
-              <ul className="divide-y divide-stone-100/80">
-                {items.map((item, i) => (
-                  <li key={`${item.productId}-${i}`} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 rounded-sm object-cover object-center flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-sm bg-gradient-to-br from-stone-100 to-amber-50 flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] text-stone-700 leading-snug truncate">{item.name}</p>
-                      <p className="text-[10px] tracking-[0.1em] text-stone-600 mt-0.5">Qty {item.quantity}</p>
-                    </div>
-                    <p className="text-[11px] text-stone-600 tracking-[0.04em] flex-shrink-0">
-                      {pkr(item.price * item.quantity)}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <OrderItemsSummary items={items} />
 
           <Link
             href="/shop"
@@ -228,6 +236,8 @@ export default function ConfirmView(props: ConfirmViewProps) {
           )}
         </div>
       </div>
+
+      <OrderItemsSummary items={items} />
 
       {/* Upload form */}
       <form onSubmit={handleSubmit} className="space-y-6">

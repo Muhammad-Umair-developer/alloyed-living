@@ -99,8 +99,13 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true)
     try {
+      // Route through the dedicated callback route (server-side code exchange)
+      // rather than sending the recovery code straight to /reset-password —
+      // matches how signup/OAuth already work, so the auth code is exchanged
+      // for a session server-side before the browser ever lands anywhere with
+      // it still in the URL.
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(em, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
       })
       if (resetError) throw resetError
       // Always confirm success — never reveal whether the email is registered.

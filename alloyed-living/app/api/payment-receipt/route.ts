@@ -3,7 +3,6 @@ import { createHash } from "node:crypto"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
 import { getOrderByAccessToken } from "@/src/lib/data/orders"
 import { applyPaymentTransition } from "@/src/lib/payments/transitions"
-import { sendBankReceiptReceivedEmail } from "@/src/lib/email/bank-receipt-received"
 import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 
@@ -126,12 +125,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not record your receipt. Please try again." }, { status: 409 })
   }
 
-  // "We received your receipt" acknowledgement — non-blocking.
-  try {
-    await sendBankReceiptReceivedEmail({ ...order, paymentStatus: "payment_submitted" })
-  } catch (e) {
-    console.error("[payment-receipt] acknowledgement email failed:", e)
-  }
+  // No customer email here — the "we've received your order" acknowledgement
+  // already went out at placement (bank-order-received.ts), so a second
+  // "received" email would be redundant. This submission is recorded
+  // silently for admin review (payment_submitted_at above) and surfaced only
+  // via the owner notification below.
 
   // Owner alert: there's now something to verify. Separate inbox, separate
   // failure boundary — never blocks the customer's upload.

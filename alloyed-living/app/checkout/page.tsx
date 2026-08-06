@@ -493,6 +493,17 @@ function AccountDetails({ account, pm }: { account: DepositAccount; pm: PaymentM
   )
 }
 
+// The account details and exact amount above are shown ONLY on this page and
+// the confirmation page that follows — no email repeats them, so the customer
+// should note them down (or keep this tab/the next page open) before paying.
+function EmailNoticeLine() {
+  return (
+    <p className="text-[9px] tracking-[0.14em] text-stone-600 leading-relaxed">
+      Please note these account details and the exact amount — they are not repeated in any email.
+    </p>
+  )
+}
+
 // COD deposit refundability.
 function RefundLine() {
   return (
@@ -556,6 +567,8 @@ function CodPanel({
 
       <AccountDetails account={depositAccount} pm={pm} />
 
+      <EmailNoticeLine />
+
       <div className="flex items-center gap-2 pt-1">
         <Check size={10} strokeWidth={2} className="text-[#5c6b4a]" />
         <p className="text-[9px] tracking-[0.14em] text-[#5c6b4a]">
@@ -590,6 +603,8 @@ function BankPanel({
       </p>
 
       <AccountDetails account={account} pm={pm} />
+
+      <EmailNoticeLine />
 
       <p className="text-[9px] tracking-[0.14em] text-stone-600 leading-relaxed">
         Payments are refunded in full if we are unable to fulfil your order. For cancellations

@@ -6,7 +6,7 @@ import { trackAddToCart, trackView } from "@/src/lib/data/analytics"
 import { createOrder } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
-import { sendBankAwaitingPaymentEmail } from "@/src/lib/email/bank-awaiting-payment"
+import { sendBankOrderReceivedEmail } from "@/src/lib/email/bank-order-received"
 import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabasePublicClient } from "@/src/lib/supabase/public"
@@ -112,16 +112,18 @@ export async function placeOrderAction(
     { method: paymentMethod, depositAccount },
   )
 
-  // Email the shopper the account details, the exact amount to transfer, and a
-  // link to the confirmation page to upload their receipt. Non-blocking: an email
-  // failure must never fail the order — the order still exists and is reachable
-  // via its access token.
+  // Email the shopper a short "order received" acknowledgement plus the
+  // confirmation-page link — the durable way back to pay and upload a
+  // receipt. Amount and account details are NOT repeated here; they're shown
+  // on the checkout page and the confirmation page itself. Non-blocking: an
+  // email failure must never fail the order — the order still exists and is
+  // reachable via its access token.
   try {
     const origin = await resolveOrigin()
     const confirmUrl = `${origin}/checkout/confirm?token=${encodeURIComponent(order.accessToken ?? "")}`
-    await sendBankAwaitingPaymentEmail(order, { confirmUrl })
+    await sendBankOrderReceivedEmail(order, { confirmUrl })
   } catch (emailError) {
-    console.error("Non-blocking awaiting-payment email failure:", emailError)
+    console.error("Non-blocking order-received email failure:", emailError)
   }
 
   // Owner alert: something new exists to keep an eye on. Separate inbox,
