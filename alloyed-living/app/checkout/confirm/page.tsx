@@ -89,6 +89,7 @@ export default async function CheckoutConfirmPage({
         token={token}
         status={status}
         orderId={order.id}
+        items={order.items}
         isCod={isCod}
         amountLabel={amountLabel}
         amount={amount}

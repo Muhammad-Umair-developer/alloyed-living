@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, ShoppingBag, Truck, RotateCcw, Mail, Info, HelpCircle, FileText, ArrowRight, MapPin, Download, Sparkles, PanelBottom } from "lucide-react"
+import { Home, ShoppingBag, Truck, RotateCcw, Mail, Info, HelpCircle, FileText, ArrowRight, MapPin, Download, Sparkles, PanelBottom, Landmark } from "lucide-react"
 import { getAllContentPages } from "@/src/lib/data/content"
 import PageHeader from "@/src/components/ui/PageHeader"
 import type { ContentSlug } from "@/src/lib/data/types"
@@ -20,6 +20,7 @@ const PAGE_META: Record<ContentSlug, { icon: typeof Truck; description: string }
   catalog: { icon: Download, description: "Hero copy and intro shown above the downloadable product catalog." },
   "custom-order": { icon: Sparkles, description: "Hero copy, motivating intro, and the “how it works” steps shown on the Custom Order page." },
   footer: { icon: PanelBottom, description: "Tagline, phone, email, hours, Instagram/Facebook links, and copyright shown in the site footer on every page." },
+  "payment-methods": { icon: Landmark, description: "UBL and JazzCash account details shown at checkout, on the payment confirmation page, and in payment emails." },
 }
 
 export default async function ContentPagesPage() {

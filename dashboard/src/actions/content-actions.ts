@@ -23,6 +23,10 @@ const STOREFRONT_PATHS_BY_SLUG: Record<ContentSlug, string[]> = {
   catalog: ["/catalog"],
   "custom-order": ["/custom-order"],
   footer: ["/"],
+  // Not a standalone route — read directly by the checkout flow (and the
+  // confirmation page, and payment emails). /checkout is the one static
+  // storefront path that renders it, so that's what gets revalidated.
+  "payment-methods": ["/checkout"],
 }
 
 export async function updateContentPageAction(

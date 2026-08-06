@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Check, Loader2, ArrowRight, Upload } from "lucide-react"
 import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
+import type { OrderItem } from "@/src/lib/data/types"
 
 const EDITORIAL: React.CSSProperties = {
   fontFamily: "var(--font-editorial, 'Cormorant Garamond', Georgia, serif)",
@@ -18,6 +19,7 @@ export interface ConfirmViewProps {
   token:           string
   status:          Status
   orderId:         string
+  items:           OrderItem[]
   isCod:           boolean
   amountLabel:     string
   amount:          number
@@ -52,7 +54,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 export default function ConfirmView(props: ConfirmViewProps) {
   const {
-    token, status, orderId, amountLabel, amount, showBalance, balance,
+    token, status, orderId, items, amountLabel, amount, showBalance, balance,
     accountLabel, accountLines, rejectionReason,
   } = props
 
@@ -62,14 +64,6 @@ export default function ConfirmView(props: ConfirmViewProps) {
   const [reference, setReference]       = useState("")
   const [file, setFile]                 = useState<File | null>(null)
   const [submitting, setSubmitting]     = useState(false)
-
-  // While the payment is under review, poll for the verified/rejected outcome by
-  // re-running the server component (which re-reads the order status).
-  useEffect(() => {
-    if (status !== "payment_submitted") return
-    const id = setInterval(() => router.refresh(), 6000)
-    return () => clearInterval(id)
-  }, [status, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -129,20 +123,60 @@ export default function ConfirmView(props: ConfirmViewProps) {
     )
   }
 
-  // ── Under review ──────────────────────────────────────────────────────────────
+  // ── Receipt received — a settled, final-looking state. No polling, no
+  // "still verifying" wording: the customer's part is done; admin review
+  // happens out of band and the outcome arrives by email.
   if (status === "payment_submitted") {
     return (
       <Shell>
         <div className="text-center">
           <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-[#9c9c7d]/25 flex items-center justify-center mx-auto mb-8">
-            <Loader2 size={20} strokeWidth={1.5} className="text-stone-500 animate-spin" />
+            <Check size={20} strokeWidth={1.5} className="text-[#5c6b4a]" />
           </div>
-          <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">Verifying Payment</p>
-          <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">Order {orderId}</p>
-          <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed">
-            We've received your receipt and are reviewing your payment. We usually confirm within a few hours —
-            you'll get a confirmation email as soon as it's verified. You can keep this page open; it updates automatically.
+          <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
+            Thank You — We&apos;ve Received Your Order
           </p>
+          <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">Order {orderId}</p>
+          <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
+            We&apos;ve received your payment receipt and will confirm your order shortly after verifying the
+            payment. A confirmation email will follow. Thank you for your patience.
+          </p>
+
+          {items.length > 0 && (
+            <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 text-left mb-10">
+              <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-4">Order Summary</p>
+              <ul className="divide-y divide-stone-100/80">
+                {items.map((item, i) => (
+                  <li key={`${item.productId}-${i}`} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-12 h-12 rounded-sm object-cover object-center flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-sm bg-gradient-to-br from-stone-100 to-amber-50 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-stone-700 leading-snug truncate">{item.name}</p>
+                      <p className="text-[10px] tracking-[0.1em] text-stone-600 mt-0.5">Qty {item.quantity}</p>
+                    </div>
+                    <p className="text-[11px] text-stone-600 tracking-[0.04em] flex-shrink-0">
+                      {pkr(item.price * item.quantity)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <Link
+            href="/shop"
+            className="group inline-flex items-center gap-2 text-[9px] tracking-[0.34em] uppercase text-stone-600 border-b border-stone-200 pb-0.5 hover:border-stone-700 hover:text-stone-900 transition-all duration-500"
+          >
+            Continue Shopping
+            <ArrowRight size={10} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+          </Link>
         </div>
       </Shell>
     )

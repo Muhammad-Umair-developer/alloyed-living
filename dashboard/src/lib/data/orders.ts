@@ -111,6 +111,12 @@ export async function getOrderReceiptSignedUrl(path: string): Promise<ReceiptSig
   const { data, error } = await supabase.storage
     .from("payment-receipts")
     .createSignedUrl(path, RECEIPT_SIGNED_URL_TTL_SECONDS)
-  if (error || !data?.signedUrl) return null
+  if (error || !data?.signedUrl) {
+    // A null return here is indistinguishable from "no receipt" to the caller,
+    // so this failure must be logged — without it, a real signing error (e.g.
+    // an object that was deleted, or a storage outage) leaves no trace anywhere.
+    console.error(`[getOrderReceiptSignedUrl] createSignedUrl failed for path "${path}":`, error?.message ?? "no signedUrl returned")
+    return null
+  }
   return { url: data.signedUrl, isPdf: path.toLowerCase().endsWith(".pdf") }
 }

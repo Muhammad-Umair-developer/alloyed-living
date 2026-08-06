@@ -18,6 +18,7 @@ import type {
   CustomOrderPageContent,
   CustomOrderStep,
   FooterPageContent,
+  PaymentMethodsPageContent,
   HeroMediaType,
   ShippingTier,
   FAQ,
@@ -977,6 +978,59 @@ function FooterEditor({ slug, initial }: { slug: "footer"; initial: FooterPageCo
   )
 }
 
+// ─── Payment Methods ──────────────────────────────────────────────────────────
+
+function PaymentMethodsEditor({ slug, initial }: { slug: "payment-methods"; initial: PaymentMethodsPageContent }) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [ubl, setUbl] = useState(initial.ubl)
+  const [jazzcash, setJazzcash] = useState(initial.jazzcash)
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateContentPageAction(slug, { ubl, jazzcash })
+      toast.success("Payment methods updated.")
+      router.refresh()
+    })
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">UBL Bank Transfer</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Account Title">
+            <input value={ubl.accountTitle} onChange={(e) => setUbl((u) => ({ ...u, accountTitle: e.target.value }))} className={inputCls} placeholder="Alloyed Living" />
+          </Field>
+          <Field label="Bank Name">
+            <input value={ubl.bankName} onChange={(e) => setUbl((u) => ({ ...u, bankName: e.target.value }))} className={inputCls} placeholder="United Bank Limited (UBL)" />
+          </Field>
+          <Field label="Account Number">
+            <input value={ubl.accountNumber} onChange={(e) => setUbl((u) => ({ ...u, accountNumber: e.target.value }))} className={inputCls} />
+          </Field>
+          <Field label="IBAN">
+            <input value={ubl.iban} onChange={(e) => setUbl((u) => ({ ...u, iban: e.target.value }))} className={inputCls} placeholder="PK00 UNIL 0000 0000 0000 0000" />
+          </Field>
+        </div>
+      </Card>
+
+      <Card>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-stone-600">JazzCash</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Account Title">
+            <input value={jazzcash.accountTitle} onChange={(e) => setJazzcash((j) => ({ ...j, accountTitle: e.target.value }))} className={inputCls} placeholder="Alloyed Living" />
+          </Field>
+          <Field label="Mobile Number">
+            <input value={jazzcash.number} onChange={(e) => setJazzcash((j) => ({ ...j, number: e.target.value }))} className={inputCls} placeholder="03xx xxxxxxx" />
+          </Field>
+        </div>
+      </Card>
+
+      <SaveBar pending={isPending} onSave={handleSave} />
+    </div>
+  )
+}
+
 // ─── Root switch ──────────────────────────────────────────────────────────────
 
 export default function ContentPageEditor({ page, products }: { page: ContentPage; products: Product[] }) {
@@ -1005,5 +1059,7 @@ export default function ContentPageEditor({ page, products }: { page: ContentPag
       return <CustomOrderEditor slug="custom-order" initial={page.fields as CustomOrderPageContent} />
     case "footer":
       return <FooterEditor slug="footer" initial={page.fields as FooterPageContent} />
+    case "payment-methods":
+      return <PaymentMethodsEditor slug="payment-methods" initial={page.fields as PaymentMethodsPageContent} />
   }
 }

@@ -1,6 +1,6 @@
 import "server-only"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
-import type { ContentPage, ContentPageFields, ContentSlug, CustomOrderPageContent, FooterPageContent } from "./types"
+import type { ContentPage, ContentPageFields, ContentSlug, CustomOrderPageContent, FooterPageContent, PaymentMethodsPageContent } from "./types"
 
 type ContentStore = Record<ContentSlug, ContentPage>
 type ContentRow = { slug: string; title: string; fields: ContentPageFields; updated_at: string }
@@ -64,8 +64,16 @@ const FOOTER_DEFAULT_FIELDS: FooterPageContent = {
   copyright: "© 2026 Alloyed Living. All rights reserved.",
 }
 
+// Also seeded via migration (empty placeholders), but ships with this
+// built-in default so the editor works even before/without that row.
+const PAYMENT_METHODS_DEFAULT_FIELDS: PaymentMethodsPageContent = {
+  ubl: { accountTitle: "", bankName: "", accountNumber: "", iban: "" },
+  jazzcash: { accountTitle: "", number: "" },
+}
+
 // A built-in default for content pages that may not have a DB row yet. The
-// Custom Order and Footer pages have one; every other slug returns null.
+// Custom Order, Footer, and Payment Methods pages have one; every other slug
+// returns null.
 function contentDefault(slug: ContentSlug): ContentPage | null {
   if (slug === "custom-order") {
     return {
@@ -83,8 +91,26 @@ function contentDefault(slug: ContentSlug): ContentPage | null {
       fields: FOOTER_DEFAULT_FIELDS,
     }
   }
+  if (slug === "payment-methods") {
+    return {
+      slug: "payment-methods",
+      title: "Payment Methods",
+      updatedAt: new Date(0).toISOString(),
+      fields: PAYMENT_METHODS_DEFAULT_FIELDS,
+    }
+  }
   return null
 }
+
+// Slugs the dashboard actually knows how to list/edit (mirrors the editor's
+// PAGE_META and VALID_SLUGS). content_pages can contain OTHER rows too — e.g.
+// payment-methods, which storefront checkout reads directly and isn't (yet) a
+// registered dashboard content page — those must never reach the editor list,
+// or an unguarded PAGE_META[slug] lookup there throws.
+const KNOWN_CONTENT_SLUGS: readonly ContentSlug[] = [
+  "home", "shop", "shipping", "returns", "contact", "about", "faq", "terms",
+  "factory-location", "catalog", "custom-order", "footer", "payment-methods",
+]
 
 export async function getAllContentPages(): Promise<ContentStore> {
   const supabase = createSupabaseAdminClient()
@@ -92,11 +118,12 @@ export async function getAllContentPages(): Promise<ContentStore> {
   if (error) throw error
   const store = {} as ContentStore
   for (const row of (data ?? []) as ContentRow[]) {
+    if (!KNOWN_CONTENT_SLUGS.includes(row.slug as ContentSlug)) continue
     store[row.slug as ContentSlug] = rowToPage(row)
   }
   // Surface pages that have a built-in default but no row yet (Custom Order,
-  // Footer), so they still appear in the editor list.
-  for (const slug of ["custom-order", "footer"] as const) {
+  // Footer, Payment Methods), so they still appear in the editor list.
+  for (const slug of ["custom-order", "footer", "payment-methods"] as const) {
     if (!store[slug]) {
       const def = contentDefault(slug)
       if (def) store[slug] = def

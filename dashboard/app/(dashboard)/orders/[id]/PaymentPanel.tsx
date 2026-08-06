@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { AlertTriangle, FileText, ImageOff, Loader2 } from "lucide-react"
+import { AlertTriangle, FileText, Loader2 } from "lucide-react"
 import type { Order } from "@/src/lib/data/types"
 import ConfirmDialog from "@/src/components/ui/ConfirmDialog"
 import { toast } from "@/src/components/ui/ToastAlert"
@@ -55,10 +55,15 @@ function conflictingOrderId(reason?: string): string | null {
   return m ? m[1] : null
 }
 
+// Only ever mounted when order.paymentReceiptPath is already known to be set
+// (see the caller below), so a signed-URL failure here is NEVER "no receipt" —
+// it always means the file exists but couldn't be fetched right now. The UI
+// must say so, not claim there's nothing on file.
 function ReceiptViewer({ orderId }: { orderId: string }) {
   const [state, setState] = useState<"idle" | "loading" | "ready" | "error">("idle")
   const [url, setUrl] = useState<string | null>(null)
   const [isPdf, setIsPdf] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let active = true
@@ -67,6 +72,7 @@ function ReceiptViewer({ orderId }: { orderId: string }) {
       .then((res) => {
         if (!active) return
         if (!res) {
+          console.error(`[ReceiptViewer] No signed URL returned for order ${orderId}'s receipt.`)
           setState("error")
           return
         }
@@ -74,13 +80,14 @@ function ReceiptViewer({ orderId }: { orderId: string }) {
         setIsPdf(res.isPdf)
         setState("ready")
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(`[ReceiptViewer] Failed to load receipt for order ${orderId}:`, err)
         if (active) setState("error")
       })
     return () => {
       active = false
     }
-  }, [orderId])
+  }, [orderId, attempt])
 
   if (state === "loading" || state === "idle") {
     return (
@@ -92,9 +99,16 @@ function ReceiptViewer({ orderId }: { orderId: string }) {
   }
   if (state === "error" || !url) {
     return (
-      <div className="flex items-center gap-2 text-[12px] text-stone-500 py-6">
-        <ImageOff size={14} />
-        No receipt on file.
+      <div className="flex items-center gap-2 text-[12px] text-amber-700 py-6">
+        <AlertTriangle size={14} className="flex-shrink-0" />
+        Couldn&apos;t load the receipt. A file is on record for this order — this is a fetch error, not a
+        missing upload.
+        <button
+          onClick={() => setAttempt((n) => n + 1)}
+          className="ml-1 underline underline-offset-2 hover:text-amber-900 cursor-pointer"
+        >
+          Retry
+        </button>
       </div>
     )
   }
@@ -171,6 +185,10 @@ export default function PaymentPanel({ order }: { order: Order }) {
         <Field label="Amount Expected" value={pkr(order.payableAmount)} />
         {order.paymentMethod === "cod" && (
           <>
+            <Field
+              label="Deposit Account"
+              value={order.depositAccount === "jazzcash" ? "JazzCash" : order.depositAccount === "ubl" ? "UBL" : "Unknown"}
+            />
             <Field label="Deposit" value={pkr(order.depositAmount)} />
             <Field label="Balance Due to Courier" value={pkr(order.codBalanceDue)} />
           </>

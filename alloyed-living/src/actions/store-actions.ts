@@ -7,6 +7,7 @@ import { createOrder } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
 import { sendBankAwaitingPaymentEmail } from "@/src/lib/email/bank-awaiting-payment"
+import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabasePublicClient } from "@/src/lib/supabase/public"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
@@ -121,6 +122,14 @@ export async function placeOrderAction(
     await sendBankAwaitingPaymentEmail(order, { confirmUrl })
   } catch (emailError) {
     console.error("Non-blocking awaiting-payment email failure:", emailError)
+  }
+
+  // Owner alert: something new exists to keep an eye on. Separate inbox,
+  // separate failure boundary — never blocks order placement.
+  try {
+    await sendOwnerOrderNotificationEmail(order, { reason: "new_order" })
+  } catch (ownerEmailError) {
+    console.error("Non-blocking owner new-order notification failure:", ownerEmailError)
   }
 
   return { orderId: order.id, accessToken: order.accessToken }

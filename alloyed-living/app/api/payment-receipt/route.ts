@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
 import { getOrderByAccessToken } from "@/src/lib/data/orders"
 import { applyPaymentTransition } from "@/src/lib/payments/transitions"
 import { sendBankReceiptReceivedEmail } from "@/src/lib/email/bank-receipt-received"
+import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 
 // Customer receipt upload. Validates the order by its opaque access token (the
@@ -130,6 +131,14 @@ export async function POST(req: NextRequest) {
     await sendBankReceiptReceivedEmail({ ...order, paymentStatus: "payment_submitted" })
   } catch (e) {
     console.error("[payment-receipt] acknowledgement email failed:", e)
+  }
+
+  // Owner alert: there's now something to verify. Separate inbox, separate
+  // failure boundary — never blocks the customer's upload.
+  try {
+    await sendOwnerOrderNotificationEmail(order, { reason: "receipt_submitted" })
+  } catch (e) {
+    console.error("[payment-receipt] owner notification failed:", e)
   }
 
   return NextResponse.json({ ok: true })

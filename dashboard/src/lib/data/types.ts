@@ -218,6 +218,23 @@ export interface FooterPageContent {
   copyright: string
 }
 
+// Admin-editable UBL / JazzCash account details, shown at storefront checkout
+// and the confirmation page, and read directly by the storefront's payment
+// emails (bank-awaiting-payment.ts). Not a standalone storefront route — it
+// has no hero/heading fields, just the two accounts.
+export interface PaymentMethodsPageContent {
+  ubl: {
+    accountTitle: string
+    bankName: string
+    accountNumber: string
+    iban: string
+  }
+  jazzcash: {
+    accountTitle: string
+    number: string
+  }
+}
+
 export type ContentPageFields =
   | ShippingPageContent
   | ReturnsPageContent
@@ -231,6 +248,7 @@ export type ContentPageFields =
   | CatalogPageContent
   | CustomOrderPageContent
   | FooterPageContent
+  | PaymentMethodsPageContent
 
 export type ContentSlug =
   | "home"
@@ -245,6 +263,7 @@ export type ContentSlug =
   | "catalog"
   | "custom-order"
   | "footer"
+  | "payment-methods"
 
 export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
   slug: ContentSlug
