@@ -23,9 +23,13 @@ function methodLabel(o: Order): string {
 }
 
 // The account an admin must go check before approving — the COD deposit
-// account for COD orders, otherwise the direct bank method itself.
-function accountToVerify(o: Order): string {
-  if (o.paymentMethod === "cod") return o.depositAccount === "jazzcash" ? "JazzCash" : "UBL"
+// account for COD orders, otherwise the direct bank method itself. NEVER
+// guess: a COD order with a missing/unrecognized deposit account returns
+// null, which the caller must treat as "cannot safely confirm."
+function accountToVerify(o: Order): string | null {
+  if (o.paymentMethod === "cod") {
+    return o.depositAccount === "jazzcash" ? "JazzCash" : o.depositAccount === "ubl" ? "UBL" : null
+  }
   return o.paymentMethod === "jazzcash" ? "JazzCash" : "UBL"
 }
 
@@ -128,21 +132,31 @@ export default function NewOrdersTable({ orders }: { orders: Order[] }) {
                 </td>
                 <td className="px-4 py-3 text-right">
                   {o.paymentStatus === "payment_submitted" ? (
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => setConfirmTarget(o)}
-                        disabled={isPending}
-                        className="px-3 py-1.5 text-[11px] font-medium rounded-md text-white bg-stone-900 hover:bg-stone-700 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-                      >
-                        Confirm Order
-                      </button>
-                      <button
-                        onClick={() => setRejectTarget(o)}
-                        disabled={isPending}
-                        className="px-3 py-1.5 text-[11px] font-medium rounded-md text-[#7a3535] border border-[#7a3535]/25 hover:bg-[#7a3535]/5 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-                      >
-                        Reject
-                      </button>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setConfirmTarget(o)}
+                          disabled={isPending || accountToVerify(o) === null}
+                          title={
+                            accountToVerify(o) === null
+                              ? "Deposit account unknown — verify manually before confirming."
+                              : undefined
+                          }
+                          className="px-3 py-1.5 text-[11px] font-medium rounded-md text-white bg-stone-900 hover:bg-stone-700 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          Confirm Order
+                        </button>
+                        <button
+                          onClick={() => setRejectTarget(o)}
+                          disabled={isPending}
+                          className="px-3 py-1.5 text-[11px] font-medium rounded-md text-[#7a3535] border border-[#7a3535]/25 hover:bg-[#7a3535]/5 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                      {accountToVerify(o) === null && (
+                        <span className="text-[10px] text-amber-700">Deposit account unknown — verify manually</span>
+                      )}
                     </div>
                   ) : o.paymentStatus === "awaiting_payment" ? (
                     <span className="text-[11px] text-stone-500">Awaiting receipt</span>
@@ -159,7 +173,9 @@ export default function NewOrdersTable({ orders }: { orders: Order[] }) {
         title="Confirm this payment?"
         description={
           confirmTarget
-            ? `Have you verified this payment in your ${accountToVerify(confirmTarget)} account? Order ${confirmTarget.id} will be marked confirmed and the customer emailed.`
+            ? accountToVerify(confirmTarget) !== null
+              ? `Have you verified this payment in your ${accountToVerify(confirmTarget)} account? Order ${confirmTarget.id} will be marked confirmed and the customer emailed.`
+              : `Deposit account unknown — verify manually before confirming order ${confirmTarget.id}.`
             : ""
         }
         confirmLabel="Confirm Order"

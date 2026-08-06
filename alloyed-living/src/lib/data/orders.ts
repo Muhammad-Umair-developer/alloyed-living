@@ -5,7 +5,7 @@ import { COD_NOMINAL_DEPOSIT } from "@/src/lib/checkout/constants"
 import type { Order, OrderInput, OrderStatus, PaymentStatus, PaymentMethod, DepositAccount } from "./types"
 
 // Orders are written by trusted server paths only (checkout order creation and
-// the Safepay webhook's payment update), so this uses the service-role client.
+// the payment-receipt/verification flow), so this uses the service-role client.
 
 type OrderRow = Record<string, unknown>
 

@@ -44,7 +44,7 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
 
   return (
     <div>
-      <div className="flex gap-1 mb-4 flex-wrap">
+      <div className="flex gap-1 mb-4">
         {FILTERS.map((f) => (
           <button
             key={f}

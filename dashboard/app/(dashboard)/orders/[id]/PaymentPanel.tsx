@@ -21,8 +21,12 @@ function methodLabel(o: Order): string {
   return "—"
 }
 
-function accountToVerify(o: Order): string {
-  if (o.paymentMethod === "cod") return o.depositAccount === "jazzcash" ? "JazzCash" : "UBL"
+// NEVER guess: a COD order with a missing/unrecognized deposit account
+// returns null, which the caller must treat as "cannot safely confirm."
+function accountToVerify(o: Order): string | null {
+  if (o.paymentMethod === "cod") {
+    return o.depositAccount === "jazzcash" ? "JazzCash" : o.depositAccount === "ubl" ? "UBL" : null
+  }
   return o.paymentMethod === "jazzcash" ? "JazzCash" : "UBL"
 }
 
@@ -194,21 +198,31 @@ export default function PaymentPanel({ order }: { order: Order }) {
 
       <div className="pt-1">
         {order.paymentStatus === "payment_submitted" ? (
-          <div className="flex gap-2">
-            <button
-              onClick={() => setConfirmOpen(true)}
-              disabled={isPending}
-              className="px-4 py-2 text-[13px] font-medium rounded-md text-white bg-stone-900 hover:bg-stone-700 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-            >
-              Confirm Order
-            </button>
-            <button
-              onClick={() => setRejectOpen(true)}
-              disabled={isPending}
-              className="px-4 py-2 text-[13px] font-medium rounded-md text-[#7a3535] border border-[#7a3535]/25 hover:bg-[#7a3535]/5 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-            >
-              Reject
-            </button>
+          <div className="space-y-1.5">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmOpen(true)}
+                disabled={isPending || accountToVerify(order) === null}
+                title={
+                  accountToVerify(order) === null
+                    ? "Deposit account unknown — verify manually before confirming."
+                    : undefined
+                }
+                className="px-4 py-2 text-[13px] font-medium rounded-md text-white bg-stone-900 hover:bg-stone-700 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                Confirm Order
+              </button>
+              <button
+                onClick={() => setRejectOpen(true)}
+                disabled={isPending}
+                className="px-4 py-2 text-[13px] font-medium rounded-md text-[#7a3535] border border-[#7a3535]/25 hover:bg-[#7a3535]/5 transition-colors duration-150 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                Reject
+              </button>
+            </div>
+            {accountToVerify(order) === null && (
+              <p className="text-[11px] text-amber-700">Deposit account unknown — verify manually</p>
+            )}
           </div>
         ) : order.paymentStatus === "awaiting_payment" ? (
           <p className="text-[12px] text-stone-500">Awaiting receipt from the customer.</p>
@@ -218,7 +232,11 @@ export default function PaymentPanel({ order }: { order: Order }) {
       <ConfirmDialog
         open={confirmOpen}
         title="Confirm this payment?"
-        description={`Have you verified this payment in your ${accountToVerify(order)} account? Order ${order.id} will be marked confirmed and the customer emailed.`}
+        description={
+          accountToVerify(order) !== null
+            ? `Have you verified this payment in your ${accountToVerify(order)} account? Order ${order.id} will be marked confirmed and the customer emailed.`
+            : `Deposit account unknown — verify manually before confirming order ${order.id}.`
+        }
         confirmLabel="Confirm Order"
         danger={false}
         loading={isPending}

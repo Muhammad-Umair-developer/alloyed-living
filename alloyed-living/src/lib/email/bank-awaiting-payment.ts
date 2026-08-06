@@ -124,13 +124,24 @@ export async function sendBankAwaitingPaymentEmail(
 
   const name = escapeHtml(order.customer.name || "there")
   const isCod = order.paymentMethod === "cod"
-  const account: "ubl" | "jazzcash" = isCod
-    ? order.depositAccount === "jazzcash"
-      ? "jazzcash"
-      : "ubl"
+  // NEVER guess: a direct bank order's account is the method itself, but a COD
+  // order's deposit account is only whatever was recorded at checkout. If
+  // that's missing/unrecognized, do not send an email with a guessed account —
+  // bail out and log server-side, same as the other unsendable cases above.
+  const account: "ubl" | "jazzcash" | null = isCod
+    ? order.depositAccount === "ubl" || order.depositAccount === "jazzcash"
+      ? order.depositAccount
+      : null
     : order.paymentMethod === "jazzcash"
       ? "jazzcash"
       : "ubl"
+  if (account === null) {
+    console.error(
+      `[awaiting-email] Order ${order.id} is COD with an unrecognized deposit_account ` +
+        `(${order.depositAccount ?? "null"}); refusing to send an email with a guessed account.`,
+    )
+    return { ok: false, error: "unknown deposit account" }
+  }
 
   const pm = await getPaymentMethods()
   const acct = accountBlock(account, pm)

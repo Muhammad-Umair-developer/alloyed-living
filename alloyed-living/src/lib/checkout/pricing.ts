@@ -4,8 +4,8 @@ import type { OrderItem } from "@/src/lib/data/types"
 
 // Single source of truth for order pricing. NOTHING money-related is ever
 // trusted from the client: item prices, names, images, subtotal, delivery and
-// total are all recomputed here from live product rows. Used by both checkout
-// paths (COD order placement and the Safepay charge) so they cannot drift.
+// total are all recomputed here from live product rows. Used by all checkout
+// methods (COD, UBL, JazzCash) so they cannot drift.
 
 export const DELIVERY_THRESHOLD = 100000
 export const DELIVERY_FEE = 500
