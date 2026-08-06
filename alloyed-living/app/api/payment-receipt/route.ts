@@ -3,6 +3,7 @@ import { createHash } from "node:crypto"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
 import { getOrderByAccessToken } from "@/src/lib/data/orders"
 import { applyPaymentTransition } from "@/src/lib/payments/transitions"
+import { sendBankOrderReceivedEmail } from "@/src/lib/email/bank-order-received"
 import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 
@@ -11,7 +12,21 @@ import { rateLimit } from "@/src/lib/rate-limit"
 // payment-receipts bucket via the service-role client, and moves the order to
 // payment_submitted through the guarded transition helper (which the DB trigger
 // backs). Never marks anything verified.
+//
+// This is the ONLY point in the lifecycle where either notification email
+// fires — order placement itself is silent for every payment method.
 export const dynamic = "force-dynamic"
+
+// Absolute origin for the confirmation-page link in the order-received email.
+// Prefer an explicit public URL; fall back to the incoming request host.
+function resolveOrigin(req: NextRequest): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL
+  if (configured) return configured.replace(/\/+$/, "")
+  const host = req.headers.get("host") ?? ""
+  if (!host) return ""
+  const proto = req.headers.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https")
+  return `${proto}://${host}`
+}
 
 const MAX_BYTES = 5 * 1024 * 1024 // 5 MB — matches the bucket's file_size_limit
 
@@ -125,11 +140,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not record your receipt. Please try again." }, { status: 409 })
   }
 
-  // No customer email here — the "we've received your order" acknowledgement
-  // already went out at placement (bank-order-received.ts), so a second
-  // "received" email would be redundant. This submission is recorded
-  // silently for admin review (payment_submitted_at above) and surfaced only
-  // via the owner notification below.
+  // Customer acknowledgement — the ONLY "order received" email in the
+  // lifecycle, fired here rather than at placement. Non-blocking: an email
+  // failure must never fail an otherwise-successful upload.
+  try {
+    const confirmUrl = `${resolveOrigin(req)}/checkout/confirm?token=${encodeURIComponent(token)}`
+    await sendBankOrderReceivedEmail(order, { confirmUrl })
+  } catch (e) {
+    console.error("[payment-receipt] order-received email failed:", e)
+  }
 
   // Owner alert: there's now something to verify. Separate inbox, separate
   // failure boundary — never blocks the customer's upload.

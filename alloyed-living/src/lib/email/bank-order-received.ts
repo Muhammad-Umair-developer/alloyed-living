@@ -2,13 +2,13 @@ import "server-only"
 import { Resend } from "resend"
 import type { Order } from "@/src/lib/data/types"
 
-// Sends the customer a short acknowledgement right when their order is placed
-// (payment_status = awaiting_payment). This is the ONLY email sent at
-// placement — replaces the old, longer "how to pay" email. Account details
-// and the exact amount are shown on the checkout page and the confirmation
-// page instead; this email's job is just to (a) confirm the order exists and
-// (b) durably carry the confirm-page link, since that URL's access token
-// can't be reconstructed from memory if the customer doesn't pay immediately.
+// Sends the customer a short acknowledgement once their receipt has been
+// uploaded (payment_status = payment_submitted). This is the ONLY "order
+// received" email in the lifecycle — order placement itself is silent for
+// every payment method; the customer's next email is either the admin's
+// approval confirmation or a rejection notice. By the time this fires the
+// customer has already paid and uploaded, so there is nothing left for them
+// to do — no CTA, no link to act on.
 //
 // Same Resend channel, layout and branding as the other order emails.
 // Server-only: RESEND_API_KEY never reaches the client.
@@ -57,11 +57,8 @@ export async function sendBankOrderReceivedEmail(
         <p style="font-size:15px;color:#292524;line-height:1.6;margin:0 0 8px;">Dear ${name},</p>
         <p style="font-size:13px;color:#57534e;line-height:1.7;margin:0;">
           Thank you — we've received your order ${escapeHtml(order.id)} and will confirm it shortly after
-          verifying your payment. To complete your order, please make your payment using the button below.
+          verifying your payment.
         </p>
-      </div>
-      <div style="padding:0 32px 28px;text-align:center;">
-        <a href="${escapeHtml(opts.confirmUrl)}" style="display:inline-block;background:#1c1917;color:#ffffff;text-decoration:none;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 28px;">Complete Your Payment</a>
       </div>
       <div style="padding:0 32px 28px;">
         <p style="font-size:13px;color:#57534e;line-height:1.7;margin:0;">

@@ -1,13 +1,10 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 import { trackAddToCart, trackView } from "@/src/lib/data/analytics"
 import { createOrder } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
-import { sendBankOrderReceivedEmail } from "@/src/lib/email/bank-order-received"
-import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-notification"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabasePublicClient } from "@/src/lib/supabase/public"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
@@ -15,18 +12,6 @@ import type { PaymentMethodsFields } from "@/src/lib/checkout/payment-accounts"
 import type { OrderInput, Review } from "@/src/lib/data/types"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-// Absolute origin for the confirmation-page link in the awaiting-payment email.
-// Prefer an explicit public URL; fall back to the incoming request host.
-async function resolveOrigin(): Promise<string> {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL
-  if (configured) return configured.replace(/\/+$/, "")
-  const h = await headers()
-  const host = h.get("host") ?? ""
-  if (!host) return ""
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https")
-  return `${proto}://${host}`
-}
 
 // Analytics pings are unauthenticated by nature; rate-limit them so they can't
 // be used to poison the stats.
@@ -112,27 +97,10 @@ export async function placeOrderAction(
     { method: paymentMethod, depositAccount },
   )
 
-  // Email the shopper a short "order received" acknowledgement plus the
-  // confirmation-page link — the durable way back to pay and upload a
-  // receipt. Amount and account details are NOT repeated here; they're shown
-  // on the checkout page and the confirmation page itself. Non-blocking: an
-  // email failure must never fail the order — the order still exists and is
-  // reachable via its access token.
-  try {
-    const origin = await resolveOrigin()
-    const confirmUrl = `${origin}/checkout/confirm?token=${encodeURIComponent(order.accessToken ?? "")}`
-    await sendBankOrderReceivedEmail(order, { confirmUrl })
-  } catch (emailError) {
-    console.error("Non-blocking order-received email failure:", emailError)
-  }
-
-  // Owner alert: something new exists to keep an eye on. Separate inbox,
-  // separate failure boundary — never blocks order placement.
-  try {
-    await sendOwnerOrderNotificationEmail(order, { reason: "new_order" })
-  } catch (ownerEmailError) {
-    console.error("Non-blocking owner new-order notification failure:", ownerEmailError)
-  }
+  // No email at placement, for any payment method — the customer and owner
+  // notifications both fire only once a receipt is actually uploaded (see
+  // app/api/payment-receipt/route.ts). Placing an order triggers no email to
+  // anyone.
 
   return { orderId: order.id, accessToken: order.accessToken }
 }
