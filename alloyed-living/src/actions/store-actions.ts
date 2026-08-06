@@ -1,17 +1,31 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { trackAddToCart, trackPurchase, trackView } from "@/src/lib/data/analytics"
+import { headers } from "next/headers"
+import { trackAddToCart, trackView } from "@/src/lib/data/analytics"
 import { createOrder } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
-import { sendOrderConfirmationEmail } from "@/src/lib/email/order-confirmation"
-import { sendOwnerOrderNotificationEmail } from "@/src/lib/email/owner-order-notification"
+import { sendBankAwaitingPaymentEmail } from "@/src/lib/email/bank-awaiting-payment"
 import { rateLimit } from "@/src/lib/rate-limit"
+import { createSupabasePublicClient } from "@/src/lib/supabase/public"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
+import type { PaymentMethodsFields } from "@/src/lib/checkout/payment-accounts"
 import type { OrderInput, Review } from "@/src/lib/data/types"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Absolute origin for the confirmation-page link in the awaiting-payment email.
+// Prefer an explicit public URL; fall back to the incoming request host.
+async function resolveOrigin(): Promise<string> {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL
+  if (configured) return configured.replace(/\/+$/, "")
+  const h = await headers()
+  const host = h.get("host") ?? ""
+  if (!host) return ""
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https")
+  return `${proto}://${host}`
+}
 
 // Analytics pings are unauthenticated by nature; rate-limit them so they can't
 // be used to poison the stats.
@@ -27,20 +41,39 @@ export async function trackViewAction(productId: string): Promise<void> {
 
 export interface PlaceOrderResult {
   orderId?: string
+  accessToken?: string
   error?: string
 }
 
 // SECURITY: nothing money-related is trusted from the client. Item prices,
 // names, images, subtotal, delivery and total are recomputed server-side from
-// live product rows (priceOrderItems) — the client only chooses WHAT and HOW
-// MANY. Purchase analytics use the recomputed amounts, and only fire here for
-// COD (a Safepay order isn't a sale until the webhook verifies payment).
+// live product rows (priceOrderItems); the payable amount, deposit and courier
+// balance are computed in createOrder. The client only chooses WHAT, HOW MANY,
+// the payment method, and (for COD) which account to deposit to.
+//
+// All three methods create the order in payment_status 'awaiting_payment' and
+// return its opaque access token so the client can send the shopper to the
+// confirmation page to upload their receipt.
 export async function placeOrderAction(
   input: OrderInput,
-  paymentMethod: "cod" | "safepay" = "safepay",
+  paymentMethod: "cod" | "ubl" | "jazzcash",
+  opts?: { depositAccount?: "ubl" | "jazzcash" },
 ): Promise<PlaceOrderResult> {
   if (!(await rateLimit("place-order", 5, 60_000))) {
     return { error: "Too many order attempts. Please wait a minute and try again." }
+  }
+
+  // Validate the method, and for COD the chosen deposit account.
+  if (paymentMethod !== "cod" && paymentMethod !== "ubl" && paymentMethod !== "jazzcash") {
+    return { error: "Please choose a valid payment method." }
+  }
+  let depositAccount: "ubl" | "jazzcash" | null = null
+  if (paymentMethod === "cod") {
+    const acct = opts?.depositAccount
+    if (acct !== "ubl" && acct !== "jazzcash") {
+      return { error: "Please choose an account (UBL or JazzCash) for your deposit." }
+    }
+    depositAccount = acct
   }
 
   // Validate customer/contact basics (mirrors the client form, enforced here).
@@ -60,50 +93,50 @@ export async function placeOrderAction(
   )
   if (!priced.ok) return { error: priced.error }
 
-  const order = await createOrder({
-    items: priced.items,
-    customer: { name, email, ...(phone ? { phone } : {}) },
-    shippingAddress: {
-      street: addr.street.trim().slice(0, 500),
-      city: addr.city.trim().slice(0, 100),
-      province: addr.province?.trim().slice(0, 100),
-      postalCode: addr.postalCode?.trim().slice(0, 20),
-      country: "Pakistan",
+  const order = await createOrder(
+    {
+      items: priced.items,
+      customer: { name, email, ...(phone ? { phone } : {}) },
+      shippingAddress: {
+        street: addr.street.trim().slice(0, 500),
+        city: addr.city.trim().slice(0, 100),
+        province: addr.province?.trim().slice(0, 100),
+        postalCode: addr.postalCode?.trim().slice(0, 20),
+        country: "Pakistan",
+      },
+      subtotal: priced.subtotal,
+      delivery: priced.delivery,
+      total: priced.total,
     },
-    subtotal: priced.subtotal,
-    delivery: priced.delivery,
-    total: priced.total,
-  })
+    { method: paymentMethod, depositAccount },
+  )
 
-  if (paymentMethod === "cod") {
-    // COD is confirmed on placement: count the sale and email the summary now.
-    // Safepay orders do both from the webhook once payment is verified.
-    
-    // 1. Isolate the analytics pipeline from the core execution flow
-    try {
-      await Promise.all(
-        order.items.map((item) => trackPurchase(item.productId, item.quantity, item.price * item.quantity)),
-      )
-    } catch (analyticsError) {
-      console.error("Non-blocking analytics tracking failure in production:", analyticsError)
-    }
-
-    // 2. Isolate the email engine and safely log specific production failures
-    try {
-      await sendOrderConfirmationEmail(order, { method: "cod", paid: false })
-    } catch (emailError) {
-      console.error("CRITICAL: Production COD order confirmation email dispatch failure:", emailError)
-    }
-
-    // 3. Notify the owner of the new order (separate inbox; never blocks the order).
-    try {
-      await sendOwnerOrderNotificationEmail(order, { method: "cod", paid: false })
-    } catch (ownerEmailError) {
-      console.error("Non-blocking owner order-notification email failure (COD):", ownerEmailError)
-    }
+  // Email the shopper the account details, the exact amount to transfer, and a
+  // link to the confirmation page to upload their receipt. Non-blocking: an email
+  // failure must never fail the order — the order still exists and is reachable
+  // via its access token.
+  try {
+    const origin = await resolveOrigin()
+    const confirmUrl = `${origin}/checkout/confirm?token=${encodeURIComponent(order.accessToken ?? "")}`
+    await sendBankAwaitingPaymentEmail(order, { confirmUrl })
+  } catch (emailError) {
+    console.error("Non-blocking awaiting-payment email failure:", emailError)
   }
 
-  return { orderId: order.id }
+  return { orderId: order.id, accessToken: order.accessToken }
+}
+
+// Returns the admin-managed bank account details (payment-methods content row)
+// for the checkout panels and the confirmation page. Public read via the anon
+// client — RLS on content_pages already allows public SELECT.
+export async function getPaymentMethodsAction(): Promise<PaymentMethodsFields> {
+  const supabase = createSupabasePublicClient()
+  const { data } = await supabase
+    .from("content_pages")
+    .select("fields")
+    .eq("slug", "payment-methods")
+    .maybeSingle()
+  return (data?.fields as PaymentMethodsFields | undefined) ?? {}
 }
 
 // Only signed-in users can post a review. The reviewer identity is taken from

@@ -257,9 +257,23 @@ export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
 
 export type OrderStatus = "pending" | "shipped" | "delivered" | "returned" | "exchanged"
 
-// Payment lifecycle, tracked separately from fulfilment status. Set by the
-// storefront's Safepay integration; the dashboard reads it for visibility.
-export type PaymentStatus = "unpaid" | "paid" | "failed"
+// Payment lifecycle for the manual bank-transfer / COD-deposit flow. Mirrors the
+// DB CHECK constraint and the enforce_payment_status_transition trigger. (Legacy
+// Safepay values unpaid/paid/failed remain valid at the DB level as a safety
+// margin but are no longer produced by the storefront.)
+export type PaymentStatus =
+  | "awaiting_payment"
+  | "payment_submitted"
+  | "payment_verified"
+  | "payment_rejected"
+
+// How an order is paid. 'cod' pays a deposit now with the balance collected by
+// the courier; 'ubl' / 'jazzcash' pay the full total by bank transfer.
+export type PaymentMethod = "cod" | "ubl" | "jazzcash"
+
+// Which account a COD deposit is sent to. Null for direct ubl/jazzcash orders,
+// where PaymentMethod already names the account.
+export type DepositAccount = "ubl" | "jazzcash"
 
 export interface OrderItem {
   productId: string
@@ -292,17 +306,46 @@ export interface Order {
   subtotal: number
   delivery: number
   total: number
-  // Payment tracking (set by the storefront Safepay flow).
+  // Payment tracking, set by the storefront checkout / receipt upload flow.
   paymentStatus?: PaymentStatus
+  paymentMethod?: PaymentMethod
+  depositAccount?: DepositAccount | null
+  // All amounts below are computed SERVER-SIDE by the storefront.
+  payableAmount?: number  // exact amount the customer was asked to pay
+  depositAmount?: number  // COD only: upfront deposit (= payableAmount)
+  codBalanceDue?: number  // COD only: balance the courier collects on delivery
+  // Receipt review, set by the customer's upload and read here for verification.
+  paymentReceiptPath?: string   // object path in the PRIVATE payment-receipts bucket
+  paymentReceiptHash?: string
+  paymentSenderName?: string
+  paymentSenderMobile?: string
+  paymentReference?: string
+  paymentSubmittedAt?: string
+  paymentFlagged?: boolean
+  paymentFlagReason?: string
+  // Set only by an authenticated dashboard action (confirm / reject).
+  paymentVerifiedAt?: string
+  paymentVerifiedBy?: string     // profiles.id of the admin who verified
+  paymentRejectionReason?: string
+  // Legacy Safepay.
   paymentProvider?: string
   paymentRef?: string
+  // Opaque token the storefront's confirmation page is keyed by. Needed here to
+  // build the re-upload link in the payment-rejected email.
+  accessToken?: string
   createdAt: string
   updatedAt: string
 }
 
 export type OrderInput = Omit<
   Order,
-  "id" | "createdAt" | "updatedAt" | "status" | "paymentStatus" | "paymentProvider" | "paymentRef"
+  | "id" | "createdAt" | "updatedAt" | "status"
+  | "paymentStatus" | "paymentMethod" | "depositAccount"
+  | "payableAmount" | "depositAmount" | "codBalanceDue"
+  | "paymentReceiptPath" | "paymentReceiptHash" | "paymentSenderName" | "paymentSenderMobile"
+  | "paymentReference" | "paymentSubmittedAt" | "paymentFlagged" | "paymentFlagReason"
+  | "paymentVerifiedAt" | "paymentVerifiedBy" | "paymentRejectionReason"
+  | "paymentProvider" | "paymentRef" | "accessToken"
 >
 
 // ─── Analytics ──────────────────────────────────────────────────────────────

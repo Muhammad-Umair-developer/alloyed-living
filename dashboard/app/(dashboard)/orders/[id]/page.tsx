@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react"
 import { getOrder } from "@/src/lib/data/orders"
 import PageHeader from "@/src/components/ui/PageHeader"
 import OrderStatusControl from "./OrderStatusControl"
+import PaymentPanel from "./PaymentPanel"
 
 // Order status changes here — always read fresh.
 export const dynamic = "force-dynamic"
@@ -28,6 +29,12 @@ export default async function OrderDetailPage({
         description={`Placed ${new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}`}
         action={<OrderStatusControl orderId={order.id} status={order.status} />}
       />
+
+      {order.paymentMethod && (
+        <div className="max-w-4xl mb-6">
+          <PaymentPanel order={order} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 max-w-4xl">
         {/* Items */}

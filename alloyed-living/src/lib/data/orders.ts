@@ -1,7 +1,8 @@
 import "server-only"
 import { randomInt } from "node:crypto"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
-import type { Order, OrderInput, OrderStatus, PaymentStatus } from "./types"
+import { COD_NOMINAL_DEPOSIT } from "@/src/lib/checkout/constants"
+import type { Order, OrderInput, OrderStatus, PaymentStatus, PaymentMethod, DepositAccount } from "./types"
 
 // Orders are written by trusted server paths only (checkout order creation and
 // the Safepay webhook's payment update), so this uses the service-role client.
@@ -19,6 +20,12 @@ function rowToOrder(r: OrderRow): Order {
     delivery: Number(r.delivery),
     total: Number(r.total),
     paymentStatus: (r.payment_status as PaymentStatus | null) ?? undefined,
+    paymentMethod: (r.payment_method as PaymentMethod | null) ?? undefined,
+    depositAccount: (r.deposit_account as DepositAccount | null) ?? undefined,
+    payableAmount: r.payable_amount != null ? Number(r.payable_amount) : undefined,
+    depositAmount: r.deposit_amount != null ? Number(r.deposit_amount) : undefined,
+    codBalanceDue: r.cod_balance_due != null ? Number(r.cod_balance_due) : undefined,
+    paymentRejectionReason: (r.payment_rejection_reason as string | null) ?? undefined,
     paymentProvider: (r.payment_provider as string | null) ?? undefined,
     paymentRef: (r.payment_ref as string | null) ?? undefined,
     accessToken: (r.access_token as string | null) ?? undefined,
@@ -53,30 +60,6 @@ export async function getOrderByAccessToken(token: string): Promise<Order | null
   return data ? rowToOrder(data) : null
 }
 
-// Find an order by its Safepay tracker token — used by the webhook/redirect to
-// map a payment event back to the originating order.
-export async function getOrderByPaymentRef(ref: string): Promise<Order | null> {
-  if (!ref) return null
-  const supabase = createSupabaseAdminClient()
-  const { data } = await supabase.from("orders").select("*").eq("payment_ref", ref).maybeSingle()
-  return data ? rowToOrder(data) : null
-}
-
-// Update only the payment-related fields of an order.
-export async function setOrderPayment(
-  id: string,
-  patch: { paymentStatus?: PaymentStatus; paymentProvider?: string; paymentRef?: string },
-): Promise<Order | null> {
-  const supabase = createSupabaseAdminClient()
-  const row: OrderRow = { updated_at: new Date().toISOString() }
-  if (patch.paymentStatus !== undefined) row.payment_status = patch.paymentStatus
-  if (patch.paymentProvider !== undefined) row.payment_provider = patch.paymentProvider
-  if (patch.paymentRef !== undefined) row.payment_ref = patch.paymentRef
-  const { data, error } = await supabase.from("orders").update(row).eq("id", id).select("*").maybeSingle()
-  if (error) throw error
-  return data ? rowToOrder(data) : null
-}
-
 // Random suffix instead of a sequential counter: the old read-all-then-max
 // approach raced under concurrent checkouts (duplicate primary keys) and made
 // order IDs trivially enumerable. Collisions are retried on the PK conflict.
@@ -85,9 +68,47 @@ function newOrderId(): string {
   return `AL-${year}-${randomInt(100000, 1000000)}`
 }
 
-export async function createOrder(input: OrderInput): Promise<Order> {
+// ── Awaiting-payment amounts ────────────────────────────────────────────────
+export interface PaymentIntent {
+  method: PaymentMethod
+  depositAccount?: DepositAccount | null // required for 'cod', ignored otherwise
+}
+
+interface AwaitingAmounts {
+  payableAmount: number
+  depositAmount: number | null
+  codBalanceDue: number | null
+}
+
+// Amounts are derived SERVER-SIDE from the server-priced total — never from
+// client input — and are plain, unmodified figures (no paisa marker / drift):
+// COD pays a flat Rs 500 deposit (or the full total if that is smaller), bank
+// methods pay the exact order total. Payments are matched to orders in the
+// dashboard via the access-token-linked receipt, sender name and transaction
+// reference — NOT by a unique amount — so amounts may repeat freely.
+function computeAwaitingAmounts(orderTotal: number, intent: PaymentIntent): AwaitingAmounts {
+  if (intent.method === "cod") {
+    const deposit = Math.min(COD_NOMINAL_DEPOSIT, orderTotal) // pay-in-full for tiny orders
+    return {
+      payableAmount: deposit,
+      depositAmount: deposit,
+      codBalanceDue: orderTotal - deposit, // 0 when the total is at or below the deposit
+    }
+  }
+  return { payableAmount: orderTotal, depositAmount: null, codBalanceDue: null }
+}
+
+export async function createOrder(input: OrderInput, intent: PaymentIntent): Promise<Order> {
   const supabase = createSupabaseAdminClient()
   const now = new Date().toISOString()
+
+  if (input.total <= 0) {
+    console.warn(`[createOrder] Non-positive order total (${input.total}) for a ${intent.method} order.`)
+  }
+
+  const depositAccount = intent.method === "cod" ? (intent.depositAccount ?? null) : null
+  const amounts = computeAwaitingAmounts(input.total, intent)
+
   const base = {
     status: "pending",
     items: input.items,
@@ -96,9 +117,19 @@ export async function createOrder(input: OrderInput): Promise<Order> {
     subtotal: input.subtotal,
     delivery: input.delivery,
     total: input.total,
+    payment_status: "awaiting_payment",
+    payment_method: intent.method,
+    deposit_account: depositAccount,
+    payable_amount: amounts.payableAmount,
+    deposit_amount: amounts.depositAmount,
+    cod_balance_due: amounts.codBalanceDue,
     created_at: now,
     updated_at: now,
   }
+
+  // The only uniqueness left to guard is the order-id primary key. payable_amount
+  // is intentionally NOT unique (the pending unique index is dropped in the DB),
+  // so repeated amounts insert fine.
   for (let attempt = 0; attempt < 5; attempt++) {
     const { data, error } = await supabase
       .from("orders")
@@ -106,7 +137,7 @@ export async function createOrder(input: OrderInput): Promise<Order> {
       .select("*")
       .single()
     if (!error) return rowToOrder(data)
-    if (error.code !== "23505") throw error // 23505 = unique violation → retry with a new id
+    if (error.code !== "23505") throw error // 23505 = id collision → retry with a fresh id
   }
   throw new Error("Could not allocate a unique order id.")
 }

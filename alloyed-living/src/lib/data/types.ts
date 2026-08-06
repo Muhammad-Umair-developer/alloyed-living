@@ -257,10 +257,23 @@ export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
 
 export type OrderStatus = "pending" | "shipped" | "delivered" | "returned" | "exchanged"
 
-// Payment lifecycle, tracked separately from fulfilment status. An order is only
-// ever "paid" after a verified Safepay signature (webhook / redirect) — never
-// merely because the shopper landed on the success URL.
-export type PaymentStatus = "unpaid" | "paid" | "failed"
+// Payment lifecycle for the manual bank-transfer / COD-deposit flow. Mirrors the
+// DB CHECK constraint and the enforce_payment_status_transition trigger. (Legacy
+// Safepay values unpaid/paid/failed remain valid at the DB level as a safety
+// margin but are no longer produced by the app.)
+export type PaymentStatus =
+  | "awaiting_payment"
+  | "payment_submitted"
+  | "payment_verified"
+  | "payment_rejected"
+
+// How an order is paid. 'cod' pays a deposit now with the balance collected by
+// the courier; 'ubl' / 'jazzcash' pay the full total by bank transfer.
+export type PaymentMethod = "cod" | "ubl" | "jazzcash"
+
+// Which account a COD deposit is sent to. Null for direct ubl/jazzcash orders,
+// where PaymentMethod already names the account.
+export type DepositAccount = "ubl" | "jazzcash"
 
 export interface OrderItem {
   productId: string
@@ -293,11 +306,18 @@ export interface Order {
   subtotal: number
   delivery: number
   total: number
-  // Payment tracking (optional; set once an online payment is initiated).
+  // Payment tracking.
   paymentStatus?: PaymentStatus
-  paymentProvider?: string // e.g. "safepay"
-  paymentRef?: string      // Safepay tracker/beacon token — maps webhooks back to this order
-  // Opaque random token for the checkout-success lookup. Never shown in UI;
+  paymentMethod?: PaymentMethod
+  depositAccount?: DepositAccount | null
+  // All amounts below are computed SERVER-SIDE and never accepted from the client.
+  payableAmount?: number  // exact, unique amount to transfer (carries a paisa marker)
+  depositAmount?: number  // COD only: upfront deposit (= payableAmount)
+  codBalanceDue?: number  // COD only: balance the courier collects on delivery
+  paymentRejectionReason?: string // set by an admin reject; shown on the confirm page
+  paymentProvider?: string // legacy Safepay
+  paymentRef?: string      // legacy Safepay tracker token
+  // Opaque random token for the confirmation-page lookup. Never shown in UI;
   // order IDs are guessable, this is not.
   accessToken?: string
   createdAt: string
@@ -306,7 +326,10 @@ export interface Order {
 
 export type OrderInput = Omit<
   Order,
-  "id" | "createdAt" | "updatedAt" | "status" | "paymentStatus" | "paymentProvider" | "paymentRef" | "accessToken"
+  | "id" | "createdAt" | "updatedAt" | "status"
+  | "paymentStatus" | "paymentMethod" | "depositAccount"
+  | "payableAmount" | "depositAmount" | "codBalanceDue" | "paymentRejectionReason"
+  | "paymentProvider" | "paymentRef" | "accessToken"
 >
 
 // ─── Analytics ──────────────────────────────────────────────────────────────

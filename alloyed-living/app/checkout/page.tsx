@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback, useMemo, useId, useEffect, useRef } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, Lock, ShieldCheck, Truck, Check, ArrowRight } from "lucide-react"
@@ -9,8 +8,9 @@ import Header from "@/src/components/layout/Header"
 import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
 import { type CartItem, useCart } from "@/src/context/CartContext"
 import { useAuth } from "@/src/context/AuthContext"
-import { placeOrderAction } from "@/src/actions/store-actions"
-import { createSafepayCheckout } from "@/src/actions/safepay-actions"
+import { placeOrderAction, getPaymentMethodsAction } from "@/src/actions/store-actions"
+import { COD_NOMINAL_DEPOSIT } from "@/src/lib/checkout/constants"
+import { type PaymentMethodsFields, accountLines } from "@/src/lib/checkout/payment-accounts"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -97,12 +97,14 @@ interface FormData {
 }
 
 type FormErrors = Partial<Record<keyof FormData, string>>
-type PaymentMethod = "safepay" | "cod"
+type PaymentMethod = "cod" | "ubl" | "jazzcash"
+type DepositAccount = "ubl" | "jazzcash"
 
 // Tab metadata for the payment switcher.
 const PAYMENT_TABS: { id: PaymentMethod; label: string; icon: typeof ShieldCheck }[] = [
-  { id: "safepay", label: "Safepay", icon: ShieldCheck },
-  { id: "cod",     label: "COD",     icon: Truck },
+  { id: "cod",      label: "COD",      icon: Truck },
+  { id: "ubl",      label: "UBL",      icon: ShieldCheck },
+  { id: "jazzcash", label: "JazzCash", icon: Lock },
 ]
 
 const EMPTY_FORM: FormData = {
@@ -467,49 +469,148 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
 
 // ─── Payment switcher ─────────────────────────────────────────────────────────
 
-// Cash-on-Delivery panel — no online payment; the order is placed and settled
-// in cash on arrival.
-function CodPanel() {
-  const steps = [
-    "Place your order — no payment required online.",
-    "Receive an SMS with your order ID within 30 minutes.",
-    "Our support team calls within 2 business hours to confirm.",
-    "White-glove delivery in 5–7 days (Karachi) or 7–10 days nationally.",
-    "Pay in cash on arrival. No card required at any point.",
-  ]
+// Shows the account the shopper must pay into. Reuses the panel's existing text
+// styles — no new colours or CSS.
+function AccountDetails({ account, pm }: { account: DepositAccount; pm: PaymentMethodsFields | null }) {
+  const { label, lines } = accountLines(account, pm)
+  return (
+    <div className="border-t border-stone-100 pt-4">
+      <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-2">{label} — Account Details</p>
+      {lines.length > 0 ? (
+        <div className="space-y-1">
+          {lines.map((l, i) => (
+            <p key={i} className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed">
+              {l}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[11px] text-stone-600 tracking-[0.04em] leading-relaxed">
+          Account details will appear here once configured.
+        </p>
+      )}
+    </div>
+  )
+}
+
+// COD deposit refundability.
+function RefundLine() {
+  return (
+    <p className="text-[9px] tracking-[0.14em] text-stone-600 leading-relaxed">
+      The Rs 500 deposit is adjusted against your order total. If you refuse delivery, the
+      deposit is non-refundable as it covers our courier and handling costs.
+    </p>
+  )
+}
+
+// Cash-on-Delivery panel — pay a Rs 500 deposit now (via UBL or JazzCash) to
+// confirm the order; the balance is paid in cash to the courier on delivery.
+function CodPanel({
+  deposit, balance, payInFull, depositAccount, onDepositAccount, pm,
+}: {
+  deposit:          number
+  balance:          number
+  payInFull:        boolean
+  depositAccount:   DepositAccount
+  onDepositAccount: (a: DepositAccount) => void
+  pm:               PaymentMethodsFields | null
+}) {
   return (
     <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 space-y-5">
       <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600">How COD Works</p>
-      <ol className="space-y-4">
-        {steps.map((text, i) => (
-          <li key={i} className="flex gap-4">
-            <span
-              style={EDITORIAL}
-              className="text-[1rem] font-light text-stone-700 leading-tight flex-shrink-0 w-6"
+
+      <p className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed">
+        {payInFull
+          ? `Pay PKR ${deposit.toLocaleString()} in full now to confirm your order. Nothing is due on delivery.`
+          : `Pay a PKR ${deposit.toLocaleString()} deposit now to confirm your order. The remaining PKR ${balance.toLocaleString()} is paid in cash to the courier on delivery.`}
+      </p>
+
+      {/* Sub-choice: which account to send the deposit to */}
+      <div>
+        <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600 mb-3">Pay Deposit Via</p>
+        <div className="relative flex border-b border-stone-100">
+          {(["ubl", "jazzcash"] as const).map((acc) => (
+            <button
+              key={acc}
+              type="button"
+              onClick={() => onDepositAccount(acc)}
+              className={`
+                relative flex-1 py-3 flex items-center justify-center gap-2
+                text-[8px] tracking-[0.34em] uppercase transition-colors duration-400 cursor-pointer
+                ${depositAccount === acc ? "text-stone-800" : "text-stone-600 hover:text-stone-700 hover:bg-stone-50"}
+              `}
             >
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <p className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed pt-0.5">
-              {text}
-            </p>
-          </li>
-        ))}
-      </ol>
+              {acc === "ubl" ? "UBL" : "JazzCash"}
+
+              {depositAccount === acc && (
+                <motion.div
+                  layoutId="cod-account-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-px bg-stone-900"
+                  transition={{ ease: EASE_CINEMATIC, duration: 0.4 }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <AccountDetails account={depositAccount} pm={pm} />
+
       <div className="flex items-center gap-2 pt-1">
         <Check size={10} strokeWidth={2} className="text-[#5c6b4a]" />
         <p className="text-[9px] tracking-[0.14em] text-[#5c6b4a]">
           Available across all major cities in Pakistan
         </p>
       </div>
+
+      <RefundLine />
+    </div>
+  )
+}
+
+// UBL / JazzCash full-payment panel — transfer the full order total, then upload
+// the receipt on the confirmation page.
+function BankPanel({
+  account, total, pm,
+}: {
+  account: DepositAccount
+  total:   number
+  pm:      PaymentMethodsFields | null
+}) {
+  return (
+    <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 space-y-5">
+      <div className="flex items-center gap-2.5">
+        <ShieldCheck size={13} strokeWidth={1.5} className="text-[#5c6b4a]" />
+        <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600">Bank Transfer</p>
+      </div>
+
+      <p className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed">
+        Transfer the full order total of PKR {total.toLocaleString()} to the account below, then
+        upload your receipt on the next screen to confirm your order.
+      </p>
+
+      <AccountDetails account={account} pm={pm} />
+
+      <p className="text-[9px] tracking-[0.14em] text-stone-600 leading-relaxed">
+        Payments are refunded in full if we are unable to fulfil your order. For cancellations
+        after dispatch, please contact us.
+      </p>
     </div>
   )
 }
 
 function PaymentSection({
-  method, onMethod,
+  method, onMethod, depositAccount, onDepositAccount, pm, total, deposit, balance, payInFull,
 }: {
-  method:   PaymentMethod
-  onMethod: (m: PaymentMethod) => void
+  method:           PaymentMethod
+  onMethod:         (m: PaymentMethod) => void
+  depositAccount:   DepositAccount
+  onDepositAccount: (a: DepositAccount) => void
+  pm:               PaymentMethodsFields | null
+  total:            number
+  deposit:          number
+  balance:          number
+  payInFull:        boolean
 }) {
   return (
     <div>
@@ -542,45 +643,26 @@ function PaymentSection({
 
       {/* Panels */}
       <AnimatePresence mode="wait">
-        {method === "safepay" ? (
-          <motion.div
-            key="safepay-panel"
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0    }}
-            exit={{    opacity: 0, x:  12  }}
-            transition={{ ease: EASE_CINEMATIC, duration: 0.35 }}
-          >
-            <div className="border border-stone-100 bg-[#f7f5f2] rounded-sm p-6 space-y-5">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck size={13} strokeWidth={1.5} className="text-[#5c6b4a]" />
-                <p className="text-[8px] tracking-[0.38em] uppercase text-stone-600">
-                  Secure Redirect
-                </p>
-              </div>
-              <p className="text-[11px] text-stone-700 tracking-[0.04em] leading-relaxed">
-                You&apos;ll be securely redirected to Safepay to complete payment in PKR. Card
-                details are entered on Safepay&apos;s PCI-compliant page and never touch our
-                servers.
-              </p>
-              <div className="flex items-center gap-2 pt-1">
-                <Check size={10} strokeWidth={2} className="text-[#5c6b4a]" />
-                <p className="text-[9px] tracking-[0.14em] text-[#5c6b4a]">
-                  Cards, wallets &amp; bank transfer supported
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="cod-panel"
-            initial={{ opacity: 0, x: 12  }}
-            animate={{ opacity: 1, x: 0   }}
-            exit={{    opacity: 0, x: -12 }}
-            transition={{ ease: EASE_CINEMATIC, duration: 0.35 }}
-          >
-            <CodPanel />
-          </motion.div>
-        )}
+        <motion.div
+          key={method}
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0    }}
+          exit={{    opacity: 0, x:  12  }}
+          transition={{ ease: EASE_CINEMATIC, duration: 0.35 }}
+        >
+          {method === "cod" ? (
+            <CodPanel
+              deposit={deposit}
+              balance={balance}
+              payInFull={payInFull}
+              depositAccount={depositAccount}
+              onDepositAccount={onDepositAccount}
+              pm={pm}
+            />
+          ) : (
+            <BankPanel account={method} total={total} pm={pm} />
+          )}
+        </motion.div>
       </AnimatePresence>
     </div>
   )
@@ -617,11 +699,21 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false)
   const [form,    setForm]    = useState<FormData>(EMPTY_FORM)
   const [errors,  setErrors]  = useState<FormErrors>({})
-  const [method,  setMethod]  = useState<PaymentMethod>("safepay")
+  const [method,  setMethod]  = useState<PaymentMethod>("cod")
+  const [depositAccount, setDepositAccount] = useState<DepositAccount>("ubl")
+  const [pm,      setPm]      = useState<PaymentMethodsFields | null>(null)
   const [placing, setPlacing] = useState(false)
-  const [placed,  setPlaced]  = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
+
+  // Load the admin-managed bank account details for the payment panels.
+  useEffect(() => {
+    let active = true
+    getPaymentMethodsAction()
+      .then((data) => { if (active) setPm(data) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   // Checkout requires an account — the cart itself lives in CartProvider at the
   // root layout, so it survives this redirect and is still there when the user
@@ -671,106 +763,59 @@ export default function CheckoutPage() {
     const delivery = subtotal >= DELIVERY_THRESHOLD ? 0 : 500
     try {
       // Prices/totals sent here are display-only — the server recomputes all
-      // money values from live product data and rejects tampered carts.
-      const result = await placeOrderAction({
-        items: cart.map((i) => ({
-          productId: i.id,
-          name:      i.name,
-          price:     i.price,
-          quantity:  i.quantity,
-          image:     i.image,
-        })),
-        customer: { name: form.fullName, email: form.email, phone: form.phone },
-        shippingAddress: {
-          street:     form.apartment ? `${form.street}, ${form.apartment}` : form.street,
-          city:       form.city,
-          province:   form.province,
-          postalCode: form.postalCode,
-          country:    "Pakistan",
+      // money values (payable amount, deposit, balance) from live product data
+      // and rejects tampered carts.
+      const result = await placeOrderAction(
+        {
+          items: cart.map((i) => ({
+            productId: i.id,
+            name:      i.name,
+            price:     i.price,
+            quantity:  i.quantity,
+            image:     i.image,
+          })),
+          customer: { name: form.fullName, email: form.email, phone: form.phone },
+          shippingAddress: {
+            street:     form.apartment ? `${form.street}, ${form.apartment}` : form.street,
+            city:       form.city,
+            province:   form.province,
+            postalCode: form.postalCode,
+            country:    "Pakistan",
+          },
+          subtotal,
+          delivery,
+          total: subtotal + delivery,
         },
-        subtotal,
-        delivery,
-        total: subtotal + delivery,
-      }, method)
+        method,
+        method === "cod" ? { depositAccount } : undefined,
+      )
 
-      if (result.error || !result.orderId) {
+      if (result.error || !result.orderId || !result.accessToken) {
         toast.error(result.error ?? "Something went wrong placing your order. Please try again.")
         setPlacing(false)
         return
       }
-      const orderId = result.orderId
 
-      // ── Safepay: hand off to the hosted checkout. The server recomputes the
-      // real total from product prices, so no amount is sent from here. ──
-      if (method === "safepay") {
-        const result = await createSafepayCheckout(orderId)
-        if (result.url) {
-          // Navigate to Safepay's hosted page. The cart is cleared on the
-          // success page only after the payment is verified.
-          window.location.href = result.url
-          return // keep the spinner while the browser navigates away
-        }
-        toast.error(result.error ?? "Could not start the payment. Please try again.")
-        setPlacing(false)
-        return
-      }
-
-      // Cash on Delivery — place the order, no online payment.
+      // Order created in 'awaiting_payment'. Clear the cart and send the shopper
+      // to the confirmation page (keyed by the opaque access token) to upload
+      // their receipt. Keep the spinner while the browser navigates away.
       clearCart()
-      setPlaced(true)
-      toast.success("Order placed — our team will be in touch shortly.")
-      setPlacing(false)
+      router.push(`/checkout/confirm?token=${encodeURIComponent(result.accessToken)}`)
     } catch {
       toast.error("Something went wrong placing your order. Please try again.")
       setPlacing(false)
     }
-  }, [form, method, cart, clearCart])
+  }, [form, method, depositAccount, cart, clearCart, router])
 
   if (!mounted || authLoading || !user) return null
 
-  if (placed) {
-    return (
-      <>
-        <Header />
-        <ToastContainer />
-        <main className="min-h-screen bg-[#faf9f7] flex items-center justify-center px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0  }}
-            transition={{ ease: EASE_CINEMATIC, duration: 0.9 }}
-            className="text-center max-w-sm"
-          >
-            <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-[#9c9c7d]/25
-                            flex items-center justify-center mx-auto mb-8">
-              <Check size={20} strokeWidth={1.5} className="text-[#5c6b4a]" />
-            </div>
-            <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">
-              Thank You
-            </p>
-            <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">
-              Your order has been received
-            </p>
-            <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
-              An order summary with your product details has been emailed to{" "}
-              <span className="text-stone-600">{form.email || "your inbox"}</span>.
-              Our support team will follow up within 2 business hours to confirm your
-              Cash-on-Delivery order.
-            </p>
-            <Link
-              href="/shop"
-              className="group inline-flex items-center gap-2 text-[9px] tracking-[0.34em]
-                         uppercase text-stone-600 border-b border-stone-200 pb-0.5
-                         hover:border-stone-700 hover:text-stone-900 transition-all duration-500"
-            >
-              Continue Shopping
-              <ArrowRight size={10} strokeWidth={1.5}
-                className="transition-transform duration-500 group-hover:translate-x-1" />
-            </Link>
-          </motion.div>
-        </main>
-      </>
-    )
-  }
+  // Display-only amounts for the payment panels; the server is authoritative.
+  const displaySubtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+  const displayDelivery = displaySubtotal >= DELIVERY_THRESHOLD ? 0 : 500
+  const displayTotal    = displaySubtotal + displayDelivery
+  const codDeposit      = Math.min(COD_NOMINAL_DEPOSIT, displayTotal)
+  const codBalance      = displayTotal - codDeposit
+  const codPayInFull    = displayTotal <= COD_NOMINAL_DEPOSIT
 
   return (
     <>
@@ -928,6 +973,13 @@ export default function CheckoutPage() {
                 <PaymentSection
                   method={method}
                   onMethod={setMethod}
+                  depositAccount={depositAccount}
+                  onDepositAccount={setDepositAccount}
+                  pm={pm}
+                  total={displayTotal}
+                  deposit={codDeposit}
+                  balance={codBalance}
+                  payInFull={codPayInFull}
                 />
               </FormSection>
 
@@ -968,7 +1020,11 @@ export default function CheckoutPage() {
                       exit={{    opacity: 0 }}
                       className="flex items-center justify-center gap-3"
                     >
-                      {method === "safepay" ? "Pay with Safepay" : "Confirm COD Order"}
+                      {method === "cod"
+                        ? "Confirm COD Order"
+                        : method === "ubl"
+                          ? "Pay via UBL"
+                          : "Pay via JazzCash"}
                       <ArrowRight
                         size={10}
                         strokeWidth={1.5}
@@ -983,7 +1039,6 @@ export default function CheckoutPage() {
                             text-[8px] tracking-[0.16em] text-stone-700">
                 <Lock size={9} strokeWidth={1.5} />
                 256-bit SSL encryption
-                {method === "safepay" && " · Payments secured by Safepay"}
               </p>
 
             </form>

@@ -15,8 +15,25 @@ function rowToOrder(r: OrderRow): Order {
     delivery: Number(r.delivery),
     total: Number(r.total),
     paymentStatus: (r.payment_status as Order["paymentStatus"]) ?? undefined,
+    paymentMethod: (r.payment_method as Order["paymentMethod"]) ?? undefined,
+    depositAccount: (r.deposit_account as Order["depositAccount"]) ?? undefined,
+    payableAmount: r.payable_amount != null ? Number(r.payable_amount) : undefined,
+    depositAmount: r.deposit_amount != null ? Number(r.deposit_amount) : undefined,
+    codBalanceDue: r.cod_balance_due != null ? Number(r.cod_balance_due) : undefined,
+    paymentReceiptPath: (r.payment_receipt_path as string | null) ?? undefined,
+    paymentReceiptHash: (r.payment_receipt_hash as string | null) ?? undefined,
+    paymentSenderName: (r.payment_sender_name as string | null) ?? undefined,
+    paymentSenderMobile: (r.payment_sender_mobile as string | null) ?? undefined,
+    paymentReference: (r.payment_reference as string | null) ?? undefined,
+    paymentSubmittedAt: (r.payment_submitted_at as string | null) ?? undefined,
+    paymentFlagged: Boolean(r.payment_flagged),
+    paymentFlagReason: (r.payment_flag_reason as string | null) ?? undefined,
+    paymentVerifiedAt: (r.payment_verified_at as string | null) ?? undefined,
+    paymentVerifiedBy: (r.payment_verified_by as string | null) ?? undefined,
+    paymentRejectionReason: (r.payment_rejection_reason as string | null) ?? undefined,
     paymentProvider: (r.payment_provider as string | null) ?? undefined,
     paymentRef: (r.payment_ref as string | null) ?? undefined,
+    accessToken: (r.access_token as string | null) ?? undefined,
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
   }
@@ -76,4 +93,24 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
     .maybeSingle()
   if (error) throw error
   return data ? rowToOrder(data) : null
+}
+
+// Short-TTL signed URL for a receipt stored in the PRIVATE payment-receipts
+// bucket. Service-role only — never expose the bucket as public. `isPdf` lets
+// the caller render an <img> or a download link.
+export interface ReceiptSignedUrl {
+  url: string
+  isPdf: boolean
+}
+
+const RECEIPT_SIGNED_URL_TTL_SECONDS = 300
+
+export async function getOrderReceiptSignedUrl(path: string): Promise<ReceiptSignedUrl | null> {
+  if (!path) return null
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase.storage
+    .from("payment-receipts")
+    .createSignedUrl(path, RECEIPT_SIGNED_URL_TTL_SECONDS)
+  if (error || !data?.signedUrl) return null
+  return { url: data.signedUrl, isPdf: path.toLowerCase().endsWith(".pdf") }
 }

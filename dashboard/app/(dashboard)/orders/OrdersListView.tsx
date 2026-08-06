@@ -9,18 +9,29 @@ import EmptyState from "@/src/components/ui/EmptyState"
 import StatusBadge from "@/src/components/ui/StatusBadge"
 import { toast } from "@/src/components/ui/ToastAlert"
 import { updateOrderStatusAction } from "@/src/actions/order-actions"
+import NewOrdersTable from "./NewOrdersTable"
 
 const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 const FILTERS: Array<OrderStatus | "all"> = ["all", ...STATUSES]
 
+// Orders awaiting payment review — a separate filter dimension from fulfilment
+// status (payment_status, not status). Kept out of FILTERS/STATUSES above so
+// the existing tabs' filtering logic is untouched.
+const PENDING_PAYMENT_STATUSES = new Set(["awaiting_payment", "payment_submitted"])
+
 export default function OrdersListView({ orders }: { orders: Order[] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [filter, setFilter] = useState<OrderStatus | "all">("all")
+  const [filter, setFilter] = useState<OrderStatus | "all" | "new">("all")
 
   const filtered = useMemo(
-    () => (filter === "all" ? orders : orders.filter((o) => o.status === filter)),
+    () => (filter === "all" || filter === "new" ? orders : orders.filter((o) => o.status === filter)),
     [orders, filter],
+  )
+
+  const newOrders = useMemo(
+    () => orders.filter((o) => o.paymentStatus && PENDING_PAYMENT_STATUSES.has(o.paymentStatus)),
+    [orders],
   )
 
   function handleStatusChange(id: string, status: OrderStatus) {
@@ -33,7 +44,7 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
 
   return (
     <div>
-      <div className="flex gap-1 mb-4">
+      <div className="flex gap-1 mb-4 flex-wrap">
         {FILTERS.map((f) => (
           <button
             key={f}
@@ -45,9 +56,19 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
             {f}
           </button>
         ))}
+        <button
+          onClick={() => setFilter("new")}
+          className={`px-3 py-1.5 text-[12px] rounded-md transition-colors duration-150 cursor-pointer ${
+            filter === "new" ? "bg-stone-900 text-white" : "text-stone-500 hover:bg-stone-100"
+          }`}
+        >
+          New Orders{newOrders.length > 0 ? ` (${newOrders.length})` : ""}
+        </button>
       </div>
 
-      {filtered.length === 0 ? (
+      {filter === "new" ? (
+        <NewOrdersTable orders={newOrders} />
+      ) : filtered.length === 0 ? (
         <div className="rounded-lg border border-stone-200 bg-white">
           <EmptyState icon={ShoppingCart} title="No orders found" description="Orders placed at checkout will appear here." />
         </div>
