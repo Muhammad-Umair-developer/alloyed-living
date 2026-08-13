@@ -273,7 +273,7 @@ export interface ContentPage<T extends ContentPageFields = ContentPageFields> {
 
 // ─── Orders ─────────────────────────────────────────────────────────────────
 
-export type OrderStatus = "pending" | "shipped" | "delivered" | "returned" | "exchanged"
+export type OrderStatus = "pending" | "shipped" | "delivered" | "returned" | "exchanged" | "cancelled"
 
 // Payment lifecycle for the manual bank-transfer / COD-deposit flow. Mirrors the
 // DB CHECK constraint and the enforce_payment_status_transition trigger. (Legacy

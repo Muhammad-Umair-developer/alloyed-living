@@ -9,7 +9,7 @@ import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
 import { type CartItem, useCart } from "@/src/context/CartContext"
 import { useAuth } from "@/src/context/AuthContext"
 import { placeOrderAction, getPaymentMethodsAction } from "@/src/actions/store-actions"
-import { COD_NOMINAL_DEPOSIT } from "@/src/lib/checkout/constants"
+import { calculateDownpayment } from "@/src/lib/checkout/constants"
 import { type PaymentMethodsFields, accountLines } from "@/src/lib/checkout/payment-accounts"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -505,10 +505,10 @@ function EmailNoticeLine() {
 }
 
 // COD deposit refundability.
-function RefundLine() {
+function RefundLine({ deposit }: { deposit: number }) {
   return (
     <p className="text-[9px] tracking-[0.14em] text-stone-600 leading-relaxed">
-      The Rs 500 deposit is adjusted against your order total. If you refuse delivery, the
+      The Rs {deposit.toLocaleString()} deposit is adjusted against your order total. If you refuse delivery, the
       deposit is non-refundable as it covers our courier and handling costs.
     </p>
   )
@@ -576,7 +576,7 @@ function CodPanel({
         </p>
       </div>
 
-      <RefundLine />
+      <RefundLine deposit={deposit} />
     </div>
   )
 }
@@ -828,9 +828,9 @@ export default function CheckoutPage() {
   const displaySubtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
   const displayDelivery = displaySubtotal >= DELIVERY_THRESHOLD ? 0 : 500
   const displayTotal    = displaySubtotal + displayDelivery
-  const codDeposit      = Math.min(COD_NOMINAL_DEPOSIT, displayTotal)
+  const codDeposit      = calculateDownpayment(displayTotal)
   const codBalance      = displayTotal - codDeposit
-  const codPayInFull    = displayTotal <= COD_NOMINAL_DEPOSIT
+  const codPayInFull    = displayTotal <= codDeposit
 
   return (
     <>

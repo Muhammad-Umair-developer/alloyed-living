@@ -2,6 +2,11 @@ import "server-only"
 import { getProductsByIds } from "@/src/lib/data/products"
 import type { OrderItem } from "@/src/lib/data/types"
 
+// calculateDownpayment lives in ./constants (client-safe, no "server-only")
+// so the checkout page can call it too. Re-exported here so existing server
+// callers of pricing.ts don't need to know it moved.
+export { calculateDownpayment } from "@/src/lib/checkout/constants"
+
 // Single source of truth for order pricing. NOTHING money-related is ever
 // trusted from the client: item prices, names, images, subtotal, delivery and
 // total are all recomputed here from live product rows. Used by all checkout

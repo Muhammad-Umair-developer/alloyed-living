@@ -1,7 +1,7 @@
 import "server-only"
 import { randomInt } from "node:crypto"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
-import { COD_NOMINAL_DEPOSIT } from "@/src/lib/checkout/constants"
+import { calculateDownpayment } from "@/src/lib/checkout/pricing"
 import type { Order, OrderInput, OrderStatus, PaymentStatus, PaymentMethod, DepositAccount } from "./types"
 
 // Orders are written by trusted server paths only (checkout order creation and
@@ -77,25 +77,28 @@ export interface PaymentIntent {
 interface AwaitingAmounts {
   payableAmount: number
   depositAmount: number | null
+  depositPercent: number | null
   codBalanceDue: number | null
 }
 
 // Amounts are derived SERVER-SIDE from the server-priced total — never from
 // client input — and are plain, unmodified figures (no paisa marker / drift):
-// COD pays a flat Rs 500 deposit (or the full total if that is smaller), bank
+// COD pays a tiered downpayment (see calculateDownpayment — flat Rs 500 or
+// full total below Rs 10,000, then a scaling percentage above that), bank
 // methods pay the exact order total. Payments are matched to orders in the
 // dashboard via the access-token-linked receipt, sender name and transaction
 // reference — NOT by a unique amount — so amounts may repeat freely.
 function computeAwaitingAmounts(orderTotal: number, intent: PaymentIntent): AwaitingAmounts {
   if (intent.method === "cod") {
-    const deposit = Math.min(COD_NOMINAL_DEPOSIT, orderTotal) // pay-in-full for tiny orders
+    const deposit = calculateDownpayment(orderTotal)
     return {
       payableAmount: deposit,
       depositAmount: deposit,
+      depositPercent: orderTotal > 0 ? (deposit / orderTotal) * 100 : 0,
       codBalanceDue: orderTotal - deposit, // 0 when the total is at or below the deposit
     }
   }
-  return { payableAmount: orderTotal, depositAmount: null, codBalanceDue: null }
+  return { payableAmount: orderTotal, depositAmount: null, depositPercent: null, codBalanceDue: null }
 }
 
 export async function createOrder(input: OrderInput, intent: PaymentIntent): Promise<Order> {
@@ -123,6 +126,8 @@ export async function createOrder(input: OrderInput, intent: PaymentIntent): Pro
     payable_amount: amounts.payableAmount,
     deposit_amount: amounts.depositAmount,
     cod_balance_due: amounts.codBalanceDue,
+    downpayment_amount: amounts.depositAmount,
+    downpayment_percent: amounts.depositPercent,
     created_at: now,
     updated_at: now,
   }
