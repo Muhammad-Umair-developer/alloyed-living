@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import type { OrderStatus } from "@/src/lib/data/types"
 import { toast } from "@/src/components/ui/ToastAlert"
 import { updateOrderStatusAction } from "@/src/actions/order-actions"
+import StatusBadge from "@/src/components/ui/StatusBadge"
 
 const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 
@@ -18,6 +19,15 @@ export default function OrderStatusControl({ orderId, status }: { orderId: strin
       toast.success(`Order marked as ${next}.`)
       router.refresh()
     })
+  }
+
+  // 'cancelled' is terminal and unreachable through this control (only
+  // cancelOrderAction may set it — see order-actions.ts), and deliberately
+  // isn't in STATUSES above. A controlled <select> with no matching <option>
+  // would silently misrender as the first option ("Pending"), so show a
+  // read-only badge instead of a select for a cancelled order.
+  if (status === "cancelled") {
+    return <StatusBadge status={status} />
   }
 
   return (

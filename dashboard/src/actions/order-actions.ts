@@ -2,12 +2,18 @@
 
 import { revalidatePath } from "next/cache"
 import { requireDashboardUser } from "@/src/lib/auth/require-admin"
-import { getOrder, getOrderReceiptSignedUrl, updateOrderStatus, type ReceiptSignedUrl } from "@/src/lib/data/orders"
+import { cancelOrder, getOrder, getOrderReceiptSignedUrl, updateOrderStatus, type ReceiptSignedUrl } from "@/src/lib/data/orders"
 import { applyPaymentTransition } from "@/src/lib/payments/transitions"
 import { sendOrderConfirmationEmail } from "@/src/lib/email/order-confirmation"
 import { sendBankPaymentRejectedEmail } from "@/src/lib/email/bank-payment-rejected"
 import type { Order, OrderStatus } from "@/src/lib/data/types"
 
+// 'cancelled' is deliberately EXCLUDED here. updateOrderStatus() is a bare
+// column write with no side effects — routing 'cancelled' through it would
+// skip cancelOrder()'s refund calculation entirely (refund_amount,
+// refund_status, cancelled_at, cancellation_reason all stay unset). The DB's
+// orders_status_check still allows 'cancelled' as a value; only
+// cancelOrderAction may ever set it, via cancelOrder() in lib/data/orders.ts.
 const ORDER_STATUSES: readonly OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 
 export async function updateOrderStatusAction(id: string, status: OrderStatus): Promise<Order | null> {
@@ -16,6 +22,27 @@ export async function updateOrderStatusAction(id: string, status: OrderStatus): 
   const order = await updateOrderStatus(id, status)
   revalidatePath("/orders")
   revalidatePath(`/orders/${id}`)
+  return order
+}
+
+// ── Cancellation ─────────────────────────────────────────────────────────
+// Refund logic lives in cancelOrder() (src/lib/data/orders.ts), which reads
+// the order's CURRENT status fresh from the DB — never trusts anything
+// cached on the client — to decide whether the downpayment is refundable:
+// still 'pending' (not yet shipped) refunds in full; 'shipped' or later does
+// not. payment_status is left untouched by this action; refund_status is the
+// sole signal that a refund is owed.
+export async function cancelOrderAction(orderId: string, reason: string): Promise<Order | null> {
+  await requireDashboardUser()
+
+  const trimmed = reason.trim().slice(0, 500)
+  if (!trimmed) throw new Error("Please provide a reason for cancelling this order.")
+
+  const order = await cancelOrder(orderId, trimmed)
+  if (!order) throw new Error("Order not found.")
+
+  revalidatePath("/orders")
+  revalidatePath(`/orders/${orderId}`)
   return order
 }
 

@@ -4,7 +4,9 @@ import { ArrowLeft } from "lucide-react"
 import { getOrder } from "@/src/lib/data/orders"
 import PageHeader from "@/src/components/ui/PageHeader"
 import OrderStatusControl from "./OrderStatusControl"
+import CancelOrderControl from "./CancelOrderControl"
 import PaymentPanel from "./PaymentPanel"
+import CancellationPanel from "./CancellationPanel"
 
 // Order status changes here — always read fresh.
 export const dynamic = "force-dynamic"
@@ -27,8 +29,19 @@ export default async function OrderDetailPage({
       <PageHeader
         title={order.id}
         description={`Placed ${new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}`}
-        action={<OrderStatusControl orderId={order.id} status={order.status} />}
+        action={
+          <div className="flex items-center gap-2">
+            <OrderStatusControl orderId={order.id} status={order.status} />
+            <CancelOrderControl order={order} />
+          </div>
+        }
       />
+
+      {order.status === "cancelled" && (
+        <div className="max-w-4xl mb-6">
+          <CancellationPanel order={order} />
+        </div>
+      )}
 
       {order.paymentMethod && (
         <div className="max-w-4xl mb-6">

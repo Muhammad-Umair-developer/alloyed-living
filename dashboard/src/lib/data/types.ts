@@ -293,6 +293,10 @@ export type PaymentMethod = "cod" | "ubl" | "jazzcash"
 // where PaymentMethod already names the account.
 export type DepositAccount = "ubl" | "jazzcash"
 
+// Refund lifecycle for a cancelled order. 'none': no refund owed. 'pending':
+// a refund is owed but not yet processed. 'processed': refund completed.
+export type RefundStatus = "none" | "pending" | "processed"
+
 export interface OrderItem {
   productId: string
   name: string
@@ -351,6 +355,15 @@ export interface Order {
   // Opaque token the storefront's confirmation page is keyed by. Needed here to
   // build the re-upload link in the payment-rejected email.
   accessToken?: string
+  // COD downpayment actually collected, set by the storefront at checkout.
+  // Informational; not used in pricing math here.
+  downpaymentAmount?: number
+  downpaymentPercent?: number
+  // Set only by an authenticated dashboard action (cancelOrderAction).
+  cancelledAt?: string
+  cancellationReason?: string
+  refundAmount?: number
+  refundStatus?: RefundStatus
   createdAt: string
   updatedAt: string
 }

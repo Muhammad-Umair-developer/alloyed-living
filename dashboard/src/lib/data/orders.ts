@@ -34,6 +34,12 @@ function rowToOrder(r: OrderRow): Order {
     paymentProvider: (r.payment_provider as string | null) ?? undefined,
     paymentRef: (r.payment_ref as string | null) ?? undefined,
     accessToken: (r.access_token as string | null) ?? undefined,
+    downpaymentAmount: r.downpayment_amount != null ? Number(r.downpayment_amount) : undefined,
+    downpaymentPercent: r.downpayment_percent != null ? Number(r.downpayment_percent) : undefined,
+    cancelledAt: (r.cancelled_at as string | null) ?? undefined,
+    cancellationReason: (r.cancellation_reason as string | null) ?? undefined,
+    refundAmount: r.refund_amount != null ? Number(r.refund_amount) : undefined,
+    refundStatus: (r.refund_status as Order["refundStatus"]) ?? undefined,
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
   }
@@ -88,6 +94,48 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
   const { data, error } = await supabase
     .from("orders")
     .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("*")
+    .maybeSingle()
+  if (error) throw error
+  return data ? rowToOrder(data) : null
+}
+
+// Cancels an order and records the refund it implies. Refund rule: an order
+// still 'pending' (not yet shipped) refunds its full downpayment; anything
+// 'shipped' or later (shipped/delivered/returned/exchanged) has no refund —
+// the downpayment covered courier/handling costs already incurred. Reads the
+// order's CURRENT status fresh from the DB (never trusts a caller-supplied
+// status) so the refund amount always reflects reality at the moment of
+// cancellation. payment_status is intentionally left untouched — refund_status
+// is the sole signal that a refund is owed; see enforce_payment_status_transition
+// in the order_cancellation migration for why this doesn't need a payment_status
+// transition at all.
+export async function cancelOrder(id: string, reason: string): Promise<Order | null> {
+  const supabase = createSupabaseAdminClient()
+
+  const { data: current, error: readErr } = await supabase
+    .from("orders")
+    .select("status, downpayment_amount")
+    .eq("id", id)
+    .maybeSingle()
+  if (readErr) throw readErr
+  if (!current) return null
+
+  const refundable = current.status === "pending"
+  const refundAmount = refundable ? Number(current.downpayment_amount ?? 0) : 0
+  const refundStatus = refundable ? "pending" : "none"
+
+  const { data, error } = await supabase
+    .from("orders")
+    .update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      cancellation_reason: reason,
+      refund_amount: refundAmount,
+      refund_status: refundStatus,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", id)
     .select("*")
     .maybeSingle()
