@@ -88,6 +88,7 @@ export default async function CheckoutConfirmPage({
       <ConfirmView
         token={token}
         status={status}
+        orderStatus={order.status}
         orderId={order.id}
         items={order.items}
         isCod={isCod}

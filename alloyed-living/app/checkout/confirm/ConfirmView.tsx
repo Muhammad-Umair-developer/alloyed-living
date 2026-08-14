@@ -6,7 +6,8 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Check, Loader2, ArrowRight, Upload } from "lucide-react"
 import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
-import type { OrderItem } from "@/src/lib/data/types"
+import { cancelOrderByToken } from "@/src/actions/store-actions"
+import type { OrderItem, OrderStatus } from "@/src/lib/data/types"
 
 const EDITORIAL: React.CSSProperties = {
   fontFamily: "var(--font-editorial, 'Cormorant Garamond', Georgia, serif)",
@@ -18,6 +19,10 @@ type Status = "awaiting_payment" | "payment_submitted" | "payment_verified" | "p
 export interface ConfirmViewProps {
   token:           string
   status:          Status
+  // Fulfillment status (distinct from payment `status` above). Only used to
+  // gate the Cancel Order control — the customer may only cancel while the
+  // order is still 'pending', mirroring the dashboard's own cancellation gate.
+  orderStatus:     OrderStatus
   orderId:         string
   items:           OrderItem[]
   isCod:           boolean
@@ -68,6 +73,58 @@ function OrderItemsSummary({ items }: { items: OrderItem[] }) {
   )
 }
 
+type CancelState = "idle" | "confirming" | "submitting"
+
+// Self-contained cancel trigger + inline confirmation, reused in both the
+// payment_submitted and payment_verified branches below. Deliberately no
+// free-text reason field — cancelOrderByToken always sends a fixed
+// "Cancelled by customer" reason, so there's nothing here to moderate.
+function CancelOrderControl({
+  state,
+  onRequest,
+  onConfirm,
+  onBack,
+}: {
+  state:      CancelState
+  onRequest:  () => void
+  onConfirm:  () => void
+  onBack:     () => void
+}) {
+  if (state === "idle") {
+    return (
+      <button
+        onClick={onRequest}
+        className="mt-8 text-[9px] tracking-[0.3em] uppercase text-stone-500 hover:text-[#7a3535] underline underline-offset-4 decoration-stone-300 hover:decoration-[#7a3535] transition-colors duration-300 cursor-pointer"
+      >
+        Cancel Order
+      </button>
+    )
+  }
+  return (
+    <div className="mt-8 border border-[#7a3535]/25 bg-[#7a3535]/5 rounded-sm p-5 text-left">
+      <p className="text-[11px] text-stone-700 leading-relaxed mb-4">
+        Cancel this order? If a deposit was already paid, it will be refunded.
+      </p>
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          disabled={state === "submitting"}
+          className="flex-1 py-2.5 text-[9px] tracking-[0.3em] uppercase text-stone-600 border border-stone-200 rounded-sm hover:bg-stone-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          Never Mind
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={state === "submitting"}
+          className="flex-1 py-2.5 text-[9px] tracking-[0.3em] uppercase text-white bg-[#7a3535] rounded-sm hover:bg-[#6b2e2e] transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {state === "submitting" ? "Cancelling…" : "Yes, Cancel Order"}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -88,7 +145,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 export default function ConfirmView(props: ConfirmViewProps) {
   const {
-    token, status, orderId, items, amountLabel, amount, showBalance, balance,
+    token, status, orderStatus, orderId, items, amountLabel, amount, showBalance, balance,
     accountLabel, accountLines, rejectionReason,
   } = props
 
@@ -98,6 +155,22 @@ export default function ConfirmView(props: ConfirmViewProps) {
   const [reference, setReference]       = useState("")
   const [file, setFile]                 = useState<File | null>(null)
   const [submitting, setSubmitting]     = useState(false)
+
+  const [cancelState, setCancelState] = useState<CancelState>("idle")
+  const [cancelledRefund, setCancelledRefund] = useState<number | undefined>(undefined)
+  const [isCancelled, setIsCancelled] = useState(false)
+
+  async function handleCancelConfirm() {
+    setCancelState("submitting")
+    const result = await cancelOrderByToken(token)
+    if (!result.ok) {
+      toast.error(result.error ?? "Could not cancel this order.")
+      setCancelState("idle")
+      return
+    }
+    setCancelledRefund(result.refundAmount)
+    setIsCancelled(true)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -132,6 +205,35 @@ export default function ConfirmView(props: ConfirmViewProps) {
     }
   }
 
+  // ── Cancelled by the customer just now ─────────────────────────────────────
+  // No redirect — shown in place, replacing whatever branch below would have
+  // rendered, immediately after cancelOrderByToken succeeds.
+  if (isCancelled) {
+    return (
+      <Shell>
+        <div className="text-center">
+          <div className="w-14 h-14 rounded-full bg-[#f5f3ef] border border-[#9c9c7d]/25 flex items-center justify-center mx-auto mb-8">
+            <Check size={20} strokeWidth={1.5} className="text-[#5c6b4a]" />
+          </div>
+          <p style={EDITORIAL} className="text-3xl font-light text-stone-700 mb-3 tracking-wide">Order Cancelled</p>
+          <p className="text-[10px] tracking-[0.28em] uppercase text-stone-600 mb-8">Order {orderId}</p>
+          <p className="text-[11px] text-stone-600 tracking-wide leading-relaxed mb-10">
+            {cancelledRefund
+              ? `Your order has been cancelled. A refund of ${pkr(cancelledRefund)} is being processed.`
+              : "Your order has been cancelled."}
+          </p>
+          <Link
+            href="/shop"
+            className="group inline-flex items-center gap-2 text-[9px] tracking-[0.34em] uppercase text-stone-600 border-b border-stone-200 pb-0.5 hover:border-stone-700 hover:text-stone-900 transition-all duration-500"
+          >
+            Continue Shopping
+            <ArrowRight size={10} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </Shell>
+    )
+  }
+
   // ── Verified ────────────────────────────────────────────────────────────────
   if (status === "payment_verified") {
     return (
@@ -152,6 +254,15 @@ export default function ConfirmView(props: ConfirmViewProps) {
             Continue Shopping
             <ArrowRight size={10} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
           </Link>
+
+          {orderStatus === "pending" && (
+            <CancelOrderControl
+              state={cancelState}
+              onRequest={() => setCancelState("confirming")}
+              onConfirm={handleCancelConfirm}
+              onBack={() => setCancelState("idle")}
+            />
+          )}
         </div>
       </Shell>
     )
@@ -185,6 +296,15 @@ export default function ConfirmView(props: ConfirmViewProps) {
             Continue Shopping
             <ArrowRight size={10} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
           </Link>
+
+          {orderStatus === "pending" && (
+            <CancelOrderControl
+              state={cancelState}
+              onRequest={() => setCancelState("confirming")}
+              onConfirm={handleCancelConfirm}
+              onBack={() => setCancelState("idle")}
+            />
+          )}
         </div>
       </Shell>
     )

@@ -16,6 +16,7 @@ export interface Profile {
   email: string | null
   full_name: string | null
   avatar_url: string | null
+  phone: string | null
   role: string
 }
 
@@ -55,7 +56,7 @@ export function AuthProvider({
       // read their own profile. We never create/duplicate it here.
       const { data } = await supabase
         .from("profiles")
-        .select("id,email,full_name,avatar_url,role")
+        .select("id,email,full_name,avatar_url,phone,role")
         .eq("id", u.id)
         .single()
       setProfile((data as Profile) ?? null)

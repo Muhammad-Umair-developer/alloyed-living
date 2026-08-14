@@ -275,6 +275,10 @@ export type PaymentMethod = "cod" | "ubl" | "jazzcash"
 // where PaymentMethod already names the account.
 export type DepositAccount = "ubl" | "jazzcash"
 
+// Refund lifecycle for a cancelled order. 'none': no refund owed. 'pending':
+// a refund is owed but not yet processed. 'processed': refund completed.
+export type RefundStatus = "none" | "pending" | "processed"
+
 export interface OrderItem {
   productId: string
   name: string
@@ -296,6 +300,28 @@ export interface OrderShippingAddress {
   postalCode?: string
   country: string
 }
+
+// ─── Saved addresses (account address book) ──────────────────────────────────
+// Same field shape as OrderShippingAddress (a snapshot on each order stays a
+// jsonb blob there — orders must never change retroactively when a saved
+// address is edited); this is the separate, editable, one-per-row version a
+// customer manages from their account and picks from at checkout.
+
+export interface Address {
+  id: string
+  userId: string
+  label: string // customer-facing, e.g. "Home", "Office" — may be blank
+  street: string
+  city: string
+  province?: string
+  postalCode?: string
+  country: string
+  isDefault: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export type AddressInput = Omit<Address, "id" | "userId" | "isDefault" | "createdAt" | "updatedAt">
 
 export interface Order {
   id: string
@@ -320,6 +346,16 @@ export interface Order {
   // Opaque random token for the confirmation-page lookup. Never shown in UI;
   // order IDs are guessable, this is not.
   accessToken?: string
+  // COD downpayment actually collected, set at checkout. Informational; not
+  // used in pricing math here.
+  downpaymentAmount?: number
+  downpaymentPercent?: number
+  // Set by cancelOrderByAccessToken (customer self-service) or the dashboard's
+  // cancelOrderAction (admin).
+  cancelledAt?: string
+  cancellationReason?: string
+  refundAmount?: number
+  refundStatus?: RefundStatus
   createdAt: string
   updatedAt: string
 }

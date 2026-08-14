@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { trackAddToCart, trackView } from "@/src/lib/data/analytics"
-import { createOrder } from "@/src/lib/data/orders"
+import { createOrder, cancelOrderByAccessToken } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
 import { rateLimit } from "@/src/lib/rate-limit"
@@ -79,6 +79,14 @@ export async function placeOrderAction(
   )
   if (!priced.ok) return { error: priced.error }
 
+  // Server-side session only — never trust a user id from client input.
+  // Guest checkout has no session, so `user` is null here and stays null on
+  // the order; everything else about checkout proceeds identically either way.
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   const order = await createOrder(
     {
       items: priced.items,
@@ -95,6 +103,7 @@ export async function placeOrderAction(
       total: priced.total,
     },
     { method: paymentMethod, depositAccount },
+    user?.id ?? null,
   )
 
   // No email at placement, for any payment method — the customer and owner
@@ -116,6 +125,41 @@ export async function getPaymentMethodsAction(): Promise<PaymentMethodsFields> {
     .eq("slug", "payment-methods")
     .maybeSingle()
   return (data?.fields as PaymentMethodsFields | undefined) ?? {}
+}
+
+// Fixed, non-free-text reason: customers pick "Cancel Order," nothing more —
+// no text field to moderate or that could be abused as a spam/injection
+// surface. If per-reason breakdowns are ever wanted, replace this with a
+// small preset (radio buttons), not an open text input.
+const CUSTOMER_CANCEL_REASON = "Cancelled by customer"
+
+export interface CancelOrderResult {
+  ok: boolean
+  error?: string
+  refundAmount?: number
+  refundStatus?: "none" | "pending" | "processed"
+}
+
+// Customer self-service cancellation, reachable only via the order's opaque
+// access token (from the /checkout/confirm?token=... link) — never a raw
+// order id, so a guessed order id can't be used to cancel someone else's
+// order. cancelOrderByAccessToken re-checks the order's CURRENT status fresh
+// from the DB and refuses if it's no longer 'pending', regardless of what
+// the calling page's (possibly stale) UI showed.
+export async function cancelOrderByToken(accessToken: string): Promise<CancelOrderResult> {
+  if (!(await rateLimit("cancel-order", 5, 60_000))) {
+    return { ok: false, error: "Too many attempts. Please wait a minute and try again." }
+  }
+  if (!accessToken) return { ok: false, error: "Order not found." }
+
+  const result = await cancelOrderByAccessToken(accessToken, CUSTOMER_CANCEL_REASON)
+  if (!result.ok) return { ok: false, error: result.error }
+
+  return {
+    ok: true,
+    refundAmount: result.order.refundAmount,
+    refundStatus: result.order.refundStatus,
+  }
 }
 
 // Only signed-in users can post a review. The reviewer identity is taken from

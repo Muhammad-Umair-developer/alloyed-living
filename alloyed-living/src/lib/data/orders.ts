@@ -29,6 +29,12 @@ function rowToOrder(r: OrderRow): Order {
     paymentProvider: (r.payment_provider as string | null) ?? undefined,
     paymentRef: (r.payment_ref as string | null) ?? undefined,
     accessToken: (r.access_token as string | null) ?? undefined,
+    downpaymentAmount: r.downpayment_amount != null ? Number(r.downpayment_amount) : undefined,
+    downpaymentPercent: r.downpayment_percent != null ? Number(r.downpayment_percent) : undefined,
+    cancelledAt: (r.cancelled_at as string | null) ?? undefined,
+    cancellationReason: (r.cancellation_reason as string | null) ?? undefined,
+    refundAmount: r.refund_amount != null ? Number(r.refund_amount) : undefined,
+    refundStatus: (r.refund_status as Order["refundStatus"]) ?? undefined,
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
   }
@@ -101,7 +107,10 @@ function computeAwaitingAmounts(orderTotal: number, intent: PaymentIntent): Awai
   return { payableAmount: orderTotal, depositAmount: null, depositPercent: null, codBalanceDue: null }
 }
 
-export async function createOrder(input: OrderInput, intent: PaymentIntent): Promise<Order> {
+// userId comes ONLY from the server-side session (see placeOrderAction) —
+// never accept one from client input. Null for guest checkout; the column
+// itself is nullable for exactly that reason.
+export async function createOrder(input: OrderInput, intent: PaymentIntent, userId: string | null): Promise<Order> {
   const supabase = createSupabaseAdminClient()
   const now = new Date().toISOString()
 
@@ -128,6 +137,7 @@ export async function createOrder(input: OrderInput, intent: PaymentIntent): Pro
     cod_balance_due: amounts.codBalanceDue,
     downpayment_amount: amounts.depositAmount,
     downpayment_percent: amounts.depositPercent,
+    user_id: userId,
     created_at: now,
     updated_at: now,
   }
@@ -157,4 +167,60 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
     .maybeSingle()
   if (error) throw error
   return data ? rowToOrder(data) : null
+}
+
+export type CancelOrderResult =
+  | { ok: true; order: Order }
+  | { ok: false; error: string }
+
+// Customer self-service cancellation, looked up by the opaque access token —
+// NEVER the guessable order id, same rule as getOrderByAccessToken. Re-reads
+// status fresh from the DB and only proceeds if it's still 'pending'; the
+// client's view of the order (which gated the Cancel button) is never
+// trusted, since it could be stale by the time this runs. Refund logic
+// mirrors cancelOrder() in dashboard/src/lib/data/orders.ts's 'pending'
+// branch exactly — full downpayment refund, refund_status 'pending' — but
+// that function's 'shipped or later → no refund' branch has no equivalent
+// here: this action refuses outright (rather than cancelling with a zero
+// refund) once the order is no longer pending, since the customer-facing
+// button is never shown past that point in the first place.
+export async function cancelOrderByAccessToken(token: string, reason: string): Promise<CancelOrderResult> {
+  if (!token) return { ok: false, error: "Order not found." }
+  const supabase = createSupabaseAdminClient()
+
+  const { data: current, error: readErr } = await supabase
+    .from("orders")
+    .select("id, status, downpayment_amount")
+    .eq("access_token", token)
+    .maybeSingle()
+  if (readErr || !current) return { ok: false, error: "Order not found." }
+
+  if (current.status !== "pending") {
+    return { ok: false, error: "This order can no longer be cancelled online. Please contact support." }
+  }
+
+  const refundAmount = Number(current.downpayment_amount ?? 0)
+
+  // Guarded on status = 'pending' at write time too (optimistic concurrency),
+  // so a concurrent admin action (e.g. marking it shipped) between the read
+  // above and this write can't be silently overwritten by the cancellation.
+  const { data, error } = await supabase
+    .from("orders")
+    .update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      cancellation_reason: reason,
+      refund_amount: refundAmount,
+      refund_status: "pending",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", current.id as string)
+    .eq("status", "pending")
+    .select("*")
+    .maybeSingle()
+  if (error) throw error
+  if (!data) {
+    return { ok: false, error: "This order can no longer be cancelled online. Please contact support." }
+  }
+  return { ok: true, order: rowToOrder(data) }
 }
