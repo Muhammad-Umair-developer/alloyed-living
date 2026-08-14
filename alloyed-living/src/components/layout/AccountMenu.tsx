@@ -108,6 +108,18 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
                 <p className="text-[10px] tracking-[0.04em] text-stone-700 truncate mt-0.5">{user.email}</p>
               )}
             </div>
+            <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              role="menuitem"
+              className="w-full flex items-center gap-2.5 px-4 py-3 text-left
+                         text-[9px] tracking-[0.28em] uppercase text-stone-600
+                         hover:bg-stone-50 hover:text-stone-900 transition-colors duration-300
+                         cursor-pointer"
+            >
+              <User size={13} strokeWidth={1.5} />
+              My Account
+            </Link>
             <button
               onClick={handleLogout}
               disabled={loggingOut}
