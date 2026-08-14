@@ -364,7 +364,7 @@ function PromoCodeField({
 
   if (applied) {
     return (
-      <div className="pt-5 border-t border-stone-100 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <span className="text-[9px] tracking-[0.2em] uppercase text-[#5c6b4a]">
           Promo {applied.code} applied
         </span>
@@ -380,7 +380,7 @@ function PromoCodeField({
   }
 
   return (
-    <div className="pt-5 border-t border-stone-100">
+    <div>
       {!open ? (
         <button
           type="button"
@@ -436,18 +436,11 @@ function PromoCodeField({
 }
 
 function OrderSummary({
-  items, collapsible = false,
-  promoInput, onPromoInputChange, appliedPromo, onApplyPromo, onRemovePromo, promoError, promoApplying,
+  items, collapsible = false, appliedPromo,
 }: {
   items:       CartItem[]
   collapsible?: boolean
-  promoInput:   string
-  onPromoInputChange: (v: string) => void
   appliedPromo: { code: string; discountAmount: number } | null
-  onApplyPromo: () => void
-  onRemovePromo: () => void
-  promoError:   string | null
-  promoApplying: boolean
 }) {
   const [open, setOpen] = useState(false)
 
@@ -497,17 +490,6 @@ function OrderSummary({
           ))}
         </ul>
       )}
-
-      {/* Promo code */}
-      <PromoCodeField
-        value={promoInput}
-        onChange={onPromoInputChange}
-        onApply={onApplyPromo}
-        onRemove={onRemovePromo}
-        applied={appliedPromo}
-        error={promoError}
-        applying={promoApplying}
-      />
 
       {/* Totals */}
       <div className="space-y-3 pt-5 border-t border-stone-100">
@@ -1080,17 +1062,7 @@ export default function CheckoutPage() {
 
         {/* ── Mobile summary ── */}
         <div className="lg:hidden">
-          <OrderSummary
-            items={cart}
-            collapsible
-            promoInput={promoInput}
-            onPromoInputChange={setPromoInput}
-            appliedPromo={appliedPromo}
-            onApplyPromo={handleApplyPromo}
-            onRemovePromo={handleRemovePromo}
-            promoError={promoError}
-            promoApplying={promoApplying}
-          />
+          <OrderSummary items={cart} collapsible appliedPromo={appliedPromo} />
         </div>
 
         {/* ── Two-column body ── */}
@@ -1211,6 +1183,21 @@ export default function CheckoutPage() {
 
               <div className="my-10 border-t border-stone-100" />
 
+              {/* ── Promo Code ── */}
+              <FormSection title="Promo Code">
+                <PromoCodeField
+                  value={promoInput}
+                  onChange={setPromoInput}
+                  onApply={handleApplyPromo}
+                  onRemove={handleRemovePromo}
+                  applied={appliedPromo}
+                  error={promoError}
+                  applying={promoApplying}
+                />
+              </FormSection>
+
+              <div className="my-10 border-t border-stone-100" />
+
               {/* ── Payment ── */}
               <FormSection title="Payment Method">
                 <PaymentSection
@@ -1290,16 +1277,7 @@ export default function CheckoutPage() {
           {/* ════ RIGHT — Sticky summary (desktop) ════ */}
           <div className="hidden lg:block">
             <div className="sticky top-[88px] px-12 pt-0 pb-8">
-              <OrderSummary
-                items={cart}
-                promoInput={promoInput}
-                onPromoInputChange={setPromoInput}
-                appliedPromo={appliedPromo}
-                onApplyPromo={handleApplyPromo}
-                onRemovePromo={handleRemovePromo}
-                promoError={promoError}
-                promoApplying={promoApplying}
-              />
+              <OrderSummary items={cart} appliedPromo={appliedPromo} />
             </div>
           </div>
 
