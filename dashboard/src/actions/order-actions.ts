@@ -6,6 +6,7 @@ import { cancelOrder, getOrder, getOrderReceiptSignedUrl, updateOrderStatus, typ
 import { applyPaymentTransition } from "@/src/lib/payments/transitions"
 import { sendOrderConfirmationEmail } from "@/src/lib/email/order-confirmation"
 import { sendBankPaymentRejectedEmail } from "@/src/lib/email/bank-payment-rejected"
+import { sendOrderStatusChangedEmail } from "@/src/lib/email/order-status-changed"
 import type { Order, OrderStatus } from "@/src/lib/data/types"
 
 // 'cancelled' is deliberately EXCLUDED here. updateOrderStatus() is a bare
@@ -19,7 +20,21 @@ const ORDER_STATUSES: readonly OrderStatus[] = ["pending", "shipped", "delivered
 export async function updateOrderStatusAction(id: string, status: OrderStatus): Promise<Order | null> {
   await requireDashboardUser()
   if (!ORDER_STATUSES.includes(status)) throw new Error("Invalid order status.")
+
+  // Read the status BEFORE updating so a no-op change (new status equals the
+  // current one) never sends an email — comparing against the post-update row
+  // wouldn't work, since by then it always equals `status`.
+  const before = await getOrder(id)
   const order = await updateOrderStatus(id, status)
+
+  if (order && before && before.status !== status) {
+    try {
+      await sendOrderStatusChangedEmail(order, { newStatus: status })
+    } catch (e) {
+      console.error("[updateOrderStatusAction] status-change email failed:", e)
+    }
+  }
+
   revalidatePath("/orders")
   revalidatePath(`/orders/${id}`)
   return order

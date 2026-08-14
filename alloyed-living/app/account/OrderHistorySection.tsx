@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Package } from "lucide-react"
 import { toast } from "@/src/components/ui/ToastAlert"
-import { listMyOrdersAction, cancelOrderByUserAction } from "@/src/actions/store-actions"
+import { listMyOrdersAction } from "@/src/actions/store-actions"
+import CancelOrderDialog from "./CancelOrderDialog"
 import type { Order, OrderItem, OrderStatus } from "@/src/lib/data/types"
 
 // Mirrors ConfirmView.tsx's pkr() exactly.
@@ -69,76 +70,7 @@ function OrderItemsList({ items }: { items: OrderItem[] }) {
   )
 }
 
-type CancelState = "idle" | "confirming" | "submitting"
-
-// Reproduces ConfirmView.tsx's CancelOrderControl exactly — same idle
-// text-link → inline confirm/"Never Mind" pattern, same classes.
-function CancelOrderControl({
-  state,
-  onRequest,
-  onConfirm,
-  onBack,
-}: {
-  state:      CancelState
-  onRequest:  () => void
-  onConfirm:  () => void
-  onBack:     () => void
-}) {
-  if (state === "idle") {
-    return (
-      <button
-        onClick={onRequest}
-        className="mt-4 text-[9px] tracking-[0.3em] uppercase text-stone-500 hover:text-[#7a3535] underline underline-offset-4 decoration-stone-300 hover:decoration-[#7a3535] transition-colors duration-300 cursor-pointer"
-      >
-        Cancel Order
-      </button>
-    )
-  }
-  return (
-    <div className="mt-4 border border-[#7a3535]/25 bg-[#7a3535]/5 rounded-sm p-5 text-left">
-      <p className="text-[11px] text-stone-700 leading-relaxed mb-4">
-        Cancel this order? If a deposit was already paid, it will be refunded.
-      </p>
-      <div className="flex gap-3">
-        <button
-          onClick={onBack}
-          disabled={state === "submitting"}
-          className="flex-1 py-2.5 text-[9px] tracking-[0.3em] uppercase text-stone-600 border border-stone-200 rounded-sm hover:bg-stone-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          Never Mind
-        </button>
-        <button
-          onClick={onConfirm}
-          disabled={state === "submitting"}
-          className="flex-1 py-2.5 text-[9px] tracking-[0.3em] uppercase text-white bg-[#7a3535] rounded-sm hover:bg-[#6b2e2e] transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {state === "submitting" ? "Cancelling…" : "Yes, Cancel Order"}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function OrderCard({ order, onCancelled }: { order: Order; onCancelled: (updated: Order) => void }) {
-  const [cancelState, setCancelState] = useState<CancelState>("idle")
-
-  async function handleConfirm() {
-    setCancelState("submitting")
-    const result = await cancelOrderByUserAction(order.id)
-    if (!result.ok) {
-      toast.error(result.error ?? "Could not cancel this order.")
-      setCancelState("idle")
-      return
-    }
-    toast.success("Order cancelled.")
-    onCancelled({
-      ...order,
-      status: "cancelled",
-      refundAmount: result.refundAmount,
-      refundStatus: result.refundStatus,
-    })
-  }
-
+function OrderCard({ order, onRequestCancel }: { order: Order; onRequestCancel: (order: Order) => void }) {
   return (
     <div className="border border-stone-200 bg-white rounded-sm p-5">
       <div className="flex items-start justify-between gap-4 mb-4">
@@ -157,14 +89,15 @@ function OrderCard({ order, onCancelled }: { order: Order; onCancelled: (updated
       </div>
 
       {/* Cancel — only ever offered while the order is still pending, same
-          gate as the confirm-page and the dashboard's own cancel control. */}
+          gate as the dashboard's own cancel control. Opens CancelOrderDialog,
+          managed by the parent section (one dialog instance, not one per card). */}
       {order.status === "pending" && (
-        <CancelOrderControl
-          state={cancelState}
-          onRequest={() => setCancelState("confirming")}
-          onConfirm={handleConfirm}
-          onBack={() => setCancelState("idle")}
-        />
+        <button
+          onClick={() => onRequestCancel(order)}
+          className="mt-4 text-[9px] tracking-[0.3em] uppercase text-stone-500 hover:text-[#7a3535] underline underline-offset-4 decoration-stone-300 hover:decoration-[#7a3535] transition-colors duration-300 cursor-pointer"
+        >
+          Cancel Order
+        </button>
       )}
 
       {/* Refund info — same wording pattern as the confirm-page's post-cancel screen. */}
@@ -185,6 +118,7 @@ function OrderCard({ order, onCancelled }: { order: Order; onCancelled: (updated
 
 export default function OrderHistorySection() {
   const [orders, setOrders] = useState<Order[] | null>(null) // null = still loading
+  const [cancelTarget, setCancelTarget] = useState<Order | null>(null) // one dialog instance for the whole list
 
   const load = useCallback(async () => {
     try {
@@ -238,8 +172,14 @@ export default function OrderHistorySection() {
   return (
     <div className="space-y-4">
       {orders.map((order) => (
-        <OrderCard key={order.id} order={order} onCancelled={handleCancelled} />
+        <OrderCard key={order.id} order={order} onRequestCancel={setCancelTarget} />
       ))}
+
+      <CancelOrderDialog
+        order={cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onCancelled={handleCancelled}
+      />
     </div>
   )
 }

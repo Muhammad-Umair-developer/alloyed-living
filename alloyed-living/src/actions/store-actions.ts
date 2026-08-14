@@ -8,6 +8,7 @@ import { priceOrderItems } from "@/src/lib/checkout/pricing"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabasePublicClient } from "@/src/lib/supabase/public"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
+import { sendCancellationNotificationEmail } from "@/src/lib/email/cancellation-notification"
 import type { PaymentMethodsFields } from "@/src/lib/checkout/payment-accounts"
 import type { Order, OrderInput, Review } from "@/src/lib/data/types"
 
@@ -155,6 +156,14 @@ export async function cancelOrderByToken(accessToken: string): Promise<CancelOrd
   const result = await cancelOrderByAccessToken(accessToken, CUSTOMER_CANCEL_REASON)
   if (!result.ok) return { ok: false, error: result.error }
 
+  // Non-blocking: an email failure must never undo the cancellation that
+  // already committed to the database.
+  try {
+    await sendCancellationNotificationEmail(result.order, { initiatedBy: "customer" })
+  } catch (e) {
+    console.error("[cancelOrderByToken] cancellation notification email failed:", e)
+  }
+
   return {
     ok: true,
     refundAmount: result.order.refundAmount,
@@ -180,11 +189,22 @@ export async function listMyOrdersAction(): Promise<Order[]> {
 // server-side session; there is no userId parameter here for a client to
 // spoof. cancelOrderByUser folds ownership (user_id) into the DB lookup
 // itself and re-checks status = 'pending' at write time — see orders.ts.
-export async function cancelOrderByUserAction(orderId: string): Promise<CancelOrderResult> {
+//
+// Unlike cancelOrderByToken, this path takes a real reason from the account
+// page's cancellation modal (a preset label, or free text from its "Other"
+// option) instead of the fixed CUSTOMER_CANCEL_REASON constant. Sanitized the
+// same way every other reason field in this codebase is (trim + length cap)
+// — same pattern as rejectPaymentAction/cancelOrderAction in the dashboard.
+const CANCEL_REASON_MAX = 200
+
+export async function cancelOrderByUserAction(orderId: string, reason: string): Promise<CancelOrderResult> {
   if (!(await rateLimit("cancel-order-by-user", 5, 60_000))) {
     return { ok: false, error: "Too many attempts. Please wait a minute and try again." }
   }
   if (!orderId) return { ok: false, error: "Order not found." }
+
+  const trimmedReason = (reason ?? "").trim().slice(0, CANCEL_REASON_MAX)
+  if (!trimmedReason) return { ok: false, error: "Please select a reason for cancelling." }
 
   const supabase = await createSupabaseServerClient()
   const {
@@ -192,8 +212,16 @@ export async function cancelOrderByUserAction(orderId: string): Promise<CancelOr
   } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "You must be signed in." }
 
-  const result = await cancelOrderByUser(orderId, user.id, CUSTOMER_CANCEL_REASON)
+  const result = await cancelOrderByUser(orderId, user.id, trimmedReason)
   if (!result.ok) return { ok: false, error: result.error }
+
+  // Non-blocking: an email failure must never undo the cancellation that
+  // already committed to the database.
+  try {
+    await sendCancellationNotificationEmail(result.order, { initiatedBy: "customer" })
+  } catch (e) {
+    console.error("[cancelOrderByUserAction] cancellation notification email failed:", e)
+  }
 
   return {
     ok: true,
