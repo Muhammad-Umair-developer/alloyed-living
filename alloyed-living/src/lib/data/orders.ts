@@ -66,6 +66,20 @@ export async function getOrderByAccessToken(token: string): Promise<Order | null
   return data ? rowToOrder(data) : null
 }
 
+// The account page's order history — every order this user placed while
+// signed in (guest orders and pre-linking-migration orders with no user_id
+// obviously can't appear here). Newest first, same ordering as getOrders().
+export async function getOrdersForUser(userId: string): Promise<Order[]> {
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(rowToOrder)
+}
+
 // Random suffix instead of a sequential counter: the old read-all-then-max
 // approach raced under concurrent checkouts (duplicate primary keys) and made
 // order IDs trivially enumerable. Collisions are retried on the PK conflict.
@@ -215,6 +229,54 @@ export async function cancelOrderByAccessToken(token: string, reason: string): P
       updated_at: new Date().toISOString(),
     })
     .eq("id", current.id as string)
+    .eq("status", "pending")
+    .select("*")
+    .maybeSingle()
+  if (error) throw error
+  if (!data) {
+    return { ok: false, error: "This order can no longer be cancelled online. Please contact support." }
+  }
+  return { ok: true, order: rowToOrder(data) }
+}
+
+// Customer self-service cancellation from the account page's order history —
+// same shape of guarantee as cancelOrderByAccessToken above, just proven a
+// different way: there it's "you have the opaque token"; here it's "you're
+// signed in as the account that placed this order" (user_id folded directly
+// into the lookup, never trusted separately). Refund logic and the "refuse
+// outright once no longer pending" behavior are identical to the token path.
+export async function cancelOrderByUser(orderId: string, userId: string, reason: string): Promise<CancelOrderResult> {
+  if (!orderId || !userId) return { ok: false, error: "Order not found." }
+  const supabase = createSupabaseAdminClient()
+
+  const { data: current, error: readErr } = await supabase
+    .from("orders")
+    .select("id, status, downpayment_amount")
+    .eq("id", orderId)
+    .eq("user_id", userId)
+    .maybeSingle()
+  if (readErr || !current) return { ok: false, error: "Order not found." }
+
+  if (current.status !== "pending") {
+    return { ok: false, error: "This order can no longer be cancelled online. Please contact support." }
+  }
+
+  const refundAmount = Number(current.downpayment_amount ?? 0)
+
+  // Guarded on id + user_id + status = 'pending' at write time too — same
+  // optimistic-concurrency pattern as cancelOrderByAccessToken.
+  const { data, error } = await supabase
+    .from("orders")
+    .update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      cancellation_reason: reason,
+      refund_amount: refundAmount,
+      refund_status: "pending",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", orderId)
+    .eq("user_id", userId)
     .eq("status", "pending")
     .select("*")
     .maybeSingle()

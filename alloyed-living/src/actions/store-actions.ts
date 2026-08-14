@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache"
 import { trackAddToCart, trackView } from "@/src/lib/data/analytics"
-import { createOrder, cancelOrderByAccessToken } from "@/src/lib/data/orders"
+import { createOrder, cancelOrderByAccessToken, getOrdersForUser, cancelOrderByUser } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
 import { priceOrderItems } from "@/src/lib/checkout/pricing"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabasePublicClient } from "@/src/lib/supabase/public"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
 import type { PaymentMethodsFields } from "@/src/lib/checkout/payment-accounts"
-import type { OrderInput, Review } from "@/src/lib/data/types"
+import type { Order, OrderInput, Review } from "@/src/lib/data/types"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -153,6 +153,46 @@ export async function cancelOrderByToken(accessToken: string): Promise<CancelOrd
   if (!accessToken) return { ok: false, error: "Order not found." }
 
   const result = await cancelOrderByAccessToken(accessToken, CUSTOMER_CANCEL_REASON)
+  if (!result.ok) return { ok: false, error: result.error }
+
+  return {
+    ok: true,
+    refundAmount: result.order.refundAmount,
+    refundStatus: result.order.refundStatus,
+  }
+}
+
+// Account page's order history. Server-side session only — never accepts a
+// user id from the client. Throws (rather than returning an error shape) if
+// there's no session, matching listAddressesAction's convention; callers
+// catch this the same way.
+export async function listMyOrdersAction(): Promise<Order[]> {
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("You must be signed in.")
+  return getOrdersForUser(user.id)
+}
+
+// Second cancellation entry point, alongside cancelOrderByToken above — same
+// safety guarantees, proven a different way. userId comes ONLY from the
+// server-side session; there is no userId parameter here for a client to
+// spoof. cancelOrderByUser folds ownership (user_id) into the DB lookup
+// itself and re-checks status = 'pending' at write time — see orders.ts.
+export async function cancelOrderByUserAction(orderId: string): Promise<CancelOrderResult> {
+  if (!(await rateLimit("cancel-order-by-user", 5, 60_000))) {
+    return { ok: false, error: "Too many attempts. Please wait a minute and try again." }
+  }
+  if (!orderId) return { ok: false, error: "Order not found." }
+
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "You must be signed in." }
+
+  const result = await cancelOrderByUser(orderId, user.id, CUSTOMER_CANCEL_REASON)
   if (!result.ok) return { ok: false, error: result.error }
 
   return {

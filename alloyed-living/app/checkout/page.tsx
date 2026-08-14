@@ -9,6 +9,7 @@ import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
 import { type CartItem, useCart } from "@/src/context/CartContext"
 import { useAuth } from "@/src/context/AuthContext"
 import { placeOrderAction, getPaymentMethodsAction } from "@/src/actions/store-actions"
+import { listAddressesAction } from "@/src/actions/account-actions"
 import { calculateDownpayment } from "@/src/lib/checkout/constants"
 import { type PaymentMethodsFields, accountLines } from "@/src/lib/checkout/payment-accounts"
 
@@ -710,7 +711,7 @@ function validate(form: FormData): FormErrors {
 export default function CheckoutPage() {
   const router                = useRouter()
   const { cart, clearCart }   = useCart()
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [form,    setForm]    = useState<FormData>(EMPTY_FORM)
   const [errors,  setErrors]  = useState<FormErrors>({})
@@ -718,8 +719,50 @@ export default function CheckoutPage() {
   const [depositAccount, setDepositAccount] = useState<DepositAccount>("ubl")
   const [pm,      setPm]      = useState<PaymentMethodsFields | null>(null)
   const [placing, setPlacing] = useState(false)
+  const [prefilled, setPrefilled] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
+
+  // Prefill from the signed-in user's profile + default saved address, once.
+  // Every field this touches only gets set if it's still empty (prev.x ||
+  // incoming), so it can never clobber something the customer already typed —
+  // and nothing here changes what handleSubmit reads (still form state), so
+  // an edit before/after this resolves is always what actually gets
+  // submitted. Guarded by `prefilled` so it only ever runs once per visit,
+  // not every time `user`/`profile` happens to re-render. Silent no-op if
+  // there's no default address or the fetch fails — this is a convenience
+  // layer, not a required part of checkout.
+  //
+  // MUST also wait on `authLoading`, not just `user`: AuthContext sets `user`
+  // before its profile fetch resolves (deliberately deferred — see
+  // AuthContext.tsx), so gating on `user` alone let this fire on a render
+  // where `profile` was still null, permanently locking `prefilled` before
+  // full_name/phone ever arrived. `authLoading` only turns false once the
+  // profile fetch has actually completed.
+  useEffect(() => {
+    if (!user || authLoading || prefilled) return
+    setPrefilled(true)
+
+    setForm((prev) => ({
+      ...prev,
+      fullName: prev.fullName || profile?.full_name || "",
+      phone: prev.phone || profile?.phone || "",
+    }))
+
+    listAddressesAction()
+      .then((addresses) => {
+        const def = addresses.find((a) => a.isDefault)
+        if (!def) return
+        setForm((prev) => ({
+          ...prev,
+          street: prev.street || def.street,
+          province: prev.province || def.province || "",
+          city: prev.city || def.city || "",
+          postalCode: prev.postalCode || def.postalCode || "",
+        }))
+      })
+      .catch(() => {})
+  }, [user, authLoading, profile, prefilled])
 
   // Load the admin-managed bank account details for the payment panels.
   useEffect(() => {
