@@ -2,6 +2,7 @@ import "server-only"
 import { randomInt } from "node:crypto"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
 import { calculateDownpayment } from "@/src/lib/checkout/pricing"
+import { redeemPromoCode } from "@/src/lib/data/promo-codes"
 import type { Order, OrderInput, OrderStatus, PaymentStatus, PaymentMethod, DepositAccount } from "./types"
 
 // Orders are written by trusted server paths only (checkout order creation and
@@ -121,15 +122,47 @@ function computeAwaitingAmounts(orderTotal: number, intent: PaymentIntent): Awai
   return { payableAmount: orderTotal, depositAmount: null, depositPercent: null, codBalanceDue: null }
 }
 
+export interface PromoRedemption {
+  promoCodeId: string
+  code: string
+  amount: number
+}
+
 // userId comes ONLY from the server-side session (see placeOrderAction) —
 // never accept one from client input. Null for guest checkout; the column
 // itself is nullable for exactly that reason.
-export async function createOrder(input: OrderInput, intent: PaymentIntent, userId: string | null): Promise<Order> {
+//
+// `promo`, if given, is redeemed FIRST — before the order is inserted — via
+// the same atomically-guarded update pattern as applyPaymentTransition, so
+// "never exceed max_uses" holds even under concurrent checkouts. If the
+// redemption is lost to a race (or the code was exhausted in the gap since
+// priceOrderItems validated it), this throws rather than silently creating
+// the order without the discount — the caller (placeOrderAction) catches
+// this specific failure and surfaces a clean, explicit error to the
+// customer. Trade-off, noted deliberately: if the INSERT below fails for an
+// unrelated reason after a successful redemption, that redemption slot is
+// spent with no matching order — accepted in favor of never overshooting
+// max_uses, which matters more.
+export async function createOrder(
+  input: OrderInput,
+  intent: PaymentIntent,
+  userId: string | null,
+  promo?: PromoRedemption | null,
+): Promise<Order> {
   const supabase = createSupabaseAdminClient()
   const now = new Date().toISOString()
 
   if (input.total <= 0) {
     console.warn(`[createOrder] Non-positive order total (${input.total}) for a ${intent.method} order.`)
+  }
+
+  if (promo) {
+    const redeemed = await redeemPromoCode(promo.promoCodeId)
+    if (!redeemed) {
+      throw new Error(
+        "PROMO_REDEMPTION_FAILED: This promo code just reached its usage limit. Please remove it and try again.",
+      )
+    }
   }
 
   const depositAccount = intent.method === "cod" ? (intent.depositAccount ?? null) : null
@@ -151,6 +184,8 @@ export async function createOrder(input: OrderInput, intent: PaymentIntent, user
     cod_balance_due: amounts.codBalanceDue,
     downpayment_amount: amounts.depositAmount,
     downpayment_percent: amounts.depositPercent,
+    discount_code: promo?.code ?? null,
+    discount_amount: promo?.amount ?? 0,
     user_id: userId,
     created_at: now,
     updated_at: now,

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { trackAddToCart, trackView } from "@/src/lib/data/analytics"
 import { createOrder, cancelOrderByAccessToken, getOrdersForUser, cancelOrderByUser } from "@/src/lib/data/orders"
 import { createReview } from "@/src/lib/data/reviews"
-import { priceOrderItems } from "@/src/lib/checkout/pricing"
+import { priceOrderItems, validatePromoCode } from "@/src/lib/checkout/pricing"
 import { rateLimit } from "@/src/lib/rate-limit"
 import { createSupabasePublicClient } from "@/src/lib/supabase/public"
 import { createSupabaseServerClient } from "@/src/lib/supabase/server"
@@ -44,7 +44,7 @@ export interface PlaceOrderResult {
 export async function placeOrderAction(
   input: OrderInput,
   paymentMethod: "cod" | "ubl" | "jazzcash",
-  opts?: { depositAccount?: "ubl" | "jazzcash" },
+  opts?: { depositAccount?: "ubl" | "jazzcash"; promoCode?: string },
 ): Promise<PlaceOrderResult> {
   if (!(await rateLimit("place-order", 5, 60_000))) {
     return { error: "Too many order attempts. Please wait a minute and try again." }
@@ -75,37 +75,55 @@ export async function placeOrderAction(
     return { error: "Please provide a delivery address." }
   }
 
-  const priced = await priceOrderItems(
-    (input?.items ?? []).map((i) => ({ productId: i.productId, quantity: i.quantity })),
-  )
-  if (!priced.ok) return { error: priced.error }
-
   // Server-side session only — never trust a user id from client input.
   // Guest checkout has no session, so `user` is null here and stays null on
-  // the order; everything else about checkout proceeds identically either way.
+  // the order; everything else about checkout proceeds identically either
+  // way. Fetched BEFORE priceOrderItems now (rather than after, as before
+  // promo codes existed) because the per-customer usage-cap check needs it.
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const order = await createOrder(
-    {
-      items: priced.items,
-      customer: { name, email, ...(phone ? { phone } : {}) },
-      shippingAddress: {
-        street: addr.street.trim().slice(0, 500),
-        city: addr.city.trim().slice(0, 100),
-        province: addr.province?.trim().slice(0, 100),
-        postalCode: addr.postalCode?.trim().slice(0, 20),
-        country: "Pakistan",
-      },
-      subtotal: priced.subtotal,
-      delivery: priced.delivery,
-      total: priced.total,
-    },
-    { method: paymentMethod, depositAccount },
-    user?.id ?? null,
+  const priced = await priceOrderItems(
+    (input?.items ?? []).map((i) => ({ productId: i.productId, quantity: i.quantity })),
+    { promoCode: opts?.promoCode, userId: user?.id ?? null },
   )
+  if (!priced.ok) return { error: priced.error }
+
+  let order
+  try {
+    order = await createOrder(
+      {
+        items: priced.items,
+        customer: { name, email, ...(phone ? { phone } : {}) },
+        shippingAddress: {
+          street: addr.street.trim().slice(0, 500),
+          city: addr.city.trim().slice(0, 100),
+          province: addr.province?.trim().slice(0, 100),
+          postalCode: addr.postalCode?.trim().slice(0, 20),
+          country: "Pakistan",
+        },
+        subtotal: priced.subtotal,
+        delivery: priced.delivery,
+        total: priced.total,
+      },
+      { method: paymentMethod, depositAccount },
+      user?.id ?? null,
+      priced.discountCode && priced.promoCodeId
+        ? { promoCodeId: priced.promoCodeId, code: priced.discountCode, amount: priced.discountAmount }
+        : null,
+    )
+  } catch (e) {
+    // A lost redemption race (the code was exhausted in the gap between
+    // priceOrderItems validating it and createOrder trying to redeem it) is
+    // the one createOrder failure worth a specific, friendly message rather
+    // than an uncaught exception — everything else still propagates as before.
+    if (e instanceof Error && e.message.startsWith("PROMO_REDEMPTION_FAILED")) {
+      return { error: "This promo code just reached its usage limit. Please remove it and try again." }
+    }
+    throw e
+  }
 
   // No email at placement, for any payment method — the customer and owner
   // notifications both fire only once a receipt is actually uploaded (see
@@ -126,6 +144,40 @@ export async function getPaymentMethodsAction(): Promise<PaymentMethodsFields> {
     .eq("slug", "payment-methods")
     .maybeSingle()
   return (data?.fields as PaymentMethodsFields | undefined) ?? {}
+}
+
+export interface PromoPreviewResult {
+  ok: boolean
+  error?: string
+  code?: string // canonical code, for display
+  discountAmount?: number
+}
+
+// Checkout UI's "Apply" button — runs the SAME validation as the real order
+// placement (validatePromoCode, called from priceOrderItems too), but never
+// touches times_used. `subtotal` here is the client's own cart display
+// total — NOT trusted as authoritative; it's only used to preview the
+// discount and check min_order_value for UX purposes. The actual, binding
+// validation runs again from scratch inside priceOrderItems at real
+// placeOrderAction time, using the server's own recomputed subtotal, so a
+// stale or lied-about preview subtotal can never affect what's actually
+// charged.
+export async function previewPromoCodeAction(code: string, subtotal: number): Promise<PromoPreviewResult> {
+  if (!(await rateLimit("preview-promo", 20, 60_000))) {
+    return { ok: false, error: "Too many attempts. Please wait a moment and try again." }
+  }
+  if (!code?.trim()) return { ok: false, error: "Please enter a promo code." }
+  if (!Number.isFinite(subtotal) || subtotal <= 0) return { ok: false, error: "Invalid order total." }
+
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const result = await validatePromoCode(code, subtotal, user?.id ?? null)
+  if (!result.ok) return { ok: false, error: result.error }
+
+  return { ok: true, code: result.code, discountAmount: result.discountAmount }
 }
 
 // Fixed, non-free-text reason: customers pick "Cancel Order," nothing more —

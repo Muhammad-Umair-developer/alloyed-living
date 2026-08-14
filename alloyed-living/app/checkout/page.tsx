@@ -8,7 +8,7 @@ import Header from "@/src/components/layout/Header"
 import ToastContainer, { toast } from "@/src/components/ui/ToastAlert"
 import { type CartItem, useCart } from "@/src/context/CartContext"
 import { useAuth } from "@/src/context/AuthContext"
-import { placeOrderAction, getPaymentMethodsAction } from "@/src/actions/store-actions"
+import { placeOrderAction, getPaymentMethodsAction, previewPromoCodeAction } from "@/src/actions/store-actions"
 import { listAddressesAction } from "@/src/actions/account-actions"
 import { calculateDownpayment } from "@/src/lib/checkout/constants"
 import { type PaymentMethodsFields, accountLines } from "@/src/lib/checkout/payment-accounts"
@@ -342,12 +342,120 @@ function FormSection({ title, children }: { title: string; children: React.React
 
 // ─── Order Summary ────────────────────────────────────────────────────────────
 
-function OrderSummary({ items, collapsible = false }: { items: CartItem[]; collapsible?: boolean }) {
+// "Have a promo code?" — collapsible link (same treatment as login/page.tsx's
+// "Forgot password?" link) revealing a bordered input + Apply button (same
+// style as ConfirmView.tsx's sender-name/reference fields), or — once
+// applied — a "Promo CODE applied" line with a Remove link. Kept as a
+// sub-component purely for readability; all its state lives in CheckoutPage
+// (see the props), not here, so the mobile and desktop OrderSummary
+// instances below always agree.
+function PromoCodeField({
+  value, onChange, onApply, onRemove, applied, error, applying,
+}: {
+  value:    string
+  onChange: (v: string) => void
+  onApply:  () => void
+  onRemove: () => void
+  applied:  { code: string; discountAmount: number } | null
+  error:    string | null
+  applying: boolean
+}) {
   const [open, setOpen] = useState(false)
 
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const delivery = subtotal >= DELIVERY_THRESHOLD ? 0 : 500
-  const total    = subtotal + delivery
+  if (applied) {
+    return (
+      <div className="pt-5 border-t border-stone-100 flex items-center justify-between">
+        <span className="text-[9px] tracking-[0.2em] uppercase text-[#5c6b4a]">
+          Promo {applied.code} applied
+        </span>
+        <button
+          type="button"
+          onClick={onRemove}
+          className="text-[8px] tracking-[0.22em] uppercase text-stone-500 hover:text-[#7a3535] transition-colors duration-300 underline underline-offset-2 cursor-pointer"
+        >
+          Remove
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="pt-5 border-t border-stone-100">
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="text-[8px] tracking-[0.22em] uppercase text-stone-600 hover:text-stone-900 transition-colors duration-500 underline underline-offset-2 cursor-pointer"
+        >
+          Have a promo code?
+        </button>
+      ) : (
+        <div>
+          <label className="text-[8px] tracking-[0.38em] uppercase text-stone-600">Promo Code</label>
+          <div className="flex items-end gap-3">
+            <input
+              value={value}
+              onChange={(e) => onChange(e.target.value.toUpperCase())}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  onApply()
+                }
+              }}
+              maxLength={40}
+              placeholder="Enter code"
+              aria-invalid={!!error}
+              className="flex-1 bg-transparent py-2 text-[13px] text-stone-700 tracking-[0.06em] border-b border-stone-200 outline-none focus:border-stone-500 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={onApply}
+              disabled={applying || !value.trim()}
+              className="pb-2 text-[9px] tracking-[0.24em] uppercase text-stone-700 hover:text-stone-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {applying ? "Applying…" : "Apply"}
+            </button>
+          </div>
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{    opacity: 0        }}
+                transition={{ duration: 0.22 }}
+                className="mt-1 text-[10px] tracking-[0.1em] text-[#7a3535]"
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OrderSummary({
+  items, collapsible = false,
+  promoInput, onPromoInputChange, appliedPromo, onApplyPromo, onRemovePromo, promoError, promoApplying,
+}: {
+  items:       CartItem[]
+  collapsible?: boolean
+  promoInput:   string
+  onPromoInputChange: (v: string) => void
+  appliedPromo: { code: string; discountAmount: number } | null
+  onApplyPromo: () => void
+  onRemovePromo: () => void
+  promoError:   string | null
+  promoApplying: boolean
+}) {
+  const [open, setOpen] = useState(false)
+
+  const subtotal       = items.reduce((s, i) => s + i.price * i.quantity, 0)
+  const discountAmount = appliedPromo?.discountAmount ?? 0
+  const discounted     = subtotal - discountAmount
+  const delivery = discounted >= DELIVERY_THRESHOLD ? 0 : 500
+  const total    = discounted + delivery
 
   const Content = () => (
     <div>
@@ -390,12 +498,31 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
         </ul>
       )}
 
+      {/* Promo code */}
+      <PromoCodeField
+        value={promoInput}
+        onChange={onPromoInputChange}
+        onApply={onApplyPromo}
+        onRemove={onRemovePromo}
+        applied={appliedPromo}
+        error={promoError}
+        applying={promoApplying}
+      />
+
       {/* Totals */}
       <div className="space-y-3 pt-5 border-t border-stone-100">
         <div className="flex justify-between">
           <span className="text-[9px] tracking-[0.28em] uppercase text-stone-600">Subtotal</span>
           <span className="text-[11px] tracking-[0.08em] text-stone-700">PKR {subtotal.toLocaleString()}</span>
         </div>
+        {appliedPromo && (
+          <div className="flex justify-between">
+            <span className="text-[9px] tracking-[0.28em] uppercase text-[#5c6b4a]">Promo {appliedPromo.code}</span>
+            <span className="text-[11px] tracking-[0.08em] text-[#5c6b4a]">
+              −PKR {discountAmount.toLocaleString()}
+            </span>
+          </div>
+        )}
         <div className="flex justify-between">
           <span className="text-[9px] tracking-[0.28em] uppercase text-stone-600">Delivery</span>
           <span className={`text-[11px] tracking-[0.08em] ${delivery === 0 ? "text-[#5c6b4a]" : "text-stone-600"}`}>
@@ -439,7 +566,7 @@ function OrderSummary({ items, collapsible = false }: { items: CartItem[]; colla
         <span className="text-[8px] tracking-[0.44em] uppercase text-stone-700">Order Summary</span>
         <div className="flex items-center gap-3">
           <span style={EDITORIAL} className="text-[0.92rem] text-stone-700 font-light">
-            PKR {(subtotal + delivery).toLocaleString()}
+            PKR {total.toLocaleString()}
           </span>
           <ChevronDown
             size={12}
@@ -721,6 +848,38 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false)
   const [prefilled, setPrefilled] = useState(false)
 
+  // Promo code — lifted here (not local to OrderSummary) because BOTH the
+  // order-summary panel AND the CodPanel/BankPanel amount displays below need
+  // to agree on the discounted total. `appliedPromo` is a client-side
+  // preview only (from previewPromoCodeAction); the real, binding validation
+  // and redemption happen again from scratch inside placeOrderAction.
+  const [promoInput, setPromoInput] = useState("")
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountAmount: number } | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [promoApplying, setPromoApplying] = useState(false)
+
+  const handleApplyPromo = useCallback(async () => {
+    const code = promoInput.trim()
+    if (!code) return
+    setPromoApplying(true)
+    setPromoError(null)
+    const cartSubtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+    const result = await previewPromoCodeAction(code, cartSubtotal)
+    setPromoApplying(false)
+    if (!result.ok) {
+      setPromoError(result.error ?? "Invalid promo code.")
+      return
+    }
+    setAppliedPromo({ code: result.code ?? code.toUpperCase(), discountAmount: result.discountAmount ?? 0 })
+    setPromoError(null)
+  }, [promoInput, cart])
+
+  const handleRemovePromo = useCallback(() => {
+    setAppliedPromo(null)
+    setPromoInput("")
+    setPromoError(null)
+  }, [])
+
   useEffect(() => { setMounted(true) }, [])
 
   // Prefill from the signed-in user's profile + default saved address, once.
@@ -746,6 +905,7 @@ export default function CheckoutPage() {
     setForm((prev) => ({
       ...prev,
       fullName: prev.fullName || profile?.full_name || "",
+      email: prev.email || profile?.email || user.email || "",
       phone: prev.phone || profile?.phone || "",
     }))
 
@@ -818,11 +978,14 @@ export default function CheckoutPage() {
     }
     setPlacing(true)
     const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
-    const delivery = subtotal >= DELIVERY_THRESHOLD ? 0 : 500
+    const discountAmount = appliedPromo?.discountAmount ?? 0
+    const discountedSubtotal = subtotal - discountAmount
+    const delivery = discountedSubtotal >= DELIVERY_THRESHOLD ? 0 : 500
     try {
-      // Prices/totals sent here are display-only — the server recomputes all
-      // money values (payable amount, deposit, balance) from live product data
-      // and rejects tampered carts.
+      // Prices/totals (and the promo code) sent here are display-only — the
+      // server recomputes all money values AND re-validates/re-redeems the
+      // promo code from scratch (priceOrderItems/createOrder), and rejects
+      // tampered carts or a code that became invalid since it was applied.
       const result = await placeOrderAction(
         {
           items: cart.map((i) => ({
@@ -842,13 +1005,20 @@ export default function CheckoutPage() {
           },
           subtotal,
           delivery,
-          total: subtotal + delivery,
+          total: discountedSubtotal + delivery,
         },
         method,
-        method === "cod" ? { depositAccount } : undefined,
+        {
+          ...(method === "cod" ? { depositAccount } : {}),
+          ...(appliedPromo ? { promoCode: appliedPromo.code } : {}),
+        },
       )
 
       if (result.error || !result.orderId || !result.accessToken) {
+        // If the code became invalid between "Apply" and submit (expired,
+        // hit its usage limit in a race, etc.), placeOrderAction already
+        // returns a specific, friendly message here — surfaced as-is rather
+        // than the generic fallback.
         toast.error(result.error ?? "Something went wrong placing your order. Please try again.")
         setPlacing(false)
         return
@@ -863,14 +1033,19 @@ export default function CheckoutPage() {
       toast.error("Something went wrong placing your order. Please try again.")
       setPlacing(false)
     }
-  }, [form, method, depositAccount, cart, clearCart, router])
+  }, [form, method, depositAccount, cart, clearCart, router, appliedPromo])
 
   if (!mounted || authLoading || !user) return null
 
   // Display-only amounts for the payment panels; the server is authoritative.
-  const displaySubtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
-  const displayDelivery = displaySubtotal >= DELIVERY_THRESHOLD ? 0 : 500
-  const displayTotal    = displaySubtotal + displayDelivery
+  // Discount is applied BEFORE the free-shipping threshold check, matching
+  // priceOrderItems' own formula order exactly, so this panel and the order
+  // summary panel never disagree with each other.
+  const displaySubtotal   = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+  const displayDiscount   = appliedPromo?.discountAmount ?? 0
+  const displayDiscounted = displaySubtotal - displayDiscount
+  const displayDelivery = displayDiscounted >= DELIVERY_THRESHOLD ? 0 : 500
+  const displayTotal    = displayDiscounted + displayDelivery
   const codDeposit      = calculateDownpayment(displayTotal)
   const codBalance      = displayTotal - codDeposit
   const codPayInFull    = displayTotal <= codDeposit
@@ -905,7 +1080,17 @@ export default function CheckoutPage() {
 
         {/* ── Mobile summary ── */}
         <div className="lg:hidden">
-          <OrderSummary items={cart} collapsible />
+          <OrderSummary
+            items={cart}
+            collapsible
+            promoInput={promoInput}
+            onPromoInputChange={setPromoInput}
+            appliedPromo={appliedPromo}
+            onApplyPromo={handleApplyPromo}
+            onRemovePromo={handleRemovePromo}
+            promoError={promoError}
+            promoApplying={promoApplying}
+          />
         </div>
 
         {/* ── Two-column body ── */}
@@ -1105,7 +1290,16 @@ export default function CheckoutPage() {
           {/* ════ RIGHT — Sticky summary (desktop) ════ */}
           <div className="hidden lg:block">
             <div className="sticky top-[88px] px-12 pt-0 pb-8">
-              <OrderSummary items={cart} />
+              <OrderSummary
+                items={cart}
+                promoInput={promoInput}
+                onPromoInputChange={setPromoInput}
+                appliedPromo={appliedPromo}
+                onApplyPromo={handleApplyPromo}
+                onRemovePromo={handleRemovePromo}
+                promoError={promoError}
+                promoApplying={promoApplying}
+              />
             </div>
           </div>
 
