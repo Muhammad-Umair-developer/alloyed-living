@@ -14,12 +14,15 @@ import NewOrdersTable from "./NewOrdersTable"
 const STATUSES: OrderStatus[] = ["pending", "shipped", "delivered", "returned", "exchanged"]
 const FILTERS: Array<OrderStatus | "all"> = ["all", ...STATUSES]
 
-// Orders awaiting payment review — a separate filter dimension from fulfilment
-// status (payment_status, not status). Kept out of FILTERS/STATUSES above so
-// the existing tabs' filtering logic is untouched.
-const PENDING_PAYMENT_STATUSES = new Set(["awaiting_payment", "payment_submitted"])
-
-export default function OrdersListView({ orders }: { orders: Order[] }) {
+export default function OrdersListView({
+  orders,
+  newOrders,
+  newOrdersCount,
+}: {
+  orders: Order[]
+  newOrders: Order[]
+  newOrdersCount: number
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [filter, setFilter] = useState<OrderStatus | "all" | "new">("all")
@@ -27,11 +30,6 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
   const filtered = useMemo(
     () => (filter === "all" || filter === "new" ? orders : orders.filter((o) => o.status === filter)),
     [orders, filter],
-  )
-
-  const newOrders = useMemo(
-    () => orders.filter((o) => o.paymentStatus && PENDING_PAYMENT_STATUSES.has(o.paymentStatus)),
-    [orders],
   )
 
   function handleStatusChange(id: string, status: OrderStatus) {
@@ -62,7 +60,7 @@ export default function OrdersListView({ orders }: { orders: Order[] }) {
             filter === "new" ? "bg-stone-900 text-white" : "text-stone-500 hover:bg-stone-100"
           }`}
         >
-          New Orders{newOrders.length > 0 ? ` (${newOrders.length})` : ""}
+          New Orders{newOrdersCount > 0 ? ` (${newOrdersCount})` : ""}
         </button>
       </div>
 

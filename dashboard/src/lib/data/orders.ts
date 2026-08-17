@@ -1,6 +1,6 @@
 import "server-only"
 import { createSupabaseAdminClient } from "@/src/lib/supabase/admin"
-import type { Order, OrderInput, OrderStatus } from "./types"
+import type { Order, OrderInput, OrderStatus, PaymentStatus } from "./types"
 
 type OrderRow = Record<string, unknown>
 
@@ -45,11 +45,82 @@ function rowToOrder(r: OrderRow): Order {
   }
 }
 
-export async function getOrders(): Promise<Order[]> {
+// limit/paymentStatusIn are both optional and additive — a bare getOrders()
+// still fetches everything, unchanged, for callers that need the full set
+// (e.g. Purchases' itemized table's own .limit(200) call below is explicit,
+// not implied by this default).
+export interface GetOrdersOptions {
+  limit?: number
+  paymentStatusIn?: PaymentStatus[]
+}
+
+export async function getOrders(opts: GetOrdersOptions = {}): Promise<Order[]> {
   const supabase = createSupabaseAdminClient()
-  const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false })
+  let query = supabase.from("orders").select("*").order("created_at", { ascending: false })
+  if (opts.paymentStatusIn?.length) query = query.in("payment_status", opts.paymentStatusIn)
+  if (opts.limit) query = query.limit(opts.limit)
+  const { data, error } = await query
   if (error) throw error
   return (data ?? []).map(rowToOrder)
+}
+
+// Overview page's status pie chart. Backed by the order_status_counts()
+// migration function — a single GROUP BY instead of fetching every order
+// just to reduce it client-side. GROUP BY never emits a row for a status
+// with zero orders, so every OrderStatus is seeded at 0 first.
+export async function getOrderStatusCounts(): Promise<Record<OrderStatus, number>> {
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase.rpc("order_status_counts")
+  if (error) throw error
+  const counts: Record<OrderStatus, number> = {
+    pending: 0, shipped: 0, delivered: 0, returned: 0, exchanged: 0, cancelled: 0,
+  }
+  for (const row of (data ?? []) as { status: string; count: number }[]) {
+    if (row.status in counts) counts[row.status as OrderStatus] = Number(row.count)
+  }
+  return counts
+}
+
+// Orders page's "New Orders" badge — the TRUE total, decoupled from both
+// the main table's .limit(200) and from however many rows the New Orders
+// tab's own list query happens to return.
+export async function getOrderCountByPaymentStatus(statuses: PaymentStatus[]): Promise<number> {
+  const supabase = createSupabaseAdminClient()
+  const { count, error } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true })
+    .in("payment_status", statuses)
+  if (error) throw error
+  return count ?? 0
+}
+
+// Purchases page's summary cards. Backed by the purchases_summary()
+// migration function — see its comment for why a jsonb-summing RPC is
+// needed instead of a plain .select(). Deliberately separate from whatever
+// powers the itemized table, so capping that table's fetch never affects
+// these totals.
+export interface PurchasesSummary {
+  totalOrders: number
+  itemsPurchased: number
+  returnedOrders: number
+  returnedItems: number
+  exchangedOrders: number
+  exchangedItems: number
+}
+
+export async function getPurchasesSummary(): Promise<PurchasesSummary> {
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase.rpc("purchases_summary")
+  if (error) throw error
+  const row = data?.[0]
+  return {
+    totalOrders: Number(row?.total_orders ?? 0),
+    itemsPurchased: Number(row?.items_purchased ?? 0),
+    returnedOrders: Number(row?.returned_orders ?? 0),
+    returnedItems: Number(row?.returned_items ?? 0),
+    exchangedOrders: Number(row?.exchanged_orders ?? 0),
+    exchangedItems: Number(row?.exchanged_items ?? 0),
+  }
 }
 
 export async function getOrder(id: string): Promise<Order | null> {

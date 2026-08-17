@@ -37,8 +37,15 @@ export async function getProductAnalytics(): Promise<ProductAnalytics[]> {
 
 export async function getDailyTrend(days = 30): Promise<DailyStat[]> {
   const supabase = createSupabaseAdminClient()
-  const { data } = await supabase.from("daily_stats").select("*").order("stat_date", { ascending: true })
-  return ((data ?? []) as DailyStatRow[]).map(rowToDailyStat).slice(-days)
+  const { data } = await supabase
+    .from("daily_stats")
+    .select("*")
+    .order("stat_date", { ascending: false })
+    .limit(days)
+  // Fetched newest-first so .limit() caps at the DB level; reversed back to
+  // ascending (oldest→newest) since OverviewTrend.tsx expects the most
+  // recent day last (it does trend.slice(-range) to further narrow client-side).
+  return ((data ?? []) as DailyStatRow[]).map(rowToDailyStat).reverse()
 }
 
 export async function trackView(productId: string): Promise<void> {

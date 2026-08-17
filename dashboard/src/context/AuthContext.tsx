@@ -10,7 +10,6 @@ import {
 } from "react"
 import type { SupabaseClient, User } from "@supabase/supabase-js"
 import { createSupabaseBrowserClient } from "@/src/lib/supabase/client"
-import { wasAuthedThisLoad } from "@/src/lib/auth/load-guard"
 import { canAccessDashboard } from "@/src/lib/auth/roles"
 
 export interface Profile {
@@ -46,20 +45,6 @@ export function AuthProvider({
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
-
-  // Force a fresh sign-in on every full page load: discard any session restored
-  // from a previous load so the dashboard always starts at the login screen.
-  // Runs once on mount — a reload remounts this provider with the load-guard
-  // flag reset, whereas client-side navigation keeps both the provider and the
-  // flag alive, so an in-session user is never signed out mid-visit.
-  // Skips /reset-password, which legitimately runs on a short-lived recovery
-  // session established from the emailed link.
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (window.location.pathname.startsWith("/reset-password")) return
-    if (wasAuthedThisLoad()) return
-    void supabase.auth.signOut()
-  }, [supabase])
 
   const loadProfile = useCallback(
     async (u: User | null) => {

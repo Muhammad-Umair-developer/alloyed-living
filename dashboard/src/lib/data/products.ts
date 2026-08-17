@@ -67,6 +67,33 @@ export async function getProducts(): Promise<Product[]> {
   return (data ?? []).map(rowToProduct)
 }
 
+// Overview page's revenue-by-category chart only ever reads id/category/
+// price/discountPrice — not the full Product shape (description, gallery,
+// dimensions, SEO fields, etc.). Every product row still has to be scanned
+// (there's no way to bucket by category without touching each one), but
+// this cuts the payload width instead of pulling every column across the
+// wire just to discard most of it.
+export interface ProductRevenueFields {
+  id: string
+  category: string
+  price: number
+  discountPrice: number | null
+}
+
+export async function getProductsForRevenue(): Promise<ProductRevenueFields[]> {
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, category, price, discount_price")
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    category: (r.category as string) ?? "",
+    price: Number(r.price),
+    discountPrice: r.discount_price == null ? null : Number(r.discount_price),
+  }))
+}
+
 export async function getProduct(id: string): Promise<Product | null> {
   const supabase = createSupabaseAdminClient()
   const { data } = await supabase.from("products").select("*").eq("id", id).maybeSingle()

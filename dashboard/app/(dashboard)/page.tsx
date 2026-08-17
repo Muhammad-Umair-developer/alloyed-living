@@ -1,7 +1,7 @@
 import { Package, Eye, ShoppingCart, TrendingUp, DollarSign } from "lucide-react"
 import { getOverviewStats, getDailyTrend, getProductAnalytics } from "@/src/lib/data/analytics"
-import { getProducts } from "@/src/lib/data/products"
-import { getOrders } from "@/src/lib/data/orders"
+import { getProductsForRevenue } from "@/src/lib/data/products"
+import { getOrderStatusCounts } from "@/src/lib/data/orders"
 import PageHeader from "@/src/components/ui/PageHeader"
 import SummaryCard from "@/src/components/ui/SummaryCard"
 import OverviewTrend from "./OverviewTrend"
@@ -11,12 +11,12 @@ import OverviewPieCharts from "./OverviewPieCharts"
 export const dynamic = "force-dynamic"
 
 export default async function OverviewPage() {
-  const [stats, trend, products, productAnalytics, orders] = await Promise.all([
+  const [stats, trend, products, productAnalytics, orderStatusCounts] = await Promise.all([
     getOverviewStats(),
     getDailyTrend(30),
-    getProducts(),
+    getProductsForRevenue(),
     getProductAnalytics(),
-    getOrders(),
+    getOrderStatusCounts(),
   ])
 
   const revenueByCategory = Object.entries(
@@ -30,12 +30,9 @@ export default async function OverviewPage() {
     .map(([label, value]) => ({ label, value }))
     .filter((s) => s.value > 0)
 
-  const ordersByStatus = Object.entries(
-    orders.reduce<Record<string, number>>((acc, o) => {
-      acc[o.status] = (acc[o.status] ?? 0) + 1
-      return acc
-    }, {}),
-  ).map(([label, value]) => ({ label, value }))
+  const ordersByStatus = Object.entries(orderStatusCounts)
+    .map(([label, value]) => ({ label, value }))
+    .filter((s) => s.value > 0)
 
   return (
     <div>
