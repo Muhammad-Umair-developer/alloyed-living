@@ -5,8 +5,11 @@ import type { Review, ReviewInput } from "./types"
 
 type ReviewRow = Record<string, unknown>
 
-// Public reads select explicit columns and deliberately EXCLUDE author_id — the
-// reviewer's auth UUID is an internal linkage, not public data.
+// Public reads go through public_reviews (see the reviews_public_view
+// migration) — a view whose column list structurally excludes author_id, so
+// the reviewer's internal auth UUID can't leak even via a raw select("*")
+// against the anon key. Never query the base `reviews` table for a public
+// read; RLS denies anon/authenticated there by design.
 const PUBLIC_COLUMNS = "id, product_id, author, rating, comment, created_at"
 
 function rowToReview(r: ReviewRow): Review {
@@ -28,7 +31,7 @@ export interface ReviewSummary {
 
 export async function getReviews(): Promise<Review[]> {
   const supabase = createSupabasePublicClient()
-  const { data, error } = await supabase.from("reviews").select(PUBLIC_COLUMNS)
+  const { data, error } = await supabase.from("public_reviews").select(PUBLIC_COLUMNS)
   if (error) throw error
   return ((data ?? []) as ReviewRow[]).map(rowToReview)
 }
@@ -36,7 +39,7 @@ export async function getReviews(): Promise<Review[]> {
 export async function getReviewsByProduct(productId: string): Promise<Review[]> {
   const supabase = createSupabasePublicClient()
   const { data, error } = await supabase
-    .from("reviews")
+    .from("public_reviews")
     .select(PUBLIC_COLUMNS)
     .eq("product_id", productId)
     .order("created_at", { ascending: false })
