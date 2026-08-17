@@ -11,6 +11,9 @@ import type {
   AboutPageContent,
   FaqPageContent,
   TermsPageContent,
+  PrivacyPageContent,
+  LegalPageSection,
+  LegalPageSubsection,
   HomePageContent,
   ShopPageContent,
   FactoryLocationPageContent,
@@ -503,17 +506,180 @@ function FaqEditor({ slug, initial }: { slug: "faq"; initial: FaqPageContent }) 
   )
 }
 
-// ─── Terms ────────────────────────────────────────────────────────────────────
+// ─── Legal sections (Terms / Privacy) ──────────────────────────────────────────
+// Shared editor — Terms and Privacy have the exact same content shape
+// ({ sections: LegalPageSection[] }), just a different slug and toast label.
 
-function TermsEditor({ slug, initial }: { slug: "terms"; initial: TermsPageContent }) {
+// One paragraph per line — same convention as ReturnPolicy's "Conditions"
+// field elsewhere in this file ("One condition per line").
+function paragraphsToText(body: string[]): string {
+  return body.join("\n")
+}
+function textToParagraphs(text: string): string[] {
+  return text.split("\n").map((p) => p.trim()).filter(Boolean)
+}
+
+function slugify(text: string): string {
+  return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "section"
+}
+function makeUniqueId(base: string, existing: string[]): string {
+  let id = base
+  let n = 2
+  while (existing.includes(id)) {
+    id = `${base}-${n}`
+    n++
+  }
+  return id
+}
+
+function SubsectionEditor({
+  subsection,
+  onChange,
+  onRemove,
+}: {
+  subsection: LegalPageSubsection
+  onChange: (patch: Partial<LegalPageSubsection>) => void
+  onRemove: () => void
+}) {
+  return (
+    <div className="border border-stone-100 rounded-md p-3 space-y-3 bg-stone-50/50">
+      <div className="flex justify-end"><RemoveButton onClick={onRemove} /></div>
+      <Field label="Subheading">
+        <input value={subsection.title} onChange={(e) => onChange({ title: e.target.value })} className={inputCls} />
+      </Field>
+      <Field label="Paragraphs" hint="One paragraph per line.">
+        <textarea
+          value={paragraphsToText(subsection.body)}
+          onChange={(e) => onChange({ body: textToParagraphs(e.target.value) })}
+          rows={3}
+          className={`${inputCls} resize-none`}
+        />
+      </Field>
+    </div>
+  )
+}
+
+function SectionEditor({
+  section,
+  index,
+  total,
+  onChange,
+  onRemove,
+  onMove,
+}: {
+  section: LegalPageSection
+  index: number
+  total: number
+  onChange: (patch: Partial<LegalPageSection>) => void
+  onRemove: () => void
+  onMove: (dir: -1 | 1) => void
+}) {
+  function updateSubsection(i: number, patch: Partial<LegalPageSubsection>) {
+    onChange({ subsections: (section.subsections ?? []).map((s, idx) => (idx === i ? { ...s, ...patch } : s)) })
+  }
+  function addSubsection() {
+    onChange({ subsections: [...(section.subsections ?? []), { title: "New Subheading", body: [] }] })
+  }
+  function removeSubsection(i: number) {
+    onChange({ subsections: (section.subsections ?? []).filter((_, idx) => idx !== i) })
+  }
+
+  return (
+    <div className="border border-stone-100 rounded-md p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] tabular-nums text-stone-600">{String(index + 1).padStart(2, "0")}</span>
+        <div className="flex items-center gap-1">
+          <button type="button" onClick={() => onMove(-1)} disabled={index === 0} className="p-1 text-stone-600 hover:text-stone-700 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed">
+            <ChevronUp size={14} />
+          </button>
+          <button type="button" onClick={() => onMove(1)} disabled={index === total - 1} className="p-1 text-stone-600 hover:text-stone-700 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed">
+            <ChevronDown size={14} />
+          </button>
+          <RemoveButton onClick={onRemove} />
+        </div>
+      </div>
+
+      <Field label="Section Title">
+        <input value={section.title} onChange={(e) => onChange({ title: e.target.value })} className={inputCls} />
+      </Field>
+      <Field label="Paragraphs" hint="One paragraph per line.">
+        <textarea
+          value={paragraphsToText(section.body)}
+          onChange={(e) => onChange({ body: textToParagraphs(e.target.value) })}
+          rows={4}
+          className={`${inputCls} resize-none`}
+        />
+      </Field>
+
+      {/* Subsections — no reorder (v1 scope), add/edit/remove only */}
+      {(section.subsections ?? []).length > 0 && (
+        <div className="space-y-3 pl-4 border-l-2 border-stone-100">
+          {section.subsections!.map((sub, i) => (
+            <SubsectionEditor
+              key={i}
+              subsection={sub}
+              onChange={(patch) => updateSubsection(i, patch)}
+              onRemove={() => removeSubsection(i)}
+            />
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={addSubsection}
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-stone-600 hover:text-stone-900 cursor-pointer"
+      >
+        <Plus size={13} /> Add Subheading
+      </button>
+    </div>
+  )
+}
+
+function LegalSectionsEditor({
+  slug,
+  initial,
+  pageLabel,
+}: {
+  slug: "terms" | "privacy"
+  initial: TermsPageContent | PrivacyPageContent
+  pageLabel: string
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [body, setBody] = useState(initial.body)
+  const [sections, setSections] = useState<LegalPageSection[]>(initial.sections)
+
+  function updateSection(i: number, patch: Partial<LegalPageSection>) {
+    setSections((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)))
+  }
+  function removeSection(i: number) {
+    setSections((prev) => prev.filter((_, idx) => idx !== i))
+  }
+  function moveSection(i: number, dir: -1 | 1) {
+    setSections((prev) => {
+      const next = [...prev]
+      const target = i + dir
+      if (target < 0 || target >= next.length) return prev
+      ;[next[i], next[target]] = [next[target], next[i]]
+      return next
+    })
+  }
+  function addSection() {
+    const id = makeUniqueId(slugify("New Section"), sections.map((s) => s.id))
+    setSections((prev) => [...prev, { id, title: "New Section", body: [] }])
+  }
 
   function handleSave() {
+    // Drop fully-empty sections (no title, no paragraphs, no subsections)
+    // rather than persisting junk; default a blank title so a section with
+    // real body text never saves with an empty heading.
+    const cleaned = sections
+      .filter((s) => s.title.trim() || s.body.length > 0 || (s.subsections?.length ?? 0) > 0)
+      .map((s) => ({ ...s, title: s.title.trim() || "Untitled Section" }))
+    setSections(cleaned)
     startTransition(async () => {
-      await updateContentPageAction(slug, { body })
-      toast.success("Terms page updated.")
+      await updateContentPageAction(slug, { sections: cleaned })
+      toast.success(`${pageLabel} page updated.`)
       router.refresh()
     })
   }
@@ -521,7 +687,21 @@ function TermsEditor({ slug, initial }: { slug: "terms"; initial: TermsPageConte
   return (
     <div>
       <Card>
-        <Field label="Body Copy"><textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} className={`${inputCls} resize-none`} /></Field>
+        <RepeatableHeader title="Sections" onAdd={addSection} />
+        {sections.map((section, i) => (
+          <SectionEditor
+            key={section.id}
+            section={section}
+            index={i}
+            total={sections.length}
+            onChange={(patch) => updateSection(i, patch)}
+            onRemove={() => removeSection(i)}
+            onMove={(dir) => moveSection(i, dir)}
+          />
+        ))}
+        {sections.length === 0 && (
+          <p className="text-[12px] text-stone-600">No sections yet — add one above.</p>
+        )}
       </Card>
       <SaveBar pending={isPending} onSave={handleSave} />
     </div>
@@ -1050,7 +1230,9 @@ export default function ContentPageEditor({ page, products }: { page: ContentPag
     case "faq":
       return <FaqEditor slug="faq" initial={page.fields as FaqPageContent} />
     case "terms":
-      return <TermsEditor slug="terms" initial={page.fields as TermsPageContent} />
+      return <LegalSectionsEditor slug="terms" initial={page.fields as TermsPageContent} pageLabel="Terms" />
+    case "privacy":
+      return <LegalSectionsEditor slug="privacy" initial={page.fields as PrivacyPageContent} pageLabel="Privacy" />
     case "factory-location":
       return <FactoryLocationEditor slug="factory-location" initial={page.fields as FactoryLocationPageContent} />
     case "catalog":

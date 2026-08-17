@@ -19,6 +19,7 @@ const STOREFRONT_PATHS_BY_SLUG: Record<ContentSlug, string[]> = {
   about: ["/about"],
   faq: ["/faq"],
   terms: ["/terms"],
+  privacy: ["/privacy"],
   "factory-location": ["/factory-location"],
   catalog: ["/catalog"],
   "custom-order": ["/custom-order"],

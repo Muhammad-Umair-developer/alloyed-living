@@ -115,8 +115,30 @@ export interface AboutPageContent {
   body: string
 }
 
+export interface LegalPageSubsection {
+  title: string
+  body: string[]
+}
+
+// Structured content for Terms/Privacy — matches LegalSection/LegalSubsection
+// in alloyed-living/src/components/legal/LegalPage.tsx exactly, minus the
+// `placeholder` flag (that's specific to the hardcoded storefront fallback,
+// not something an admin toggles on real content). `id` is generated once
+// by the dashboard editor at section-creation time and never changes
+// afterward — never admin-typed, so it can't collide or go stale.
+export interface LegalPageSection {
+  id: string
+  title: string
+  body: string[]
+  subsections?: LegalPageSubsection[]
+}
+
 export interface TermsPageContent {
-  body: string
+  sections: LegalPageSection[]
+}
+
+export interface PrivacyPageContent {
+  sections: LegalPageSection[]
 }
 
 export interface FaqPageContent {
@@ -240,6 +262,7 @@ export type ContentPageFields =
   | ContactPageContent
   | AboutPageContent
   | TermsPageContent
+  | PrivacyPageContent
   | FaqPageContent
   | HomePageContent
   | ShopPageContent
@@ -258,6 +281,7 @@ export type ContentSlug =
   | "about"
   | "faq"
   | "terms"
+  | "privacy"
   | "factory-location"
   | "catalog"
   | "custom-order"

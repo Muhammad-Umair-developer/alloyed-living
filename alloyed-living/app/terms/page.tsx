@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import { getContentPage } from "@/src/lib/data/content"
+import type { TermsPageContent } from "@/src/lib/data/types"
 import LegalPage, { type LegalSection } from "@/src/components/legal/LegalPage"
 
 export const metadata: Metadata = {
@@ -7,13 +9,20 @@ export const metadata: Metadata = {
     "The terms governing your access to and use of the Alloyed Living website and services.",
 }
 
-// Update this when the finalized terms are published.
+// ISR — content changes rarely; matches shipping/returns/etc.
+export const revalidate = 300
+
+// Used only by the FALLBACK_SECTIONS path below (no content_pages row yet
+// for slug "terms"). Once a row exists, its own updatedAt renders instead.
 const LAST_UPDATED = "[ add effective date ]"
 
-// NOTE: No real legal copy was provided, so every substantive section below is a
-// [PLACEHOLDER]. Fill each with your finalized text (see the list in the handoff
-// notes). Section titles/subsection headings are structural, not legal claims.
-const SECTIONS: LegalSection[] = [
+// FALLBACK ONLY — rendered when no content_pages row exists yet for slug
+// "terms", so this page still works before the dashboard's Terms editor has
+// ever been saved (see TermsPage below, which prefers the CMS row when
+// present). NOTE: no real legal copy was provided, so every substantive
+// section below is a [PLACEHOLDER]. Section titles/subsection headings are
+// structural, not legal claims.
+const FALLBACK_SECTIONS: LegalSection[] = [
   {
     id: "agreement",
     title: "Agreement to Terms",
@@ -103,14 +112,35 @@ const SECTIONS: LegalSection[] = [
   },
 ]
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const page = await getContentPage<TermsPageContent>("terms")
+  const sections = page?.fields.sections
+
+  // Live path: a content_pages row exists with real sections — pass them
+  // straight through to LegalPage. LegalPageSection (types.ts) already
+  // matches LegalSection's shape structurally, so no re-parsing/mapping is
+  // needed here anymore (paragraphs are stored as real arrays now, not a
+  // flat string split at render time).
+  if (sections && sections.length > 0) {
+    return (
+      <LegalPage
+        eyebrow="Legal"
+        title="Terms of Use"
+        lastUpdated={new Date(page!.updatedAt).toLocaleDateString("en-US", { dateStyle: "long" })}
+        sections={sections}
+      />
+    )
+  }
+
+  // Fallback: no row yet (or an empty body was saved) — same placeholder
+  // copy this page always showed, unchanged.
   return (
     <LegalPage
       eyebrow="Legal"
       title="Terms of Use"
       lastUpdated={LAST_UPDATED}
       intro="Please read these terms carefully. They govern your access to and use of the Alloyed Living website and services."
-      sections={SECTIONS}
+      sections={FALLBACK_SECTIONS}
     />
   )
 }

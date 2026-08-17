@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
 
 const VALID_SLUGS: ContentSlug[] = [
   "home", "shop", "shipping", "returns", "contact", "about", "faq", "terms",
-  "factory-location", "catalog", "custom-order", "footer", "payment-methods",
+  "privacy", "factory-location", "catalog", "custom-order", "footer", "payment-methods",
 ]
 
 export default async function ContentSlugPage({

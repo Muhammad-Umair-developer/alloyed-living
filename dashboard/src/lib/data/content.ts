@@ -109,7 +109,7 @@ function contentDefault(slug: ContentSlug): ContentPage | null {
 // or an unguarded PAGE_META[slug] lookup there throws.
 const KNOWN_CONTENT_SLUGS: readonly ContentSlug[] = [
   "home", "shop", "shipping", "returns", "contact", "about", "faq", "terms",
-  "factory-location", "catalog", "custom-order", "footer", "payment-methods",
+  "privacy", "factory-location", "catalog", "custom-order", "footer", "payment-methods",
 ]
 
 export async function getAllContentPages(): Promise<ContentStore> {
