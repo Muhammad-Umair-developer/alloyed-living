@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Download, Flame, ShieldCheck, Hammer, Loader2 } from "lucide-react"
@@ -99,10 +100,11 @@ function CatalogProductCard({ product }: { product: Product }) {
     <motion.article variants={item} className="group">
       <Link href={`/shop/${product.id}`} className="block">
         <div className="relative w-full aspect-[4/5] overflow-hidden mb-5">
-          <img
+          <Image
             src={product.image}
             alt={product.name}
-            loading="lazy"
+            fill
+            sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 100vw"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute top-4 left-4 z-10">

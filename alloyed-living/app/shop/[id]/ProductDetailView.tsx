@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useMemo, useTransition } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+
+const MotionImage = motion.create(Image)
 import { ArrowLeft, X, Check } from "lucide-react"
 import Header from "@/src/components/layout/Header"
 import { useCart } from "@/src/context/CartContext"
@@ -296,10 +299,13 @@ export default function ProductDetailView({
             {/* Main image */}
             <div className="relative w-full aspect-[4/5] overflow-hidden bg-stone-100">
               <AnimatePresence mode="wait">
-                <motion.img
+                <MotionImage
                   key={`${selectedColor?.name ?? "default"}-${activeIdx}`}
                   src={gallery[activeIdx]}
                   alt={`${product.name} — view ${activeIdx + 1}`}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 55vw, 100vw"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -328,17 +334,18 @@ export default function ProductDetailView({
                     onClick={() => setActiveIdx(i)}
                     aria-label={`View ${i + 1}`}
                     className={[
-                      "aspect-[4/3] overflow-hidden transition-all duration-300 outline-none cursor-pointer",
+                      "relative aspect-[4/3] overflow-hidden transition-all duration-300 outline-none cursor-pointer",
                       i === activeIdx
                         ? "ring-2 ring-stone-900 ring-offset-2 ring-offset-[#faf9f7] opacity-100"
                         : "ring-1 ring-stone-200 opacity-50 hover:opacity-90 hover:ring-stone-400",
                     ].join(" ")}
                   >
-                    <img
+                    <Image
                       src={src}
                       alt=""
                       aria-hidden
-                      loading="lazy"
+                      fill
+                      sizes="120px"
                       className="w-full h-full object-cover"
                     />
                   </button>

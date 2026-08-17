@@ -8,6 +8,7 @@ import {
   useMemo,
   memo,
 } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { SlidersHorizontal, X, ChevronDown, Check } from "lucide-react"
 import Link from "next/link"
@@ -435,10 +436,11 @@ const ProductCard = memo(function ProductCard({ product, onSelect }: ProductCard
     >
       {/* Product image */}
       <div className="relative w-full aspect-[4/5] overflow-hidden mb-5">
-        <img
+        <Image
           src={product.image}
           alt={product.name}
-          loading="lazy"
+          fill
+          sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 100vw"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
@@ -913,11 +915,12 @@ export default function ShopPageView({ products, content }: { products: Product[
               </button>
 
               {/* Image */}
-              <div className="w-full md:w-[48%] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-md">
-                <img
+              <div className="relative w-full md:w-[48%] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-md">
+                <Image
                   src={selectedProduct.image}
                   alt={selectedProduct.name}
-                  loading="lazy"
+                  fill
+                  sizes="(min-width: 768px) 48vw, 100vw"
                   className="w-full h-full object-cover"
                 />
               </div>

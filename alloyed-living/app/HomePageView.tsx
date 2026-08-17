@@ -1,6 +1,7 @@
 "use client"
 
 import { type CSSProperties, useMemo, useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { ArrowRight, X } from "lucide-react"
@@ -45,9 +46,12 @@ function HeroSection({ hero }: { hero: HomePageContent["hero"] }) {
           />
         )}
         {hero.mediaType === "image" && hero.imageUrl && (
-          <img
+          <Image
             src={hero.imageUrl}
             alt=""
+            fill
+            priority
+            sizes="100vw"
             className="absolute inset-0 w-full h-full object-cover object-[50%_32%] scale-[1.08]"
             aria-hidden
           />
@@ -197,10 +201,11 @@ function ShopRoomSection({ shopRoom }: { shopRoom: HomePageContent["shopRoom"] }
     >
       {/* Static room background */}
       <div className="absolute inset-0">
-        <img
+        <Image
           src={shopRoom.backgroundImage}
           alt=""
-          loading="lazy"
+          fill
+          sizes="100vw"
           className="w-full h-full object-cover object-center"
           aria-hidden
         />
@@ -294,10 +299,11 @@ function ProductCard({ piece, index, onSelect }: { piece: FeaturedPiece; index: 
           isWide ? "aspect-[4/3]" : "aspect-[3/4]",
         ].join(" ")}
       >
-        <img
+        <Image
           src={piece.image}
           alt={piece.name}
-          loading="lazy"
+          fill
+          sizes="(min-width: 768px) 40vw, 100vw"
           className="w-full h-full object-cover object-center
                      group-hover:scale-[1.042]
                      transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
@@ -506,11 +512,12 @@ export default function HomePageView({ products, content }: { products: Product[
               </button>
 
               {/* Image */}
-              <div className="w-full md:w-[48%] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-md">
-                <img
+              <div className="relative w-full md:w-[48%] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-md">
+                <Image
                   src={selected.image}
                   alt={selected.name}
-                  loading="lazy"
+                  fill
+                  sizes="(min-width: 768px) 48vw, 100vw"
                   className="w-full h-full object-cover"
                 />
               </div>
